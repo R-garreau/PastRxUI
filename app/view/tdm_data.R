@@ -1,26 +1,26 @@
 box::use(
   bs4Dash[actionButton, box],
-  shiny[column, dateInput, div, fluidRow, h4, numericInput, selectInput, tabPanel, tagList, tags, textInput, icon, NS, moduleServer, reactive, observeEvent],
-  shinyTime[timeInput],
-  rhandsontable[rHandsontableOutput, renderRHandsontable, hot_to_r, rhandsontable],
+  rhandsontable[hot_to_r, rhandsontable, rHandsontableOutput, renderRHandsontable],
+  shiny[column, dateInput, div, fluidRow, h4, icon, moduleServer, NS, numericInput, observeEvent, reactive, selectInput, tabPanel, tagList, tags, textInput],
+    shinyTime[timeInput],
 )
 
 #' @export
-ui <- function(id, translator) {
+ui <- function(id, i18n) {
   ns <- NS(id)
   
   tabPanel(
-    translator$t("Administration"),
+    i18n$t("Données TDM"),
     fluidRow(
       box( # This section control the data regarding the serum level
-      title = tagList(icon("syringe"), translator$t("Informations TDM")),
-        status = "olive",
+      title = tagList(icon("syringe"), i18n$t("Informations TDM")),
+        status = "info",
         width = 4,
         solidHeader = TRUE,
-        dateInput(ns("tdm_date_input"), label = translator$t("Date du prélèvement"), format = "yyyy-mm-dd", value = Sys.Date(), language = "fr"),
-        timeInput(ns("tdm_time_input"), label = translator$t("Heure du prélèvement"), value = Sys.time(), seconds = FALSE),
-        numericInput(ns("concentration_value"), label = translator$t("Concentration"), value = 0),
-        column(width = 4, actionButton(ns("make_tdm_history"), translator$t("Ajouter donnée TDM"), style = "background-color: #3d9970; color: white;"))
+        dateInput(ns("tdm_date_input"), label = i18n$t("Date du prélèvement"), format = "yyyy-mm-dd", value = Sys.Date(), language = "fr"),
+        timeInput(ns("tdm_time_input"), label = i18n$t("Heure du prélèvement"), value = Sys.time(), seconds = FALSE),
+        numericInput(ns("concentration_value"), label = i18n$t("Concentration"), value = 0),
+        column(width = 4, actionButton(ns("make_tdm_history"), i18n$t("Ajouter donnée TDM"), style = "background-color: #3d9970; color: white;"))
       ),
       tags$div(
         rHandsontableOutput(ns("tdm_history"))
@@ -30,7 +30,7 @@ ui <- function(id, translator) {
 }
 
 #' @export
-server <- function(id) {
+server <- function(id, i18n = NULL) {
   moduleServer(id, function(input, output, session) {
     # Initialize empty administration table
     # output$administration_table <- renderRHandsontable({
