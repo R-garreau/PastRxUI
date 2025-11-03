@@ -6,25 +6,25 @@ box::use(
 )
 
 box::use(
-  app/view/patient_information,
   app/view/administration,
+  app/view/patient_information,
   app/view/tdm_data,
 )
 
 # Initialize translator
-translator <- Translator$new(translation_json_path = "app/static/translations.json")
-translator$set_translation_language("fr") # French as default
+i18n <- Translator$new(translation_json_path = "app/static/translations.json", automatic = FALSE)
+i18n$set_translation_language("fr") # French as default
 
 #' @export
 ui <- function(id) {
   ns <- NS(id)
   
-  usei18n(translator)
+  usei18n(i18n)
 
     dashboardPage(
       dark = FALSE,
       help = FALSE,
-      skin = "olive",
+      skin = "info",
       header = bs4DashNavbar(
         title = "PastRx TDM",
         rightUi = tagList(
@@ -34,8 +34,8 @@ ui <- function(id) {
             selectInput(
               ns("language"),
               label = NULL,
-              choices = translator$get_languages(),
-              selected = translator$get_key_translation(),
+              choices = i18n$get_languages(),
+              selected = i18n$get_key_translation(),
               width = "150px"
             )
           ),
@@ -44,21 +44,21 @@ ui <- function(id) {
             class = "dropdown",
             downloadButton(
               ns("save_file"),
-              translator$t("Sauvegarder"),
+              i18n$t("Sauvegarder"),
               style = "background-color: #3d9970; color: white; margin-left: 10px;"
             )
           )
         )
       ),
-      sidebar = dashboardSidebar(),
+      sidebar = dashboardSidebar(disable = TRUE),
       body = dashboardBody(
         fluidPage(
           tabsetPanel(
             id = ns("main_tabs"),
             type = "tabs",
-            patient_information$ui(ns("patient_info"), translator),
-            administration$ui(ns("admin"), translator),
-            tdm_data$ui(ns("tdm_data"), translator)
+            patient_information$ui(ns("patient_info"), i18n),
+            administration$ui(ns("admin"), i18n),
+            tdm_data$ui(ns("tdm_data"), i18n)
           )
         )
       )
@@ -68,11 +68,14 @@ ui <- function(id) {
 #' @export
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    # Call module servers
-    # patient_info_data <- patient_information$server("patient_info")
-    # admin_data <- administration$server("admin")
-    # tdm_values <- tdm_data$server("tdm_data")
+    # Store i18n in session userData for child modules
+    #session$userData$i18n <- i18n
     
+    # Call module servers
+    patient_info_data <- patient_information$server("patient_info", i18n)
+    admin_data <- administration$server("admin", i18n)
+    tdm_values <- tdm_data$server("tdm_data", i18n)
+
     # # Combine all module data into a single reactive
     # patient_data <- reactive({
     #   p_info <- patient_info_data()
