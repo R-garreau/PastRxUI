@@ -20,6 +20,8 @@
 #' @param creat_unit give the unit in which the creatinine was entered. Must be "uM/L" or "mg/dL". The unit is set to "uM/L" by default.
 #' @param urine_creat the urine creatinine level. The unit is given by the parameter creat_unit
 #' @param urine_output correspond to the daily urine output in mL. Note that this is the only unit that is supported
+#' 
+#' @export 
 
 renal_function <- function(sex,
                            age,

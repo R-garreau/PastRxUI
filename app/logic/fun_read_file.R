@@ -13,6 +13,8 @@
 #' to open and extract data from file
 #'
 #' @param file_path correspond to the file location
+#' 
+#' @export 
 
 read_file <- function(file_path) {
   extension <- dplyr::case_when(
@@ -31,6 +33,8 @@ read_file <- function(file_path) {
 #' extract all the useful information contained in the file
 #'
 #' @param file_path correspond to the file location
+#' 
+#' @export
 
 read_file.mb2 <- function(file_path) {
   # Read lines from the file

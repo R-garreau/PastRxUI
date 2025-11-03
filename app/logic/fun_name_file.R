@@ -21,6 +21,8 @@
 #' @param drug correspond to the drug for which MIPD is performed
 #' @param hospital correspond to the hospital the patient is in
 #' @param ext correspond to the file extension
+#' 
+#' @export 
 
 name_file <- function(first_name,
                       last_name,
@@ -60,6 +62,8 @@ name_file <- function(first_name,
 #' @param drug correspond to the drug actually given to the patient
 #' @param first_name patient first name
 #' @param last_name patient last name
+#' 
+#' @export 
 
 report_auto_path_gereration <- function(
     workspace_path,
