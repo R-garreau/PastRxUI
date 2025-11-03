@@ -1,0 +1,221 @@
+{
+  "languages": ["fr", "en"],
+  "translation": [
+    {
+      "fr": "Informations générales",
+      "en": "General Information"
+    },
+    {
+      "fr": "Prénom",
+      "en": "First Name"
+    },
+    {
+      "fr": "Nom",
+      "en": "Last Name"
+    },
+    {
+      "fr": "Date de naissance",
+      "en": "Birth Date"
+    },
+    {
+      "fr": "Sexe",
+      "en": "Sex"
+    },
+    {
+      "fr": "Hôpital",
+      "en": "Hospital"
+    },
+    {
+      "fr": "Service",
+      "en": "Ward"
+    },
+    {
+      "fr": "Médicament",
+      "en": "Drug"
+    },
+    {
+      "fr": "Numéro de téléphone",
+      "en": "Phone Number"
+    },
+    {
+      "fr": "Informations du patient",
+      "en": "Patient Information"
+    },
+    {
+      "fr": "Données TDM",
+      "en": "TDM Data"
+    },
+    {
+      "fr": "Paramètres",
+      "en": "Settings"
+    },
+    {
+      "fr": "Ce menu est en cours de développement.",
+      "en": "This tab is under development."
+    },
+    {
+      "fr": "Valeurs biologiques",
+      "en": "Lab Values"
+    },
+    {
+      "fr": "Poids",
+      "en": "Weight"
+    },
+    {
+      "fr": "Taille",
+      "en": "Height"
+    },
+    {
+      "fr": "Formule de poids",
+      "en": "Weight Formula"
+    },
+    {
+      "fr": "Créatinine",
+      "en": "Creatinine"
+    },
+    {
+      "fr": "Formule rénale",
+      "en": "Renal Formula"
+    },
+    {
+      "fr": "Créatinine urinaire",
+      "en": "Urinary Creatinine"
+    },
+    {
+      "fr": "Débit urinaire",
+      "en": "Urinary Output"
+    },
+    {
+      "fr": "Administration du médicament",
+      "en": "Drug Administration"
+    },
+    {
+      "fr": "Voie d'administration",
+      "en": "Administration Route"
+    },
+    {
+      "fr": "Date de début de perfusion",
+      "en": "Infusion Start Date"
+    },
+    {
+      "fr": "Heure de fin de perfusion",
+      "en": "Infusion End Time"
+    },
+    {
+      "fr": "Date de fin de perfusion",
+      "en": "Infusion End Date"
+    },
+    {
+      "fr": "Volume de la seringue",
+      "en": "Syringe Volume"
+    },
+    {
+      "fr": "Dose de la seringue",
+      "en": "Syringe Dose"
+    },
+    {
+      "fr": "Vitesse de perfusion",
+      "en": "Infusion Speed"
+    },
+    {
+      "fr": "Date d'administration",
+      "en": "Administration Date"
+    },
+    {
+      "fr": "Heure d'administration",
+      "en": "Administration Time"
+    },
+    {
+      "fr": "Dose",
+      "en": "Dose"
+    },
+    {
+      "fr": "Durée d'administration",
+      "en": "Administration Duration"
+    },
+    {
+      "fr": "Date de la prochaine dose",
+      "en": "Next Dose Date"
+    },
+    {
+      "fr": "Heure de la prochaine dose",
+      "en": "Next Dose Time"
+    },
+    {
+      "fr": "Ajouter dose",
+      "en": "Add Dosing"
+    },
+    {
+      "fr": "Doses multiples",
+      "en": "Multiple Doses"
+    },
+    {
+      "fr": "Intervalle entre doses",
+      "en": "Dose Interval"
+    },
+    {
+      "fr": "Informations TDM",
+      "en": "TDM Information"
+    },
+    {
+      "fr": "Date du prélèvement",
+      "en": "TDM Date"
+    },
+    {
+      "fr": "Heure du prélèvement",
+      "en": "TDM Time"
+    },
+    {
+      "fr": "Concentration",
+      "en": "Concentration Value"
+    },
+    {
+      "fr": "Ajouter donnée TDM",
+      "en": "Add TDM Data"
+    },
+    {
+      "fr": "Calculateur rénal",
+      "en": "Renal Calculator"
+    },
+    {
+      "fr": "Données d'administration",
+      "en": "Administration Data"
+    },
+    {
+      "fr": "Historique des doses",
+      "en": "Dosing History"
+    },
+    {
+      "fr": "Historique TDM",
+      "en": "TDM History"
+    },
+    {
+      "fr": "Historique du poids",
+      "en": "Weight History"
+    },
+    {
+      "fr": "Charger fichier patient",
+      "en": "Load Patient File"
+    },
+    {
+      "fr": "Créer nouveau patient",
+      "en": "Create New Patient"
+    },
+    {
+      "fr": "Recharger l'application",
+      "en": "Reload App"
+    },
+    {
+      "fr": "Masculin",
+      "en": "Male"
+    },
+    {
+      "fr": "Féminin",
+      "en": "Female"
+    },
+    {
+      "fr": "Choisir",
+      "en": "Choose"
+    }
+  ]
+}
