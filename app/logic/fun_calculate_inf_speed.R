@@ -21,6 +21,8 @@
 #' @param end_date correspond to the date it started. must be a date format
 #' @param end_time correspond to the time at which the infusion ended.
 #' @param rounding if TRUE round the dose to have closer round dose
+#' 
+#' @export 
 
 calculate_inf_speed <- function(total_daily_dose,
                                 sp_dose = 2000,
@@ -66,6 +68,8 @@ calculate_inf_speed <- function(total_daily_dose,
 #' @param end_time correspond to the time at which the infusion ended.
 #' @param inf_time correspond to the total infusion duration. Default value is NULL. it is also calculated using the other argument
 #' @param rounding if TRUE round the dose to have closer round dose
+#' 
+#' @export 
 
 
 calculate_daily_dose <- function(sp_dose,
@@ -97,6 +101,8 @@ calculate_daily_dose <- function(sp_dose,
 #' @param start_time correspond to the time at which the infusion began.
 #' @param end_date correspond to the date it started. must be a date format
 #' @param end_time correspond to the time at which the infusion ended.
+#' 
+#' @export 
 
 
 continuous_infusion_time <- function(start_date,

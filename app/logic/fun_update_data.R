@@ -17,6 +17,8 @@
 #' to update shiny data from file
 #'
 #' @param file_path correspond to the file location
+#' 
+#' @export
 
 update_data <- function(file_path) {
   extension <- dplyr::case_when(
@@ -43,7 +45,9 @@ update_data <- function(file_path) {
 #' @description function created to update all dynamic fields in the app
 #' @param input is a list generated with read_file.mb2 / read_file
 #' @param session correspond to the session used by the shiny app
-#'
+#' 
+#' @export 
+#' 
 update_patient_data.mb2 <- function(input, session) {
   weight_df <- input[["weight_df"]]
   birthdate <- format(as.Date(input[["birthdate"]]), "%Y-%m-%d")
@@ -74,6 +78,7 @@ update_patient_data.mb2 <- function(input, session) {
 #' level information in the .mb2 file
 #' @param input is a list generated with read_file.mb2 / read_file
 #'
+#' @export
 update_tdm_history.mb2 <- function(input) {
   return(list(
     "dose_df" = input[["dose_df"]],

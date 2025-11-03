@@ -17,6 +17,8 @@
 #' @param sex correspond to the patient sex
 #' @param weight_unit should be either kg or lbs
 #' @param formula correspond to the formula used. Can take value in c(IBW, AJBW, LBW)
+#' 
+#' @export 
 
 weight_formula <- function(
   weight,

@@ -6,6 +6,7 @@
 #' this function writes the full administration history as entered in the app
 #'
 #' @param df df is a (N by 6) dataframe input that contain date and time, administration route, infusion rate, infusion duration, dose and creatinine clearance
+#' @export 
 
 administration_history <- function(df) {
 
@@ -39,6 +40,7 @@ administration_history <- function(df) {
 #' this function writes the full drug level history as entered in the app
 #'
 #' @param df df is a (N by 2) dataframe input that contain date, time and concentration level
+#' @export 
 
 # function that get all the level history from a datatable
 serum_level_history <- function(df) {
@@ -80,7 +82,8 @@ serum_level_history <- function(df) {
 #' this function writes the full weight history as entered in the app
 #'
 #' @param df df is a (N by 2) dataframe input that contain date, time and measured weight
-#'
+#' 
+#'@export 
 
 weight_history <- function(df) {
    output <- 0
@@ -118,6 +121,9 @@ weight_history <- function(df) {
    return(output)
 }
 
+
+
+
 #' @title write_mb2
 #' @description Function that write the mb2 file
 
@@ -140,6 +146,8 @@ weight_history <- function(df) {
 #' @param level_data a (N by 2) dataframe that have date/time and drug level
 #' @param ... correspond to non accessible argument
 #' @param custom_header is only intended for function testing
+#' 
+#' @export 
 
 write_mb2 <- function(last_name,
                       first_name,
