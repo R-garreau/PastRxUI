@@ -216,6 +216,58 @@
     {
       "fr": "Choisir",
       "en": "Choose"
+    },
+    {
+      "fr": "Sauvegarder",
+      "en": "Save"
+    },
+    {
+      "fr": "Administration",
+      "en": "Administration"
+    },
+    {
+      "fr": "Poids (kg)",
+      "en": "Weight (kg)"
+    },
+    {
+      "fr": "Taille (cm)",
+      "en": "Height (cm)"
+    },
+    {
+      "fr": "Créatinine (µmol/L)",
+      "en": "Creatinine (µmol/L)"
+    },
+    {
+      "fr": "Albumine (g/L)",
+      "en": "Albumin (g/L)"
+    },
+    {
+      "fr": "Bilirubine (µmol/L)",
+      "en": "Bilirubin (µmol/L)"
+    },
+    {
+      "fr": "Informations complémentaires",
+      "en": "Additional Information"
+    },
+    {
+      "fr": "Site de perfusion",
+      "en": "Infusion Site"
+    },
+    {
+      "fr": "Forme pharmaceutique",
+      "en": "Drug Form"
+    },
+    {
+      "fr": "Concentration (mg/mL)",
+      "en": "Concentration (mg/mL)"
+    },
+    {
+      "fr": "Date de début",
+      "en": "Start Date"
+    },
+    {
+      "fr": "Heure de début",
+      "en": "Start Time"
     }
   ]
 }

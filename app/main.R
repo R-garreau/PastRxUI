@@ -1,13 +1,13 @@
 box::use(
-  bs4Dash[dashboardBody, dashboardFooter, dashboardHeader, dashboardPage, dashboardSidebar, menuItem, sidebarMenu, tabItems],
-  shiny[actionButton, column, div, fileInput, fluidRow, h5, icon, moduleServer, NS, observeEvent, reactiveValues, tagList, tags, uiOutput],
-  shiny.i18n[Translator],
+  bs4Dash[dashboardBody, dashboardHeader, dashboardPage, bs4DashNavbar, dashboardSidebar, tabsetPanel],
+  shiny[actionButton, column, div, downloadButton, downloadHandler, fluidPage, icon, moduleServer, NS, observeEvent, reactive, reactiveVal, selectInput, tagList, tags],
+  shiny.i18n[Translator, usei18n, update_lang],
   shinyjs[useShinyjs],
 )
 
 box::use(
-  app/view/patient_information[patient_information_ui],
-  app/view/settings[settings_ui],
+  app/view/patient_information,
+  app/view/administration,
   app/view/tdm_data,
 )
 
@@ -18,112 +18,132 @@ translator$set_translation_language("fr") # French as default
 #' @export
 ui <- function(id) {
   ns <- NS(id)
-  # Header
-  # app_header <- dashboardHeader(
-  #   title = a(
-  #     href = "https://lbbe.univ-lyon1.fr/fr/equipe-evaluation-et-modelisation-des-effets-therapeutiques",
-  #     target = "_blank",
-  #     img(src = "https://i.ibb.co/1v3Kcwc/lymit-app-logo-olive.png", title = "Lymit", style = "height: 5%; width: 100%;")
-  #   ),
-  #   tags$li(
-  #     class = "dropdown",
-  #     tags$a(
-  #       href = "#",
-  #       class = "dropdown-toggle",
-  #       `data-toggle` = "dropdown",
-  #       tags$span("Useful Tools", class = "hidden-xs"),
-  #       tags$i(class = "fa fa-duotone fa-link fa-lg")
-  #     ),
-  #     tags$ul(
-  #       id = "left-align-dropdown",
-  #       class = "dropdown-menu pull-right",
-  #       tags$li(
-  #         tags$a(
-  #           href = "https://www.eucast.org/mic_and_zone_distributions_and_ecoffs",
-  #           target = "_blank",
-  #           img(src = "https://www.nosoinfo.be/nosoinfos/wp-content/uploads/2022/09/eucast.jpg", style = "width:100%; height:auto;")
-  #         )
-  #       ),
-  #       tags$li(
-  #         tags$a(
-  #           href = "https://www.ddi-predictor.org",
-  #           target = "_blank",
-  #           img(src = "https://www.ddi-predictor.org/images/ddi-predictor-logo.png", style = "width:100%; height:auto;")
-  #         )
-  #       )
-  #     )
-  #   )
-  # )
   
-  tagList(
-    useShinyjs(),
+  usei18n(translator)
+
     dashboardPage(
       dark = FALSE,
-      scrollToTop = TRUE,
       help = FALSE,
       skin = "olive",
-      header = dashboardHeader(),
-      sidebar = dashboardSidebar(
-        status = "olive",
-        customArea = div(class = "sidebar-content", h5("Version 1.3.0"), style = "color: #3d9970; text-align: center;"),
-        sidebarMenu(
-          menuItem(translator$t("Informations du patient"), tabName = "information", icon = icon("person-half-dress")),
-          menuItem(translator$t("Données TDM"), tabName = "tdm_data", icon = icon("flask")),
-          menuItem(translator$t("Paramètres"), tabName = "settings", icon = icon("gear"))
-        ),
-        div(
-          style = "position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center;",
-          actionButton(ns("reload_app"), translator$t("Recharger l'application"), style = "background-color: #3d9970; color: white;")
+      header = bs4DashNavbar(
+        title = "PastRx TDM",
+        rightUi = tagList(
+          # Language selector with flag icons
+          tags$li(
+            class = "dropdown",
+            selectInput(
+              ns("language"),
+              label = NULL,
+              choices = translator$get_languages(),
+              selected = translator$get_key_translation(),
+              width = "150px"
+            )
+          ),
+          # Save file button
+          tags$li(
+            class = "dropdown",
+            downloadButton(
+              ns("save_file"),
+              translator$t("Sauvegarder"),
+              style = "background-color: #3d9970; color: white; margin-left: 10px;"
+            )
+          )
         )
       ),
+      sidebar = dashboardSidebar(),
       body = dashboardBody(
-        tabItems(
-          patient_information_ui(translator),
-          tdm_data$ui(ns("tdm_data"), translator),
-          settings_ui(translator)
+        fluidPage(
+          tabsetPanel(
+            id = ns("main_tabs"),
+            type = "tabs",
+            patient_information$ui(ns("patient_info"), translator),
+            administration$ui(ns("admin"), translator),
+            tdm_data$ui(ns("tdm_data"), translator)
+          )
         )
-      ),
-      footer = dashboardFooter(
-        left = fluidRow(
-          tags$style(".shiny-file-input-progress {display: none}"),
-          column(width = 2, div(fileInput(ns("load_file"), translator$t("Charger fichier patient")))),
-          column(width = 2, div(actionButton(ns("create_new_patient"), translator$t("Créer nouveau patient"), 
-                                             style = "background-color: #3d9970; color: white; margin-top: 30px;")))
-        ),
-        right = uiOutput(ns("saveFileButton")),
-        fixed = FALSE
       )
     )
-  )
 }
 
 #' @export
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    # Call TDM data module server
-    tdm_data$server("tdm_data")
+    # Call module servers
+    # patient_info_data <- patient_information$server("patient_info")
+    # admin_data <- administration$server("admin")
+    # tdm_values <- tdm_data$server("tdm_data")
     
-    # Reactive values to store data
-    patient_data <- reactiveValues(
-      dosing_history = data.frame(),
-      tdm_history = data.frame(),
-      weight_history = data.frame()
-    )
+    # # Combine all module data into a single reactive
+    # patient_data <- reactive({
+    #   p_info <- patient_info_data()
+    #   a_data <- admin_data()
+    #   t_data <- tdm_values()
+      
+    #   list(
+    #     name = paste(p_info$first_name, p_info$last_name),
+    #     birthdate = p_info$birthdate,
+    #     sex = p_info$sex,
+    #     hospital = p_info$hospital,
+    #     ward = p_info$ward,
+    #     drug = p_info$drug,
+    #     phone = p_info$phone_number,
+    #     weight = a_data$weight,
+    #     height = a_data$height,
+    #     creatinine = a_data$creatinine,
+    #     renal_formula = a_data$renal_formula,
+    #     albumin = a_data$albumin,
+    #     bilirubin = a_data$bilirubin,
+    #     administration_data = a_data$administration_data,
+    #     dosing_history = t_data$dosing_history,
+    #     tdm_history = t_data$tdm_history,
+    #     weight_history = t_data$weight_history
+    #   )
+    # })
     
-    # TODO: Add server logic here for handling:
-    # - File loading (load_file)
-    # - Patient data updates
-    # - Dosing history (make_dosing_history)
-    # - TDM data (make_tdm_history)
-    # - Weight tracking
-    # - Renal function calculator (renal_formula_calculator)
-    # - File saving (saveFileButton)
-    # - New patient creation (create_new_patient)
-    # - App reload (reload_app)
-    
-    # Placeholder for reload functionality
-    observeEvent(input$reload_app, {
-      session$reload()
+    # Handle language change
+    observeEvent(input$language, {
+      update_lang(input$language)
+      #session$reload()
     })
+    
+    # # Handle file download
+    # output$save_file <- downloadHandler(
+    #   filename = function() {
+    #     data <- patient_data()
+    #     paste0(data$name, "_", format(Sys.Date(), "%Y%m%d"), ".txt")
+    #   },
+    #   content = function(file) {
+    #     data <- patient_data()
+        
+    #     # Format patient data for export
+    #     output_text <- paste0(
+    #       "=== Patient Information ===\n",
+    #       "Name: ", data$name, "\n",
+    #       "Birthdate: ", data$birthdate, "\n",
+    #       "Sex: ", data$sex, "\n",
+    #       "Hospital: ", data$hospital, "\n",
+    #       "Ward: ", data$ward, "\n",
+    #       "Drug: ", data$drug, "\n",
+    #       "Phone: ", data$phone, "\n\n",
+    #       "=== TDM Data ===\n",
+    #       "Dosing History:\n",
+    #       paste(capture.output(print(data$dosing_history)), collapse = "\n"), "\n\n",
+    #       "TDM History:\n",
+    #       paste(capture.output(print(data$tdm_history)), collapse = "\n"), "\n\n",
+    #       "Weight History:\n",
+    #       paste(capture.output(print(data$weight_history)), collapse = "\n")
+    #     )
+        
+    #     writeLines(output_text, file)
+    #   }
+    # )
+    
+    # TODO: Add additional server logic for:
+    # - Patient data updates from UI inputs
+    # - Dosing history management
+    # - TDM data management
+    # - Weight tracking
+    # - Renal function calculator
+    # - File loading functionality
   })
 }
