@@ -191,5 +191,30 @@ server <- function(id) {
     #     )
     #   }
     # )
+
+
+  #     ##     Loading file section #################################################
+  # observeEvent(input$load_file, {
+  #   # call function to read file
+  #   req(input$load_file)
+  #   data_file <- read_file(input$load_file$datapath)
+
+  #   # Call the function to process and update data from the file
+  #   update_functions <- update_data(input$load_file$datapath)
+  #   update_patient_data <- update_functions[["update_patient_data"]]
+  #   update_tdm_history <- update_functions[["update_tdm_history"]]
+
+  #   # update the input$fields that are not dataframe
+  #   update_patient_data(data_file, session)
+  #   dose_level_data <- update_tdm_history(data_file)
+
+  #   # update the dosing, level and weight history
+  #   tdm_data$dosing_history <- dose_level_data[["dose_df"]]
+  #   tdm_data$tdm_history <- dose_level_data[["level_df"]]
+  #   tdm_data$weight_history <- dose_level_data[["weight_df"]]
+
+  #   awn::notify(awn_legacy_warning, type = "warning")
+  #   awn::notify("Concentration are not corrected if above 100 in bestdose. <b>Only this legacy loading if not other option exist</b>", type = "alert")
+  # })
   })
 }

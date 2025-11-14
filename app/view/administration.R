@@ -1,9 +1,10 @@
 box::use(
   bs4Dash[actionButton, box],
   rhandsontable[rHandsontableOutput],
-  shiny[column, conditionalPanel, dateInput, fluidRow, icon, moduleServer, NS, numericInput, reactiveValues, selectInput, tabPanel, tagList, tags, hr],
+  shiny[column, conditionalPanel, dateInput, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactiveValues, selectInput, tabPanel, tagList, tags, hr, updateSelectInput],
   shinyTime[timeInput],
   shinyWidgets[checkboxGroupButtons],
+  stats[setNames],
 )
 
 #' @export
@@ -24,13 +25,13 @@ ui <- function(id, i18n) {
   			  # Weight section
   			  fluidRow(
   			    column(width = 3, numericInput(ns("weight"), i18n$translate("Weight"), min = 0, max = 250, step = 1, value = 70)),
-  			    column(width = 4, offset = 1, dateInput(ns("weight_date"), "Date", format = "yyyy-mm-dd", value = Sys.Date(), language = i18n$get_key_translation())),
-  			    column(width = 4, timeInput(ns("weight_time"), "Time (hh:mm)", value = Sys.time(), seconds = FALSE))
+  			    column(width = 4, offset = 1, dateInput(ns("weight_date"), i18n$translate("Date"), format = "yyyy-mm-dd", value = Sys.Date(), language = i18n$get_key_translation())),
+  			    column(width = 4, timeInput(ns("weight_time"), i18n$translate("Time (hh:mm)"), value = Sys.time(), seconds = FALSE))
   			  ),
   			  fluidRow(
   			    column(width = 3, numericInput(ns("height"), i18n$translate("Height"), min = 0, max = 230, step = 1, value = 170)),
   			    column(width = 4, offset = 1, selectInput(ns("weight_formula_selection"), i18n$translate("Weight Formula"), choices = c("TBW", "IBW", "LBW", "ABW"), selected = "TBW")),
-  			    column(width = 3, offset = 1, actionButton(ns("add_weight"), "Add Weight", style = paste("margin-top: 30px;"), width = "100%"))
+  			    column(width = 3, offset = 1, actionButton(ns("add_weight"), i18n$translate("Add Weight"), style = "margin-top: 30px;", width = "100%"))
   			  ),
   			  hr(),
 
@@ -39,7 +40,12 @@ ui <- function(id, i18n) {
   			    column(width = 8, 
   			      fluidRow(
   			        column(width = 6, numericInput(ns("creatinine"), i18n$translate("Creatinine"), min = 0, max = 300, step = 1, value = 60)),
-  			        column(width = 6, selectInput(ns("eGFR"), label = i18n$translate("Renal Formula"), choices = c("CG", "MDRD", "CKD-EPI", "UVP"), selected = "CG"))
+  			        column(width = 6, selectInput(
+  			          ns("eGFR"),
+  			          label = i18n$translate("Renal Formula"),
+  			          choices = c("Cockcroft-Gault" = "CG", "MDRD" = "MDRD", "CKD-EPI" = "CKD-EPI", "UVP" = "UVP"),
+  			          selected = "CG"
+  			        ))
   			      ),
   			      conditionalPanel(
   			        condition = "input.eGFR == 'UVP' ",
@@ -55,62 +61,67 @@ ui <- function(id, i18n) {
   			    )
   			  )
   			),
-				  box(
-    title = tagList(shiny::icon("pills"), i18n$translate("Drug Administration")),
-    status = "info",
-    width = 12,
-    solidHeader = TRUE,
-    selectInput(ns("administration_route"), i18n$translate("Administration Route"), choices = c("IV", "IM", "PO", "CI"), selected = "IV"),
+				box(
+          title = tagList(shiny::icon("pills"), i18n$translate("Drug Administration")),
+          status = "info",
+          width = 12,
+          solidHeader = TRUE,
+          selectInput(
+            ns("administration_route"),
+            i18n$translate("Administration Route"),
+            choices = c("Intravenous" = "IV", "Intramuscular" = "IM", "Oral" = "PO", "Continuous Infusion" = "CI"),
+            selected = "IV"
+          ),
 
-    # Continuous infusion panel
-    conditionalPanel(
-      condition = "input.administration_route == 'CI' ",
-      fluidRow(
-        column(width = 6,dateInput(ns("start_date_CI"), i18n$translate("Infusion Start Date"), Sys.Date(), format = "yyyy-mm-dd", language = i18n$get_key_translation())),
-        column(width = 6,timeInput(ns("start_time_CI"), i18n$translate("Infusion Start Time"), seconds = FALSE))
-      ),
-      fluidRow(
-        column(width = 6,dateInput(ns("end_date_CI"), i18n$translate("Infusion End Date"), Sys.Date(), format = "yyyy-mm-dd", language = i18n$get_key_translation())),
-        column(width = 6,timeInput(ns("end_time_CI"), i18n$translate("Infusion End Time"), seconds = FALSE))
-      ),
-      fluidRow(
-        column(width = 6,numericInput(ns("syringe_volume"), i18n$translate("Syringe Volume"), value = 50)),
-        column(width = 6,numericInput(ns("syringe_dose"), i18n$translate("Syringe Dose"), value = 2000))
-      ),
-      numericInput(ns("syringe_speed"), i18n$translate("Infusion Speed"), value = 2)
-    ),
+          # Continuous infusion panel
+          conditionalPanel(
+            condition = "input.administration_route == 'CI' ",
+            fluidRow(
+              column(width = 6,dateInput(ns("start_date_CI"), i18n$translate("Infusion Start Date"), Sys.Date(), format = "yyyy-mm-dd", language = i18n$get_key_translation())),
+              column(width = 6,timeInput(ns("start_time_CI"), i18n$translate("Infusion Start Time"), seconds = FALSE))
+            ),
+            fluidRow(
+              column(width = 6,dateInput(ns("end_date_CI"), i18n$translate("Infusion End Date"), Sys.Date(), format = "yyyy-mm-dd", language = i18n$get_key_translation())),
+              column(width = 6,timeInput(ns("end_time_CI"), i18n$translate("Infusion End Time"), seconds = FALSE))
+            ),
+            fluidRow(
+              column(width = 6,numericInput(ns("syringe_volume"), i18n$translate("Syringe Volume"), value = 50)),
+              column(width = 6,numericInput(ns("syringe_dose"), i18n$translate("Syringe Dose"), value = 2000))
+            ),
+            numericInput(ns("syringe_speed"), i18n$translate("Infusion Speed"), value = 2)
+          ),
 
-    # Regular administration panel
-    conditionalPanel(
-      condition = "input.administration_route != 'CI'",
-      fluidRow(
-        column(width = 6,dateInput(ns("date_administration"), i18n$translate("Administration Date"), Sys.Date(), format = "yyyy-mm-dd", language = i18n$get_key_translation())),
-        column(width = 6,timeInput(ns("administration_time"), label = i18n$translate("Administration Time"), value = Sys.time(), seconds = FALSE))
-      ),
-      fluidRow(
-        column(width = 6,numericInput(ns("dose_input"), label = i18n$translate("Dose"), value = 0)),
-        column(width = 6,numericInput(ns("administration_duration"), label = i18n$translate("Administration Duration"), value = 0.5, step = 0.1))
-      )
-    ),
+          # Regular administration panel
+          conditionalPanel(
+            condition = "input.administration_route != 'CI'",
+            fluidRow(
+              column(width = 6,dateInput(ns("date_administration"), i18n$translate("Administration Date"), Sys.Date(), format = "yyyy-mm-dd", language = i18n$get_key_translation())),
+              column(width = 6,timeInput(ns("administration_time"), label = i18n$translate("Administration Time"), value = Sys.time(), seconds = FALSE))
+            ),
+            fluidRow(
+              column(width = 6,numericInput(ns("dose_input"), label = i18n$translate("Dose"), value = 0)),
+              column(width = 6,numericInput(ns("administration_duration"), label = i18n$translate("Administration Duration"), value = 0.5, step = 0.1))
+            )
+          ),
 
-    # Next dose section
-    fluidRow(
-      column(width = 6,dateInput(ns("date"), label = i18n$translate("Next Dose Date"), format = "yyyy-mm-dd", value = Sys.Date(), language = i18n$get_key_translation())),
-      column(width = 6,timeInput(ns("time"), label = i18n$translate("Next Dose Time"), seconds = FALSE, value = Sys.time()))
-    ),
+          # Next dose section
+          fluidRow(
+            column(width = 6,dateInput(ns("date"), label = i18n$translate("Next Dose Date"), format = "yyyy-mm-dd", value = Sys.Date(), language = i18n$get_key_translation())),
+            column(width = 6,timeInput(ns("time"), label = i18n$translate("Next Dose Time"), seconds = FALSE, value = Sys.time()))
+          ),
 
-    # Multiple dose controls
-    fluidRow(
-      column(width = 4,actionButton(ns("make_dosing_history"), i18n$translate("Add Dosing"), style = paste("margin-top: 30px;"), width = "100%")),
-      column(width = 4,numericInput(ns("multiple_dose_admin"), i18n$translate("Multiple Doses"), min = 1, max = 50, step = 1, value = 1, width = "100%")),
-      column(width = 4,
-        conditionalPanel(
-          condition = "input.multiple_dose_admin > 1",
-          numericInput(ns("multiple_dose_interval"), i18n$translate("Dose Interval"), min = 0.5, step = 0.5, value = 24, width = "100%")
+          # Multiple dose controls
+          fluidRow(
+            column(width = 4,actionButton(ns("make_dosing_history"), i18n$translate("Add Dosing"), style = paste("margin-top: 30px;"), width = "100%")),
+            column(width = 4,numericInput(ns("multiple_dose_admin"), i18n$translate("Multiple Doses"), min = 1, max = 50, step = 1, value = 1, width = "100%")),
+            column(width = 4,
+              conditionalPanel(
+                condition = "input.multiple_dose_admin > 1",
+                numericInput(ns("multiple_dose_interval"), i18n$translate("Dose Interval"), min = 0.5, step = 0.5, value = 24, width = "100%")
+              )
+            )
+          )
         )
-      )
-    )
-  )
       	# box( # This section handle all administration related data
       	#   title = tagList(icon("pills"), i18n$translate("Administration du médicament")),
       	#   status = "info",
@@ -167,6 +178,7 @@ ui <- function(id, i18n) {
 #' @export
 server <- function(id, i18n = NULL) {
   moduleServer(id, function(input, output, session) {
+
     # # Reactive values for TDM data
     # data <- reactiveValues(
     #   dosing_history = data.frame(),

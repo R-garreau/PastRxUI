@@ -1,6 +1,6 @@
 box::use(
   bs4Dash[box],
-  shiny[column, dateInput, fluidRow, icon, moduleServer, NS, observeEvent, reactive, selectInput, selectizeInput, tabPanel, tagList, tags, textInput, updateSelectInput],
+  shiny[column, dateInput, fluidRow, icon, moduleServer, NS, observeEvent, reactive, reactiveValues, selectInput, selectizeInput, tabPanel, tagList, tags, textInput, updateSelectInput],
   stats[setNames],
 )
 
@@ -49,21 +49,30 @@ ui <- function(id, i18n) {
 #'
 #' @param id Module ID
 #' @export
-server <- function(id, i18n = NULL, lang_trigger = NULL) {
+server <- function(id, i18n = NULL) {
   moduleServer(id, function(input, output, session) {
 
+
+    tdm_data <- reactiveValues(
+    dosing_history = data.frame(
+      Admin_date = character(),
+      Route = character(),
+      Infusion_rate = numeric(),
+      Infusion_duration = numeric(),
+      Dose = numeric(),
+      Creatinin_Clearance = numeric(),
+      creatinine = numeric()
+    ),
+    weight_history = data.frame(
+      Weight_date = character(),
+      Weight_value = numeric(),
+      mod_weight_type = character(),
+      tbw = numeric(),
+      bsa = numeric()
+    )
+  )
+
     # Return reactive values for use by other modules
-    return(reactive({
-      list(
-        first_name = input$first_name,
-        last_name = input$last_name,
-        birthdate = input$birthdate,
-        sex = input$sex,
-        hospital = input$hospital,
-        ward = input$ward,
-        drug = input$drug,
-        phone_number = input$phone_number
-      )
-    }))
+    return()
   })
 }
