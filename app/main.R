@@ -43,7 +43,7 @@ ui <- function(id) {
           class = "dropdown",
           downloadButton(
             ns("save_file"),
-            i18n$t("Sauvegarder"),
+            i18n$translate("Save"),
             style = "background-color: #3d9970; color: white; margin-left: 10px;"
           )
         )
