@@ -2,16 +2,18 @@ box::use(
   bs4Dash[actionButton, box],
   dplyr[bind_rows],
   rhandsontable[rHandsontableOutput, rhandsontable, renderRHandsontable, hot_to_r],
-  shiny[column, conditionalPanel, dateInput, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactiveValues, req, selectInput, tabPanel, tagList, tags, hr, updateSelectInput],
+  shiny[br, column, conditionalPanel, dateInput, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactiveValues, req, selectInput, tabPanel, tagList, tags, hr, updateSelectInput],
   shinyTime[timeInput],
   shinyWidgets[checkboxGroupButtons, prettyCheckbox],
   stats[setNames],
 )
 
 box::use(
-  app/logic/utils[date_time_format],
+  app/logic/utils[calc_age, date_time_format],
   app/logic/fun_weight_formula[weight_formula],
   app/logic/validators[validate_unique_times],
+  app/logic/fun_renal_function[renal_function],
+  app/logic/fun_calculate_inf_speed[continuous_infusion_time, calculate_daily_dose],
 )
 
 #' @export
@@ -50,7 +52,7 @@ ui <- function(id, i18n) {
   			        column(width = 6, selectInput(
   			          ns("eGFR"),
   			          label = i18n$translate("Renal Formula"),
-  			          choices = c("Cockcroft-Gault" = "CG", "MDRD" = "MDRD", "CKD-EPI" = "CKD-EPI", "UVP" = "UVP"),
+  			          choices = c("Cockcroft-Gault" = "CG", "MDRD" = "MDRD", "CKD-EPI (2009)" = "CKD_2009", "CKD-EPI (2021)" = "CKD_2021", "Schwartz" = "schwartz", "UVP" = "UVP", "None" = "none"),
   			          selected = "CG"
   			        ))
   			      ),
@@ -132,8 +134,9 @@ ui <- function(id, i18n) {
     	),
     	column( ## Dataframe output generated in body_tdm_input ----
     	  width	= 6, 
-    	  rHandsontableOutput(ns("weight_history")),
-				rHandsontableOutput(ns("dosing_history"))
+    	  column(width = 12, rHandsontableOutput(ns("weight_history"))),
+        br(),
+				column(width = 12, rHandsontableOutput(ns("dosing_history")))
 			), 
       column(width = 1, 
         box(
@@ -145,36 +148,12 @@ ui <- function(id, i18n) {
           headerBorder = TRUE,
           background = "white",
           fluidRow(
-            shinyWidgets::prettyCheckbox(
-              inputId = ns("weight_type_selection"), label = "Use Mod Weight", value = FALSE,
-              status = "success", fill = FALSE, outline = TRUE,
-              shape = "curve", animation = "jelly"
-            ),
-            shinyWidgets::prettyCheckbox(
-              inputId = ns("bsa_selection"), label = "Use BSA", value = FALSE,
-              status = "success", fill = FALSE, outline = TRUE,
-              shape = "curve", animation = "jelly"
-            ),
-            shinyWidgets::prettyCheckbox(
-              inputId = ns("african"), label = "Africain", value = FALSE,
-              status = "success", fill = FALSE, outline = TRUE,
-              shape = "curve", animation = "jelly"
-            ),
-            shinyWidgets::prettyCheckbox(
-              inputId = ns("mg_dl_unit"), label = "creat (mg/dL)", value = FALSE,
-              status = "success", fill = FALSE, outline = TRUE,
-              shape = "curve", animation = "jelly"
-            ),
-            shinyWidgets::prettyCheckbox(
-              inputId = ns("weight_lbs_unit"), label = "Poids (lbs)", value = FALSE,
-              status = "success", fill = FALSE, outline = TRUE,
-              shape = "curve", animation = "jelly"
-            ),
-            shinyWidgets::prettyCheckbox(
-              inputId = ns("denorm_ccr"), label = "CRCL denorm", value = FALSE,
-              status = "success", fill = FALSE, outline = TRUE,
-              shape = "curve", animation = "jelly"
-            )
+            shinyWidgets::prettyCheckbox(inputId = ns("weight_type_selection"), label = "Use Mod Weight", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
+            shinyWidgets::prettyCheckbox(inputId = ns("bsa_selection"), label = "Use BSA", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
+            shinyWidgets::prettyCheckbox(inputId = ns("african"), label = "Africain", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
+            shinyWidgets::prettyCheckbox(inputId = ns("mg_dl_unit"), label = "creat (mg/dL)", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
+            shinyWidgets::prettyCheckbox(inputId = ns("weight_lbs_unit"), label = "Poids (lbs)", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
+            shinyWidgets::prettyCheckbox(inputId = ns("denorm_ccr"), label = "CRCL denorm", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly")
           )
         )
       )
@@ -242,22 +221,92 @@ server <- function(id, i18n = NULL, patient_data = NULL) {
 
     ## Dosing history when click on "Add Dosing" _______________________________________________
     observeEvent(input$make_dosing_history, {
-      # Add new dosing entry
-      new_dosing <- data.frame(
-        Admin_date = paste(as.character(input$date_administration), format(input$administration_time, "%H:%M:%S")),
-        Route = input$administration_route,
-        Infusion_rate = ifelse(input$administration_route == "CI", input$syringe_speed, NA),
-        Infusion_duration = ifelse(input$administration_route != "CI", input$administration_duration, NA),
-        Dose = ifelse(input$administration_route != "CI", input$dose_input, input$syringe_dose),
-        Creatinin_Clearance = NA,  # Placeholder, calculation can be added
-        creatinine = NA  # Placeholder, can be filled with actual value
-      )
-      patient_info$dosing_history <- rbind(patient_info$dosing_history, new_dosing)
+      req(patient_data)
+      p_data <- patient_data()
 
-      # Render updated dosing history table
-      output$dosing_history <- renderRHandsontable({ rhandsontable(patient_info$dosing_history, rowHeaders = NULL) })
+      # Step 1 : retrieve weight
+      weight_metric <- weight_formula(
+        input$weight,
+        input$height,
+        p_data$sex,
+        weight_unit = ifelse(input$weight_lbs_unit, "lbs", "kg"),
+        weight_formula = input$weight_formula_selection,
+        bsa_formula = "dubois",
+        capped = FALSE
+      )
+
+      # step 2 : calculate creatinine clearance
+      renal_clearance <- renal_function(
+        sex = input$sex,
+        age = calc_age(input$birthdate),
+        weight = weight_metric$weight,
+        height = input$height,
+        creat = input$creatinine,
+        ethnicity = ifelse(input$african, "African", "Other"),
+        formula = input$eGFR,
+        creat_unit = ifelse(input$mg_dl_unit, "mg/dL", "uM/L"),
+        urine_creat = input$urine_creatinine,
+        urine_output = input$urine_output
+      )
+
+      # Step 3 : Caclulation infusion parameters if CI
+
+      # Electric infusion pump parameters
+      cont_infusion_dur <- continuous_infusion_time(
+        input$start_date_CI,
+        input$start_time_CI,
+        input$end_date_CI,
+        input$end_time_CI
+      )
+
+      daily_dose <- calculate_daily_dose(
+        sp_dose = input$syringe_dose,
+        sp_volume = input$syringe_volume,
+        sp_speed = input$syringe_speed,
+        start_date = input$start_date_CI,
+        start_time = input$start_time_CI,
+        end_date = input$end_date_CI,
+        end_time = input$end_time_CI
+      )
+
+      # Infusion rate calculation
+      infusion_rate <- ifelse(
+        input$administration_route == "CI",
+        round(daily_dose / cont_infusion_dur, digits = 8),
+        round(input$dose_input / max(input$administration_duration, 0.1), digits = 8)
+      )
+
+
+      # Add new dosing entry
+      # new_dosing <- data.frame(
+      #   Admin_date = paste(as.character(input$date_administration), format(input$administration_time, "%H:%M:%S")),
+      #   Route = input$administration_route,
+      #   Infusion_rate = infusion_rate,
+      #   Infusion_duration = ifelse(input$administration_route != "CI", input$administration_duration, NA),
+      #   Dose = ifelse(input$administration_route != "CI", input$dose_input, input$syringe_dose),
+      #   Creatinin_Clearance = ccr,  # Placeholder, calculation can be added
+      #   creatinine = input$creatinine  # Placeholder, can be filled with actual value
+      # )
+
+      new_dosing <- data.frame(
+        Admin_date = ifelse(
+          input$administration_route == "CI",
+          date_time_format(input$start_date_CI, input$start_time_CI),
+          date_time_format(input$date_administration, input$administration_time)
+        ),
+        Route = ifelse(input$administration_route == "CI", "IV", input$administration_route),
+        Infusion_rate = infusion_rate,
+        Infusion_duration = ifelse(input$administration_route == "CI", cont_infusion_dur, input$administration_duration),
+        Dose = ifelse(input$administration_route == "CI", daily_dose, input$dose_input),
+        Creatinin_Clearance = ifelse("denorm_ccr" %in% input$unit_value, renal_clearance * weight_metric$bsa, renal_clearance),
+        creatinine = input$creatinine
+      )
+
+      patient_info$dosing_history <- rbind(patient_info$dosing_history, new_dosing)
     })
 
+    # Render updated dosing history table
+      output$dosing_history <- renderRHandsontable({ rhandsontable(patient_info$dosing_history, rowHeaders = NULL) })
     # Render updated weight history table
       output$weight_history <- renderRHandsontable({ rhandsontable(patient_info$weight_history, rowHeaders = NULL) })
 
