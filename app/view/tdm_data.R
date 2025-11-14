@@ -38,7 +38,7 @@ server <- function(id, i18n = NULL) {
     #     Date = character(0),
     #     Time = character(0),
     #     Dose = numeric(0),
-    #     Route = character(0),
+    #     Route = character(0), 
     #     Duration = numeric(0),
     #     stringsAsFactors = FALSE
     #   )
