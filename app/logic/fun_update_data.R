@@ -1,3 +1,9 @@
+box::use(
+  dplyr[case_when],
+  stringr[str_ends],
+  shiny[updateTextInput, updateSelectInput, updateSelectizeInput, updateNumericInput],
+)
+
 # Description
 #
 # This script contains functions to update data with patient files
@@ -21,8 +27,8 @@
 #' @export
 
 update_data <- function(file_path) {
-  extension <- dplyr::case_when(
-    stringr::str_ends(file_path, pattern = ".mb2") ~ "bestdose",
+  extension <- case_when(
+    str_ends(file_path, pattern = ".mb2") ~ "bestdose",
     TRUE ~ "unknown"
   )
 
@@ -53,23 +59,23 @@ update_patient_data.mb2 <- function(input, session) {
   birthdate <- format(as.Date(input[["birthdate"]]), "%Y-%m-%d")
 
   # Update input fields with loaded data
-  shiny::updateTextInput(session, "last_name", value = input[["patient_last_name"]])
-  shiny::updateTextInput(session, "first_name", value = input[["patient_first_name"]])
-  shiny::updateTextInput(session, "ward", value = input[["ward"]])
-  #shiny::updateTextInput(session, "room", value = input[["room"]])
-  shiny::updateTextInput(session, "birthdate", value = as.Date(birthdate)) # not yet supported
+  updateTextInput(session, "last_name", value = input[["patient_last_name"]])
+  updateTextInput(session, "first_name", value = input[["patient_first_name"]])
+  updateTextInput(session, "ward", value = input[["ward"]])
+  #updateTextInput(session, "room", value = input[["room"]])
+  updateTextInput(session, "birthdate", value = as.Date(birthdate)) # not yet supported
 
   # update select Input
-  shiny::updateSelectInput(session, "sex", selected = input[["sex"]])
-  shiny::updateSelectInput(session, "drug", selected = input[["drug_name"]])
-  shiny::updateSelectizeInput(session, "hospital",
+  updateSelectInput(session, "sex", selected = input[["sex"]])
+  updateSelectInput(session, "drug", selected = input[["drug_name"]])
+  updateSelectizeInput(session, "hospital",
     selected = input[["hospital"]],
     choices = c(labels("hospital", "choices", lang), input[["hospital"]])
   )
 
   # update numeric
-  shiny::updateNumericInput(session, "height", value = input[["height"]])
-  shiny::updateNumericInput(session, "weight", value = weight_df[nrow(weight_df), 2])
+  updateNumericInput(session, "height", value = input[["height"]])
+  updateNumericInput(session, "weight", value = weight_df[nrow(weight_df), 2])
 }
 
 # update the dataframe

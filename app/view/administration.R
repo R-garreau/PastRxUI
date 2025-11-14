@@ -2,7 +2,7 @@ box::use(
   bs4Dash[actionButton, box],
   dplyr[bind_rows],
   rhandsontable[rHandsontableOutput, rhandsontable, renderRHandsontable, hot_to_r],
-  shiny[br, column, conditionalPanel, dateInput, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactiveValues, req, selectInput, tabPanel, tagList, tags, hr, updateSelectInput],
+  shiny[br, column, conditionalPanel, dateInput, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactive, reactiveValues, req, selectInput, tabPanel, tagList, tags, hr, updateSelectInput],
   shinyTime[timeInput],
   shinyWidgets[checkboxGroupButtons, prettyCheckbox],
   stats[setNames],
@@ -237,8 +237,8 @@ server <- function(id, i18n = NULL, patient_data = NULL) {
 
       # step 2 : calculate creatinine clearance
       renal_clearance <- renal_function(
-        sex = input$sex,
-        age = calc_age(input$birthdate),
+        sex = p_data$sex,
+        age = calc_age(p_data$birthdate),
         weight = weight_metric$weight,
         height = input$height,
         creat = input$creatinine,
@@ -310,22 +310,17 @@ server <- function(id, i18n = NULL, patient_data = NULL) {
     # Render updated weight history table
       output$weight_history <- renderRHandsontable({ rhandsontable(patient_info$weight_history, rowHeaders = NULL) })
 
-
-
-    # # Reactive values for TDM data
-    # data <- reactiveValues(
-    #   dosing_history = data.frame(),
-    #   weight_history = data.frame()
-    # )
-    
-    # # TODO: Add server logic for TDM module
-    
-    # # Return reactive values for use by other modules
-    # return(reactive({
-    #   list(
-    #     dosing_history = data$dosing_history,
-    #     weight_history = data$weight_history
-    #   )
-    # }))
+    # Return reactive containing all administration data needed by main module
+    return(reactive({
+      list(
+        dosing_history = patient_info$dosing_history,
+        weight_history = patient_info$weight_history,
+        bsa_selection = input$bsa_selection,
+        weight_type_selection = input$weight_type_selection,
+        height = input$height,
+        date_next_dose = input$date,
+        time_next_dose = input$time
+      )
+    }))
   })
 }

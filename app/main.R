@@ -1,12 +1,13 @@
 box::use(
   bs4Dash[dashboardBody, dashboardPage, bs4DashNavbar, dashboardSidebar, tabsetPanel],
-  shiny[downloadButton, downloadHandler, fluidPage, moduleServer, NS, observeEvent, reactive, reactiveValues, selectInput, tagList, tags],
+  dplyr[select],
+  shiny[downloadButton, downloadHandler, fluidPage, moduleServer, NS, observeEvent, reactive, reactiveValues, selectInput, showNotification, tagList, tags],
   shiny.i18n[Translator, usei18n, update_lang],
 )
 
 box::use(
-  app/logic/fun_name_file,
-  app/logic/fun_write_mb2,
+  app/logic/fun_name_file[name_file],
+  app/logic/fun_write_mb2[write_mb2],
   app/view/administration,
   app/view/patient_information,
   app/view/tdm_data,
@@ -90,7 +91,7 @@ server <- function(id) {
       )),
       tdm_history = shiny::reactiveVal(data.frame(
         tdm_time = character(),
-        Concentration = numeric(),
+        concentration = numeric(),
         stringsAsFactors = FALSE
       ))
     )
@@ -105,6 +106,72 @@ server <- function(id) {
       update_lang(input$language)
     })
     
+    # Handle save file button
+    observeEvent(input$save_file, {
+      # Require data from modules
+      req(patient_data(), admin_data(), tdm_values())
+      
+      p_data <- patient_data()
+      a_data <- admin_data()
+      tdm_data <- tdm_values()
+
+      # check if at least one concentration is above 100 and the automatic correction is enabled
+      # if this is the case, divide all concentration and dose by the correction factor
+      # Create copies of the data for MB2 file writing
+      mb2_tdm_history <- tdm_data
+      mb2_dosing_history <- a_data$dosing_history
+
+      # Check if concentration correction should be applied only for MB2 file
+      if (nrow(mb2_tdm_history) > 0 && max(mb2_tdm_history$concentration) > 100) {
+        # file_state$concentration_correction <- TRUE
+        mb2_tdm_history$concentration <- mb2_tdm_history$concentration / 10
+        mb2_dosing_history$Dose <- mb2_dosing_history$Dose / 10
+        mb2_dosing_history$Infusion_rate <- mb2_dosing_history$Infusion_rate / 10
+        showNotification("All concentration and dose will be divided by 10 in the MB2 file", type = "warning")
+      }
+
+
+      # Update weight history to select the appropriate weight type
+      # Priority: BSA > Mod Weight > TBW (default when both unchecked)
+      weight_history_data <- a_data$weight_history
+      if (a_data$bsa_selection) {
+        selected_weight_data <- select(weight_history_data, .data$Weight_date, .data$bsa)
+      } else if (a_data$weight_type_selection) {
+        selected_weight_data <- select(weight_history_data, .data$Weight_date, .data$Weight_value)
+      } else {
+        # Both unchecked - default to TBW
+        selected_weight_data <- select(weight_history_data, .data$Weight_date, .data$tbw)
+        showNotification("No weight type selected, using TBW as default", type = "info")
+      }
+
+      # Write the MB2 file content
+      mipd_file_mb2 <- write_mb2(
+        first_name = p_data$first_name,
+        last_name = p_data$last_name,
+        sex = p_data$sex,
+        hospital = p_data$hospital,
+        ward = p_data$ward,
+        room = "",
+        phone_number = p_data$phone_number,
+        height = a_data$height,
+        birthdate = format(p_data$birthdate, "%Y/%m/%d"),
+        drug_name = p_data$drug,
+        date_next_dose = a_data$date_next_dose,
+        time_next_dose = a_data$time_next_dose,
+        weight_number = nrow(weight_history_data),
+        dose_number = nrow(mb2_dosing_history), # calculate the number of dose base on the number present in the dataframe (TDM Page)
+        concentration_number = nrow(mb2_tdm_history),
+        weight_data = selected_weight_data,
+        administration_data = mb2_dosing_history,
+        level_data = mb2_tdm_history,
+        mic_value = 0 # TODO: Get MIC value from inputs
+      )
+
+      writeLines(mipd_file_mb2, con = paste0(tempfile(), ".mb2"))
+      showNotification("File saved successfully!", type = "message", duration = 3)
+    })
+
+
     # # Handle file download
     # output$save_file <- downloadHandler(
     #   filename = function() {
@@ -152,7 +219,7 @@ server <- function(id) {
     #     # Prepare TDM data
     #     tdm_df <- t_data$tdm_history
     #     if (nrow(tdm_df) == 0) {
-    #       tdm_df <- data.frame(tdm_time = character(), Concentration = numeric())
+    #       tdm_df <- data.frame(tdm_time = character(), concentration = numeric())
     #     }
         
     #     # Get next dose info from patient data inputs

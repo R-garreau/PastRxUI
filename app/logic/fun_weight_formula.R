@@ -1,3 +1,6 @@
+box::use(
+  dplyr[case_when],
+)
 
 #' @title weight_formula
 #'
@@ -53,7 +56,7 @@ weight_formula <- function(
   ffm <- 9270 * weight / (ifelse(sex == "Female", 8780 + 244 * bmi, 6680 + 216 * bmi))
 
   # select the output
-  mod_weight <- dplyr::case_when(
+  mod_weight <- case_when(
     weight_formula == "IBW" ~ ibw,
     weight_formula == "AJBW" ~ ajbw,
     weight_formula == "LBW" ~ ffm,
