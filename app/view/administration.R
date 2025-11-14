@@ -22,7 +22,7 @@ ui <- function(id, i18n) {
     i18n$translate("Administration"),
     fluidRow(
 			column(
-				width = 5,
+				width = 4,
 				box(
   			  title = tagList(shiny::icon("vials"), i18n$translate("Lab Values")),
   			  status = "info",
@@ -82,7 +82,7 @@ ui <- function(id, i18n) {
 
           # Continuous infusion panel
           conditionalPanel(
-            condition = "input.administration_route == 'CI' ",
+            condition = sprintf("input['%s'] == 'CI'", ns("administration_route")),
             fluidRow(
               column(width = 6,dateInput(ns("start_date_CI"), i18n$translate("Infusion Start Date"), Sys.Date(), format = "yyyy-mm-dd", language = i18n$get_key_translation())),
               column(width = 6,timeInput(ns("start_time_CI"), i18n$translate("Infusion Start Time"), seconds = FALSE))
@@ -100,7 +100,7 @@ ui <- function(id, i18n) {
 
           # Regular administration panel
           conditionalPanel(
-            condition = "input.administration_route != 'CI'",
+            condition = sprintf("input['%s'] != 'CI'", ns("administration_route")),
             fluidRow(
               column(width = 6,dateInput(ns("date_administration"), i18n$translate("Administration Date"), Sys.Date(), format = "yyyy-mm-dd", language = i18n$get_key_translation())),
               column(width = 6,timeInput(ns("administration_time"), label = i18n$translate("Administration Time"), value = Sys.time(), seconds = FALSE))
@@ -123,55 +123,12 @@ ui <- function(id, i18n) {
             column(width = 4,numericInput(ns("multiple_dose_admin"), i18n$translate("Multiple Doses"), min = 1, max = 50, step = 1, value = 1, width = "100%")),
             column(width = 4,
               conditionalPanel(
-                condition = "input.multiple_dose_admin > 1",
+                condition = sprintf("input['%s'] > 1", ns("multiple_dose_admin")),
                 numericInput(ns("multiple_dose_interval"), i18n$translate("Dose Interval"), min = 0.5, step = 0.5, value = 24, width = "100%")
               )
             )
           )
         )
-      	# box( # This section handle all administration related data
-      	#   title = tagList(icon("pills"), i18n$translate("Administration du médicament")),
-      	#   status = "info",
-      	#   width = 12,
-      	#   solidHeader = TRUE,
-      	#   selectInput(ns("administration_route"), i18n$translate("Voie d'administration"), choices = c("IV", "IM", "PO", "CI"), selected = "IV"),
-      	#   conditionalPanel(
-      	#     condition = sprintf("input['%s'] == 'CI'", ns("administration_route")),
-      	#     fluidRow(
-      	#       column(width = 6, dateInput(ns(ns("start_date_CI"), i18n$translate("Date de début de perfusion"), Sys.Date(), format = "yyyy-mm-dd", language = "fr")),
-      	#       column(width = 6, timeInput(ns("start_time_CI"), i18n$translate("Heure de début"), seconds = FALSE))
-      	#     ),
-      	#     fluidRow(
-      	#       column(width = 6, dateInput(ns(ns("end_date_CI"), i18n$translate("Date de fin de perfusion"), Sys.Date(), format = "yyyy-mm-dd", language = "fr")),
-      	#       column(width = 6, timeInput(ns("end_time_CI"), i18n$translate("Heure de fin de perfusion"), seconds = FALSE))
-      	#     ),
-      	#     fluidRow(
-      	#       column(width = 6, numericInput(ns("syringe_volume"), i18n$translate("Volume de la seringue"), value = 50)),
-      	#       column(width = 6, numericInput(ns("syringe_dose"), i18n$translate("Dose de la seringue"), value = 2000))
-      	#     ),
-      	#     numericInput(ns("syringe_speed"), i18n$translate("Vitesse de perfusion"), value = 2)
-      	#   ),
-      	#   conditionalPanel(
-      	#     condition = sprintf("input['%s'] != 'CI'", ns("administration_route")),
-      	#     fluidRow(
-      	#       column(width = 6, dateInput(ns(ns("date_administration"), i18n$translate("Date d'administration"), Sys.Date(), format = "yyyy-mm-dd", language = "fr")),
-      	#       column(width = 6, timeInput(ns("administration_time"), label = i18n$translate("Heure d'administration"), value = Sys.time(), seconds = FALSE))
-      	#     ),
-      	#     fluidRow(
-      	#       column(width = 6, numericInput(ns("dose_input"), label = i18n$translate("Dose"), value = 0)),
-      	#       column(width = 6, numericInput(ns("administration_duration"), label = i18n$translate("Durée d'administration"), value = 0.5, step = 0.1))
-      	#     )
-      	#   ),
-      	#   fluidRow(
-      	#     column(width = 6, dateInput(ns(ns("date"), label = i18n$translate("Date de la prochaine dose"), format = "yyyy-mm-dd", value = Sys.Date(), language = "fr")),
-      	#     column(width = 6, timeInput(ns("time"), label = i18n$translate("Heure de la prochaine dose"), seconds = FALSE, value = Sys.time()))
-      	#   ),
-      	#   fluidRow(
-      	#     column(width = 4, actionButton(ns("make_dosing_history"), i18n$translate("Ajouter dose"), style = "background-color: #3d9970; color: white; margin-top: 30px;", width = "100%")),
-      	#     column(width = 4, numericInput(ns("multiple_dose_admin"), i18n$translate("Doses multiples"), min = 1, max = 50, step = 1, value = 1, width = "100%")),
-      	#     column(width = 4, numericInput(ns("multiple_dose_interval"), i18n$translate("Intervalle entre doses"), min = 0.5, step = 0.5, value = 24, width = "100%"))
-      	#   )
-      	# )
     	),
     	column( ## Dataframe output generated in body_tdm_input ----
     	  width	= 6, 
@@ -189,32 +146,32 @@ ui <- function(id, i18n) {
           background = "white",
           fluidRow(
             shinyWidgets::prettyCheckbox(
-              inputId = "weight_type_selection", label = "Use Mod Weight", value = FALSE,
+              inputId = ns("weight_type_selection"), label = "Use Mod Weight", value = FALSE,
               status = "success", fill = FALSE, outline = TRUE,
               shape = "curve", animation = "jelly"
             ),
             shinyWidgets::prettyCheckbox(
-              inputId = "bsa_selection", label = "Use BSA", value = FALSE,
+              inputId = ns("bsa_selection"), label = "Use BSA", value = FALSE,
               status = "success", fill = FALSE, outline = TRUE,
               shape = "curve", animation = "jelly"
             ),
             shinyWidgets::prettyCheckbox(
-              inputId = "african", label = "Africain", value = FALSE,
+              inputId = ns("african"), label = "Africain", value = FALSE,
               status = "success", fill = FALSE, outline = TRUE,
               shape = "curve", animation = "jelly"
             ),
             shinyWidgets::prettyCheckbox(
-              inputId = "mg_dl_unit", label = "creat (mg/dL)", value = FALSE,
+              inputId = ns("mg_dl_unit"), label = "creat (mg/dL)", value = FALSE,
               status = "success", fill = FALSE, outline = TRUE,
               shape = "curve", animation = "jelly"
             ),
             shinyWidgets::prettyCheckbox(
-              inputId = "weight_lbs_unit", label = "Poids (lbs)", value = FALSE,
+              inputId = ns("weight_lbs_unit"), label = "Poids (lbs)", value = FALSE,
               status = "success", fill = FALSE, outline = TRUE,
               shape = "curve", animation = "jelly"
             ),
             shinyWidgets::prettyCheckbox(
-              inputId = "denorm_ccr", label = "CRCL denorm", value = FALSE,
+              inputId = ns("denorm_ccr"), label = "CRCL denorm", value = FALSE,
               status = "success", fill = FALSE, outline = TRUE,
               shape = "curve", animation = "jelly"
             )
