@@ -1,7 +1,7 @@
 box::use(
   bs4Dash[actionButton, box],
   rhandsontable[hot_to_r, rhandsontable, rHandsontableOutput, renderRHandsontable],
-  shiny[column, dateInput, div, fluidRow, h4, icon, moduleServer, NS, numericInput, observeEvent, reactive, selectInput, tabPanel, tagList, tags, textInput],
+  shiny[column, dateInput, div, fluidRow, h4, icon, moduleServer, NS, numericInput, observeEvent, reactive, reactiveVal, req, selectInput, tabPanel, tagList, tags, textInput],
     shinyTime[timeInput],
 )
 
@@ -34,8 +34,27 @@ ui <- function(id, i18n) {
 }
 
 #' @export
-server <- function(id, i18n = NULL) {
+server <- function(id, i18n = NULL, loaded_data = NULL) {
   moduleServer(id, function(input, output, session) {
+
+    # Reactive value to store TDM history
+    tdm_reactive <- reactiveVal(data.frame(
+      tdm_time = character(),
+      concentration = numeric()
+    ))
+
+    # Load data when loaded_data changes
+    observeEvent(loaded_data(), {
+      req(loaded_data())
+      data <- loaded_data()
+      
+      if (!is.null(data$level_df) && nrow(data$level_df) > 0) {
+        tdm_reactive(data$level_df)
+        output$tdm_history <- renderRHandsontable({
+          rhandsontable(data$level_df, rowHeaders = NULL)
+        })
+      }
+    })
 
     observeEvent(input$make_tdm_history, {
       # Get existing data from the table

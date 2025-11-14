@@ -1,15 +1,14 @@
 box::use(
   bs4Dash[dashboardBody, dashboardPage, bs4DashNavbar, dashboardSidebar, tabsetPanel],
   dplyr[select],
-  shiny[downloadButton, downloadHandler, fileInput, fluidPage, moduleServer, NS, observeEvent, reactive, reactiveValues, req, selectInput, showNotification, tagList, tags],
+  shiny[downloadButton, downloadHandler, fileInput, fluidPage, moduleServer, NS, observeEvent, reactive, reactiveVal, reactiveValues, req, selectInput, showNotification, tagList, tags, updateDateInput, updateSelectInput, updateSelectizeInput, updateTextInput],
   shiny.i18n[Translator, usei18n, update_lang],
 )
 
 box::use(
   app/logic/fun_name_file[name_file],
-  app/logic/mb2_read[read_mb2],
-  app/logic/fun_update_data[update_data],
   app/logic/fun_write_mb2[write_mb2],
+  app/logic/mb2_read[read_mb2],
   app/view/administration,
   app/view/patient_information,
   app/view/tdm_data,
@@ -82,37 +81,13 @@ ui <- function(id) {
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
     
-    # Shared reactive data storage
-    shared_data <- reactiveValues(
-      dosing_history = shiny::reactiveVal(data.frame(
-        Admin_date = character(),
-        Route = character(),
-        Infusion_rate = numeric(),
-        Infusion_duration = numeric(),
-        Dose = numeric(),
-        Creatinin_Clearance = numeric(),
-        creatinine = numeric(),
-        stringsAsFactors = FALSE
-      )),
-      weight_history = shiny::reactiveVal(data.frame(
-        Weight_date = character(),
-        Weight_value = numeric(),
-        mod_weight_type = character(),
-        tbw = numeric(),
-        bsa = numeric(),
-        stringsAsFactors = FALSE
-      )),
-      tdm_history = shiny::reactiveVal(data.frame(
-        tdm_time = character(),
-        concentration = numeric(),
-        stringsAsFactors = FALSE
-      ))
-    )
+    # Reactive value to store loaded file data
+    loaded_file_data <- reactiveVal(NULL)
     
-    # Call module servers
+    # Call module servers with loaded_data reactive
     patient_data <- patient_information$server("patient_info", i18n)
-    admin_data <- administration$server("admin", i18n, patient_data)
-    tdm_values <- tdm_data$server("tdm_data", i18n)
+    admin_data <- administration$server("admin", i18n, patient_data, reactive(loaded_file_data()))
+    tdm_values <- tdm_data$server("tdm_data", i18n, reactive(loaded_file_data()))
     
     # Handle language change
     observeEvent(input$language, {
@@ -212,30 +187,32 @@ server <- function(id) {
         # Read the MB2 file
         data_file <- read_mb2(input$load_file$datapath)
         
-        # Call the function to process and update data from the file
-        update_functions <- update_data(input$load_file$datapath)
-        update_patient_data <- update_functions[["update_patient_data"]]
-        update_tdm_history <- update_functions[["update_tdm_history"]]
-        
-        # Update the input fields that are not dataframe
-        update_patient_data(data_file, session)
-        dose_level_data <- update_tdm_history(data_file)
-        
-        # TODO: Update module data with loaded values
-        # Note: This requires the modules to expose methods for updating their internal state
-        # For now, the patient information will be updated via the session updates
-        
-        showNotification(
-          "File loaded successfully. Note: Concentrations are not automatically corrected if above 100.",
-          type = "warning",
-          duration = 5
+        # Update Patient Information tab inputs
+        updateTextInput(session, "patient_info-first_name", value = data_file$patient_first_name)
+        updateTextInput(session, "patient_info-last_name", value = data_file$patient_last_name)
+        updateTextInput(session, "patient_info-ward", value = data_file$ward)
+        updateTextInput(session, "patient_info-phone_number", value = "")
+        updateDateInput(session, "patient_info-birthdate", value = as.Date(data_file$birthdate))
+        updateSelectInput(session, "patient_info-sex", selected = data_file$sex)
+        updateSelectInput(session, "patient_info-drug", selected = data_file$drug_name)
+        updateSelectizeInput(session, "patient_info-hospital", 
+          selected = data_file$hospital,
+          choices = c("HCL", "CHU", data_file$hospital)
         )
         
+        # Trigger module data loading by setting the reactive
+        loaded_file_data(data_file)
+        
+        # Show success notifications
         showNotification(
-          "Legacy file loading - please verify all data after loading.",
+          paste("File loaded successfully!",
+                "Weight:", nrow(data_file$weight_df), "entries,",
+                "Dosing:", nrow(data_file$dose_df), "entries,",
+                "TDM:", nrow(data_file$level_df), "values"),
           type = "message",
           duration = 5
         )
+        
       }, error = function(e) {
         showNotification(
           paste("Error loading file:", e$message),
