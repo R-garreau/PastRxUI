@@ -1,0 +1,28 @@
+PASTRx Version: 1.2.0.27.     2014/09/16 10:55         !version, date this file written.
+   1      2014/09/15 14:43    2014/09/16 08:00         !Format key, created on, date of next regimen
+John                Doe         FN Unknown genetic grou! Last, First, Ethnic grp., Gender(F/M), Dialysis(D/N)
+GHE                        in 163.0 100 1969/06/18     !Chart,Ward,Room,cm/in,hgt(cm), muscle %,Birth(yr/mn/dy)
+   2                                                   !no. of Effects
+   1 Weight                             M3020          !No. samples, name, units, Metric indicator
+   0.0000000         250.0000000                       !Minimum, Maximum values
+kg                 1.0000      7                       !unit str, conversion factor, precision
+lbs                2.2046      6                       !unit str, conversion factor, precision
+2014/09/15 10:10      45.0000000                       !Date-time, value, comment
+   0 SCr                                M2030          !No. samples, name, units, Metric indicator
+   0.0000000          30.0000000                       !Minimum, Maximum values
+mg/dL              1.0000      7                       !unit str, conversion factor, precision
+ug/mL             10.0000      6                       !unit str, conversion factor, precision
+uM/L              88.4000      5                       !unit str, conversion factor, precision
+   1                                                   !No. of drugs
+Amikacin               0.00000     3   2               !Drug name, MIC,# dose entries,# Serum entries
+1                                                      !Dose units(0 = 0.001:ug, 1 = 1.0:mg, 2 = 1000.:gm)
+1                                                      !Dose units display(0 = 0.001:ug, 1 = 1.0:mg, 2 = 1000.:gm)
+!  Date-time     route       rate          time          dose          CCr     *=calc  *=actual
+2014/09/13 08:00  IV   750.00000000     1.00000000   750.00000000    87.00000000  
+2014/09/14 08:00  IV   750.00000000     1.00000000   750.00000000    87.00000000  
+2014/09/15 06:53  IV   750.00000000     1.00000000   750.00000000    87.00000000  
+ug/mL                                                  !Serum level units
+ug/mL                                                  !Serum level units display
+2014/09/15 08:10       24.200000                       !Date-time, value, comment
+2014/09/16 07:28        3.300000                       !Date-time, value, comment
+   0                                                   !No. of Covariate records
