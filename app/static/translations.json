@@ -2,272 +2,276 @@
   "languages": ["fr", "en"],
   "translation": [
     {
-      "fr": "Informations générales",
-      "en": "General Information"
+      "en": "General Information",
+      "fr": "Informations générales"
     },
     {
-      "fr": "Prénom",
-      "en": "First Name"
+      "en": "First Name",
+      "fr": "Prénom"
     },
     {
-      "fr": "Nom",
-      "en": "Last Name"
+      "en": "Last Name",
+      "fr": "Nom"
     },
     {
-      "fr": "Date de naissance",
-      "en": "Birth Date"
+      "en": "Birth Date",
+      "fr": "Date de naissance"
     },
     {
-      "fr": "Sexe",
-      "en": "Sex"
+      "en": "Sex",
+      "fr": "Sexe"
     },
     {
-      "fr": "Hôpital",
-      "en": "Hospital"
+      "en": "Hospital",
+      "fr": "Hôpital"
     },
     {
-      "fr": "Service",
-      "en": "Ward"
+      "en": "Ward",
+      "fr": "Service"
     },
     {
-      "fr": "Médicament",
-      "en": "Drug"
+      "en": "Drug",
+      "fr": "Médicament"
     },
     {
-      "fr": "Numéro de téléphone",
-      "en": "Phone Number"
+      "en": "Phone Number",
+      "fr": "Numéro de téléphone"
     },
     {
-      "fr": "Informations du patient",
-      "en": "Patient Information"
+      "en": "Patient Information",
+      "fr": "Informations du patient"
     },
     {
-      "fr": "Données TDM",
-      "en": "TDM Data"
+      "en": "TDM Data",
+      "fr": "Données TDM"
     },
     {
-      "fr": "Paramètres",
-      "en": "Settings"
+      "en": "Settings",
+      "fr": "Paramètres"
     },
     {
-      "fr": "Ce menu est en cours de développement.",
-      "en": "This tab is under development."
+      "en": "This tab is under development.",
+      "fr": "Ce menu est en cours de développement."
     },
     {
-      "fr": "Valeurs biologiques",
-      "en": "Lab Values"
+      "en": "Lab Values",
+      "fr": "Valeurs biologiques"
     },
     {
-      "fr": "Poids",
-      "en": "Weight"
+      "en": "Weight",
+      "fr": "Poids"
     },
     {
-      "fr": "Taille",
-      "en": "Height"
+      "en": "Height",
+      "fr": "Taille"
     },
     {
-      "fr": "Formule de poids",
-      "en": "Weight Formula"
+      "en": "Weight Formula",
+      "fr": "Formule de poids"
     },
     {
-      "fr": "Créatinine",
-      "en": "Creatinine"
+      "en": "Creatinine",
+      "fr": "Créatinine"
     },
     {
-      "fr": "Formule rénale",
-      "en": "Renal Formula"
+      "en": "Renal Formula",
+      "fr": "Formule rénale"
     },
     {
-      "fr": "Créatinine urinaire",
-      "en": "Urinary Creatinine"
+      "en": "Urinary Creatinine",
+      "fr": "Créatinine urinaire"
     },
     {
-      "fr": "Débit urinaire",
-      "en": "Urinary Output"
+      "en": "Urinary Output",
+      "fr": "Débit urinaire"
     },
     {
-      "fr": "Administration du médicament",
-      "en": "Drug Administration"
+      "en": "Drug Administration",
+      "fr": "Administration du médicament"
     },
     {
-      "fr": "Voie d'administration",
-      "en": "Administration Route"
+      "en": "Administration Route",
+      "fr": "Voie d'administration"
     },
     {
-      "fr": "Date de début de perfusion",
-      "en": "Infusion Start Date"
+      "en": "Infusion Start Date",
+      "fr": "Date de début de perfusion"
     },
     {
-      "fr": "Heure de fin de perfusion",
-      "en": "Infusion End Time"
+      "en": "Infusion Start Time",
+      "fr": "Heure de début de perfusion"
     },
     {
-      "fr": "Date de fin de perfusion",
-      "en": "Infusion End Date"
+      "en": "Infusion End Time",
+      "fr": "Heure de fin de perfusion"
     },
     {
-      "fr": "Volume de la seringue",
-      "en": "Syringe Volume"
+      "en": "Infusion End Date",
+      "fr": "Date de fin de perfusion"
     },
     {
-      "fr": "Dose de la seringue",
-      "en": "Syringe Dose"
+      "en": "Syringe Volume",
+      "fr": "Volume de la seringue"
     },
     {
-      "fr": "Vitesse de perfusion",
-      "en": "Infusion Speed"
+      "en": "Syringe Dose",
+      "fr": "Dose de la seringue"
     },
     {
-      "fr": "Date d'administration",
-      "en": "Administration Date"
+      "en": "Infusion Speed",
+      "fr": "Vitesse de perfusion"
     },
     {
-      "fr": "Heure d'administration",
-      "en": "Administration Time"
+      "en": "Administration Date",
+      "fr": "Date d'administration"
     },
     {
-      "fr": "Dose",
-      "en": "Dose"
+      "en": "Administration Time",
+      "fr": "Heure d'administration"
     },
     {
-      "fr": "Durée d'administration",
-      "en": "Administration Duration"
+      "en": "Dose",
+      "fr": "Dose"
     },
     {
-      "fr": "Date de la prochaine dose",
-      "en": "Next Dose Date"
+      "en": "Administration Duration",
+      "fr": "Durée d'administration"
     },
     {
-      "fr": "Heure de la prochaine dose",
-      "en": "Next Dose Time"
+      "en": "Next Dose Date",
+      "fr": "Date de la prochaine dose"
     },
     {
-      "fr": "Ajouter dose",
-      "en": "Add Dosing"
+      "en": "Next Dose Time",
+      "fr": "Heure de la prochaine dose"
     },
     {
-      "fr": "Doses multiples",
-      "en": "Multiple Doses"
+      "en": "Add Dosing",
+      "fr": "Ajouter dose"
     },
     {
-      "fr": "Intervalle entre doses",
-      "en": "Dose Interval"
+      "en": "Multiple Doses",
+      "fr": "Doses multiples"
     },
     {
-      "fr": "Informations TDM",
-      "en": "TDM Information"
+      "en": "Dose Interval",
+      "fr": "Intervalle entre doses"
     },
     {
-      "fr": "Date du prélèvement",
-      "en": "TDM Date"
+      "en": "TDM Information",
+      "fr": "Informations TDM"
     },
     {
-      "fr": "Heure du prélèvement",
-      "en": "TDM Time"
+      "en": "TDM Date",
+      "fr": "Date du prélèvement"
     },
     {
-      "fr": "Concentration",
-      "en": "Concentration Value"
+      "en": "TDM Time",
+      "fr": "Heure du prélèvement"
     },
     {
-      "fr": "Ajouter donnée TDM",
-      "en": "Add TDM Data"
+      "en": "Concentration Value",
+      "fr": "Concentration"
     },
     {
-      "fr": "Calculateur rénal",
-      "en": "Renal Calculator"
+      "en": "Add TDM Data",
+      "fr": "Ajouter donnée TDM"
     },
     {
-      "fr": "Données d'administration",
-      "en": "Administration Data"
+      "en": "Renal Calculator",
+      "fr": "Calculateur rénal"
     },
     {
-      "fr": "Historique des doses",
-      "en": "Dosing History"
+      "en": "Administration Data",
+      "fr": "Données d'administration"
     },
     {
-      "fr": "Historique TDM",
-      "en": "TDM History"
+      "en": "Dosing History",
+      "fr": "Historique des doses"
     },
     {
-      "fr": "Historique du poids",
-      "en": "Weight History"
+      "en": "TDM History",
+      "fr": "Historique TDM"
     },
     {
-      "fr": "Charger fichier patient",
-      "en": "Load Patient File"
+      "en": "Weight History",
+      "fr": "Historique du poids"
     },
     {
-      "fr": "Créer nouveau patient",
-      "en": "Create New Patient"
+      "en": "Load Patient File",
+      "fr": "Charger fichier patient"
     },
     {
-      "fr": "Recharger l'application",
-      "en": "Reload App"
+      "en": "Create New Patient",
+      "fr": "Créer nouveau patient"
     },
     {
-      "fr": "Masculin",
-      "en": "Male"
+      "en": "Reload App",
+      "fr": "Recharger l'application"
     },
     {
-      "fr": "Féminin",
-      "en": "Female"
+      "en": "Male",
+      "fr": "Masculin"
     },
     {
-      "fr": "Choisir",
-      "en": "Choose"
+      "en": "Female",
+      "fr": "Féminin"
     },
     {
-      "fr": "Sauvegarder",
-      "en": "Save"
+      "en": "Choose",
+      "fr": "Choisir"
     },
     {
-      "fr": "Administration",
-      "en": "Administration"
+      "en": "Save",
+      "fr": "Sauvegarder"
     },
     {
-      "fr": "Poids (kg)",
-      "en": "Weight (kg)"
+      "en": "Administration",
+      "fr": "Administration"
     },
     {
-      "fr": "Taille (cm)",
-      "en": "Height (cm)"
+      "en": "Weight (kg)",
+      "fr": "Poids (kg)"
     },
     {
-      "fr": "Créatinine (µmol/L)",
-      "en": "Creatinine (µmol/L)"
+      "en": "Height (cm)",
+      "fr": "Taille (cm)"
     },
     {
-      "fr": "Albumine (g/L)",
-      "en": "Albumin (g/L)"
+      "en": "Creatinine (µmol/L)",
+      "fr": "Créatinine (µmol/L)"
     },
     {
-      "fr": "Bilirubine (µmol/L)",
-      "en": "Bilirubin (µmol/L)"
+      "en": "Albumin (g/L)",
+      "fr": "Albumine (g/L)"
     },
     {
-      "fr": "Informations complémentaires",
-      "en": "Additional Information"
+      "en": "Bilirubin (µmol/L)",
+      "fr": "Bilirubine (µmol/L)"
     },
     {
-      "fr": "Site de perfusion",
-      "en": "Infusion Site"
+      "en": "Additional Information",
+      "fr": "Informations complémentaires"
     },
     {
-      "fr": "Forme pharmaceutique",
-      "en": "Drug Form"
+      "en": "Infusion Site",
+      "fr": "Site de perfusion"
     },
     {
-      "fr": "Concentration (mg/mL)",
-      "en": "Concentration (mg/mL)"
+      "en": "Drug Form",
+      "fr": "Forme pharmaceutique"
     },
     {
-      "fr": "Date de début",
-      "en": "Start Date"
+      "en": "Concentration (mg/mL)",
+      "fr": "Concentration (mg/mL)"
     },
     {
-      "fr": "Heure de début",
-      "en": "Start Time"
+      "en": "Start Date",
+      "fr": "Date de début"
+    },
+    {
+      "en": "Start Time",
+      "fr": "Heure de début"
     }
   ]
 }

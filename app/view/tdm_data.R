@@ -5,22 +5,26 @@ box::use(
     shinyTime[timeInput],
 )
 
+box::use(
+  app/logic/utils[date_time_format],
+)
+
 #' @export
 ui <- function(id, i18n) {
   ns <- NS(id)
   
   tabPanel(
-    i18n$t("Données TDM"),
+    i18n$translate("TDM Data"),
     fluidRow(
       box( # This section control the data regarding the serum level
-      title = tagList(icon("syringe"), i18n$t("Informations TDM")),
+      title = tagList(icon("syringe"), i18n$translate("TDM Information")),
         status = "info",
         width = 4,
         solidHeader = TRUE,
-        dateInput(ns("tdm_date_input"), label = i18n$t("Date du prélèvement"), format = "yyyy-mm-dd", value = Sys.Date(), language = "fr"),
-        timeInput(ns("tdm_time_input"), label = i18n$t("Heure du prélèvement"), value = Sys.time(), seconds = FALSE),
-        numericInput(ns("concentration_value"), label = i18n$t("Concentration"), value = 0),
-        column(width = 4, actionButton(ns("make_tdm_history"), i18n$t("Ajouter donnée TDM"), style = "background-color: #3d9970; color: white;"))
+        dateInput(ns("tdm_date_input"), label = i18n$translate("TDM Date"), format = "yyyy-mm-dd", value = Sys.Date(), language = "fr"),
+        timeInput(ns("tdm_time_input"), label = i18n$translate("TDM Time"), value = Sys.time(), seconds = FALSE),
+        numericInput(ns("concentration_value"), label = i18n$translate("Concentration Value"), value = 0),
+        column(width = 4, actionButton(ns("make_tdm_history"), i18n$translate("Add TDM Data"), style = "background-color: #3d9970; color: white;"))
       ),
       tags$div(
         rHandsontableOutput(ns("tdm_history"))
@@ -32,39 +36,58 @@ ui <- function(id, i18n) {
 #' @export
 server <- function(id, i18n = NULL) {
   moduleServer(id, function(input, output, session) {
+
+    observeEvent(input$make_tdm_history, {
+      # Get existing data from the table
+      existing_data <- if (!is.null(input$tdm_history)) {
+        hot_to_r(input$tdm_history)
+      } else {
+        data.frame(
+          tdm_time = character(),
+          concentration = numeric()
+        )
+      }
+      
+      # Create new entry
+      new_entry <- data.frame(
+        tdm_time = date_time_format(input$tdm_date_input, input$tdm_time_input),
+        concentration = input$concentration_value
+      )
+      
+      # Combine existing data with new entry
+      updated_data <- rbind(existing_data, new_entry)
+      
+      # Render the updated table
+      output$tdm_history <- renderRHandsontable({
+        rhandsontable(updated_data, rowHeaders = NULL)
+      })
+    })
+
+
     # Initialize empty administration table
-    # output$administration_table <- renderRHandsontable({
-    #   df <- data.frame(
-    #     Date = character(0),
-    #     Time = character(0),
-    #     Dose = numeric(0),
-    #     Route = character(0), 
-    #     Duration = numeric(0),
-    #     stringsAsFactors = FALSE
-    #   )
-    #   rhandsontable(df, rowHeaders = NULL) 
-    # })
+    output$administration_table <- renderRHandsontable({
+      tdm_history <- data.frame(
+        tdm_time = character(),
+        concentration = numeric()
+      )
+      rhandsontable(tdm_history, rowHeaders = NULL) 
+    })
     
-    # # Return reactive values for use by other modules
-    # return(reactive({
-    #   list(
-    #     weight = input$weight,
-    #     height = input$height,
-    #     creatinine = input$creatinine,
-    #     renal_formula = input$renal_formula,
-    #     albumin = input$albumin,
-    #     bilirubin = input$bilirubin,
-    #     infusion_site = input$infusion_site,
-    #     drug_form = input$drug_form,
-    #     concentration = input$concentration,
-    #     start_date = input$start_date,
-    #     start_time = input$start_time,
-    #     administration_data = if (!is.null(input$administration_table)) {
-    #       hot_to_r(input$administration_table)
-    #     } else {
-    #       data.frame()
-    #     }
-    #   )
-    # }))
+    # Return reactive values for use by other modules
+    return(reactive({
+      if (!is.null(input$tdm_history)) {
+        hot_to_r(input$tdm_history)
+      } else {
+        data.frame(
+          tdm_time = character(),
+          concentration = numeric()
+        )
+      }
+    })
+    
+    
+    )
+
+    
   })
 }
