@@ -1,6 +1,6 @@
 PASTRx Version: 1.2.0.27.     2014/09/16 10:55         !version, date this file written.
    1      2014/09/15 14:43    2014/09/16 08:00         !Format key, created on, date of next regimen
-John                Doe         FN Unknown genetic grou! Last, First, Ethnic grp., Gender(F/M), Dialysis(D/N)
+Doe                 John        FN Unknown genetic grou! Last, First, Ethnic grp., Gender(F/M), Dialysis(D/N)
 GHE                        in 163.0 100 1969/06/18     !Chart,Ward,Room,cm/in,hgt(cm), muscle %,Birth(yr/mn/dy)
    2                                                   !no. of Effects
    1 Weight                             M3020          !No. samples, name, units, Metric indicator
