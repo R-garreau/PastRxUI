@@ -1,6 +1,7 @@
 box::use(
   bs4Dash[box],
-  shiny[column, dateInput, fluidRow, icon, moduleServer, NS, reactive, selectInput, selectizeInput, tabPanel, tagList, tags, textInput],
+  shiny[column, dateInput, fluidRow, icon, moduleServer, NS, observeEvent, reactive, selectInput, selectizeInput, tabPanel, tagList, tags, textInput, updateSelectInput],
+  stats[setNames],
 )
 
 #' Patient Information Tab UI
@@ -28,7 +29,7 @@ ui <- function(id, i18n) {
             fluidRow(
               tags$style(type = "text/css", ".datepicker { z-index: 99999 !important; }"),
               column(width = 6, dateInput(ns("birthdate"), label = i18n$translate("Birth Date"), format = "yyyy-mm-dd", value = Sys.Date(), language = "fr")),
-              column(width = 6, selectInput(inputId = ns("sex"), label = i18n$translate("Sex"), choices = c(i18n$translate("Male"), i18n$translate("Female"))))
+              column(width = 6, selectInput(inputId = ns("sex"), label = i18n$translate("Sex"), choices = c("Male", "Female")))
             ),
             fluidRow(
               column(width = 6, selectizeInput(inputId = ns("hospital"), label = i18n$translate("Hospital"), choices = c("HCL", "CHU"), options = list(create = TRUE))),
@@ -48,8 +49,9 @@ ui <- function(id, i18n) {
 #'
 #' @param id Module ID
 #' @export
-server <- function(id, i18n = NULL) {
+server <- function(id, i18n = NULL, lang_trigger = NULL) {
   moduleServer(id, function(input, output, session) {
+
     # Return reactive values for use by other modules
     return(reactive({
       list(
