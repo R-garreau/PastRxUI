@@ -97,7 +97,7 @@ server <- function(id) {
     
     # Call module servers
     patient_data <- patient_information$server("patient_info", i18n)
-    admin_data <- administration$server("admin", i18n)
+    admin_data <- administration$server("admin", i18n, patient_data)
     tdm_values <- tdm_data$server("tdm_data", i18n)
     
     # Handle language change

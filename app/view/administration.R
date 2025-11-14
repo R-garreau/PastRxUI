@@ -1,10 +1,17 @@
 box::use(
   bs4Dash[actionButton, box],
-  rhandsontable[rHandsontableOutput],
-  shiny[column, conditionalPanel, dateInput, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactiveValues, selectInput, tabPanel, tagList, tags, hr, updateSelectInput],
+  dplyr[bind_rows],
+  rhandsontable[rHandsontableOutput, rhandsontable, renderRHandsontable, hot_to_r],
+  shiny[column, conditionalPanel, dateInput, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactiveValues, req, selectInput, tabPanel, tagList, tags, hr, updateSelectInput],
   shinyTime[timeInput],
-  shinyWidgets[checkboxGroupButtons],
+  shinyWidgets[checkboxGroupButtons, prettyCheckbox],
   stats[setNames],
+)
+
+box::use(
+  app/logic/utils[date_time_format],
+  app/logic/fun_weight_formula[weight_formula],
+  app/logic/validators[validate_unique_times],
 )
 
 #' @export
@@ -31,7 +38,7 @@ ui <- function(id, i18n) {
   			  fluidRow(
   			    column(width = 3, numericInput(ns("height"), i18n$translate("Height"), min = 0, max = 230, step = 1, value = 170)),
   			    column(width = 4, offset = 1, selectInput(ns("weight_formula_selection"), i18n$translate("Weight Formula"), choices = c("TBW", "IBW", "LBW", "ABW"), selected = "TBW")),
-  			    column(width = 3, offset = 1, actionButton(ns("add_weight"), i18n$translate("Add Weight"), style = "margin-top: 30px;", width = "100%"))
+  			    column(width = 3, offset = 1, actionButton(ns("add_weight"), i18n$translate("Add Weight"), style = "margin-top: 30px;", status = "success", width = "100%"))
   			  ),
   			  hr(),
 
@@ -112,7 +119,7 @@ ui <- function(id, i18n) {
 
           # Multiple dose controls
           fluidRow(
-            column(width = 4,actionButton(ns("make_dosing_history"), i18n$translate("Add Dosing"), style = paste("margin-top: 30px;"), width = "100%")),
+            column(width = 4,actionButton(ns("make_dosing_history"), i18n$translate("Add Dosing"), status = "success", style = paste("margin-top: 30px;"), width = "100%")),
             column(width = 4,numericInput(ns("multiple_dose_admin"), i18n$translate("Multiple Doses"), min = 1, max = 50, step = 1, value = 1, width = "100%")),
             column(width = 4,
               conditionalPanel(
@@ -170,14 +177,134 @@ ui <- function(id, i18n) {
     	  width	= 6, 
     	  rHandsontableOutput(ns("weight_history")),
 				rHandsontableOutput(ns("dosing_history"))
-			)
+			), 
+      column(width = 1, 
+        box(
+          title = tagList(shiny::icon("file-prescription"), "Tool Box"),
+          status = "olive",
+          width = 12,
+          solidHeader = TRUE,
+          collapsible = FALSE,
+          headerBorder = TRUE,
+          background = "white",
+          fluidRow(
+            shinyWidgets::prettyCheckbox(
+              inputId = "weight_type_selection", label = "Use Mod Weight", value = FALSE,
+              status = "success", fill = FALSE, outline = TRUE,
+              shape = "curve", animation = "jelly"
+            ),
+            shinyWidgets::prettyCheckbox(
+              inputId = "bsa_selection", label = "Use BSA", value = FALSE,
+              status = "success", fill = FALSE, outline = TRUE,
+              shape = "curve", animation = "jelly"
+            ),
+            shinyWidgets::prettyCheckbox(
+              inputId = "african", label = "Africain", value = FALSE,
+              status = "success", fill = FALSE, outline = TRUE,
+              shape = "curve", animation = "jelly"
+            ),
+            shinyWidgets::prettyCheckbox(
+              inputId = "mg_dl_unit", label = "creat (mg/dL)", value = FALSE,
+              status = "success", fill = FALSE, outline = TRUE,
+              shape = "curve", animation = "jelly"
+            ),
+            shinyWidgets::prettyCheckbox(
+              inputId = "weight_lbs_unit", label = "Poids (lbs)", value = FALSE,
+              status = "success", fill = FALSE, outline = TRUE,
+              shape = "curve", animation = "jelly"
+            ),
+            shinyWidgets::prettyCheckbox(
+              inputId = "denorm_ccr", label = "CRCL denorm", value = FALSE,
+              status = "success", fill = FALSE, outline = TRUE,
+              shape = "curve", animation = "jelly"
+            )
+          )
+        )
+      )
     )
   )
 }
 
 #' @export
-server <- function(id, i18n = NULL) {
+server <- function(id, i18n = NULL, patient_data = NULL) {
   moduleServer(id, function(input, output, session) {
+    
+
+    # Reactive values to store patient information _________________________________________
+    patient_info <- reactiveValues(
+    dosing_history = data.frame(
+      Admin_date = character(),
+      Route = character(),
+      Infusion_rate = numeric(),
+      Infusion_duration = numeric(),
+      Dose = numeric(),
+      Creatinin_Clearance = numeric(),
+      creatinine = numeric()
+    ),
+    weight_history = data.frame(
+      Weight_date = character(),
+      Weight_value = numeric(),
+      mod_weight_type = character(),
+      tbw = numeric(),
+      bsa = numeric()
+    )
+  )
+
+
+    # Weight history when click on "Add Weight" _______________________________________________
+    observeEvent(input$add_weight, {
+      req(patient_data)
+      p_data <- patient_data()
+      
+      # calculate the weight and BSA based on the selected formula
+    weight_metric <- weight_formula(
+      input$weight,
+      input$height,
+      p_data$sex,
+      weight_unit = ifelse(input$weight_lbs_unit, "lbs", "kg"),
+      weight_formula = input$weight_formula_selection,
+      bsa_formula = "dubois",
+      capped = FALSE
+    )
+
+    # create output data frame
+    new_row_weight <- data.frame(
+      Weight_date = date_time_format(input$weight_date, input$weight_time),
+      Weight_value = weight_metric$weight,
+      mod_weight_type = input$weight_formula_selection,
+      tbw = input$weight,
+      bsa = weight_metric$bsa
+    )
+    # increment the data frame by adding a row with the new information provided
+    patient_info$weight_history <- bind_rows(patient_info$weight_history, new_row_weight)
+
+    validate_unique_times(patient_info$weight_history$Weight_date, "weight")
+    })
+
+
+
+    ## Dosing history when click on "Add Dosing" _______________________________________________
+    observeEvent(input$make_dosing_history, {
+      # Add new dosing entry
+      new_dosing <- data.frame(
+        Admin_date = paste(as.character(input$date_administration), format(input$administration_time, "%H:%M:%S")),
+        Route = input$administration_route,
+        Infusion_rate = ifelse(input$administration_route == "CI", input$syringe_speed, NA),
+        Infusion_duration = ifelse(input$administration_route != "CI", input$administration_duration, NA),
+        Dose = ifelse(input$administration_route != "CI", input$dose_input, input$syringe_dose),
+        Creatinin_Clearance = NA,  # Placeholder, calculation can be added
+        creatinine = NA  # Placeholder, can be filled with actual value
+      )
+      patient_info$dosing_history <- rbind(patient_info$dosing_history, new_dosing)
+
+      # Render updated dosing history table
+      output$dosing_history <- renderRHandsontable({ rhandsontable(patient_info$dosing_history, rowHeaders = NULL) })
+    })
+
+    # Render updated weight history table
+      output$weight_history <- renderRHandsontable({ rhandsontable(patient_info$weight_history, rowHeaders = NULL) })
+
+
 
     # # Reactive values for TDM data
     # data <- reactiveValues(
