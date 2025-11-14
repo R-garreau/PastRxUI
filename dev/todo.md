@@ -17,10 +17,10 @@
 
 
 ## general functions
-- [ ] add file loading in UI
-  - [ ] add button to load mb2 file 
-  - [ ] read the mb2 file
-  - [ ] populate the UI with the data from the mb2 file
+- [x] add file loading in UI
+  - [x] add button to load mb2 file 
+  - [x] read the mb2 file
+  - [x] populate the UI with the data from the mb2 file
 
 ## mb2 file
 - [ ] add option to choose weight formula when writing mb2 file (this is performed by the ticked value in toolbox) bsa/tbw or modified weight needs to be exclusive options, only one can be selected at a time

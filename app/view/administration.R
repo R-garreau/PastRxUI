@@ -162,7 +162,7 @@ ui <- function(id, i18n) {
 }
 
 #' @export
-server <- function(id, i18n = NULL, patient_data = NULL) {
+server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
   moduleServer(id, function(input, output, session) {
     
 
@@ -185,6 +185,20 @@ server <- function(id, i18n = NULL, patient_data = NULL) {
       bsa = numeric()
     )
   )
+
+    # Load data when loaded_data changes
+    observeEvent(loaded_data(), {
+      req(loaded_data())
+      data <- loaded_data()
+      
+      if (!is.null(data$weight_df) && nrow(data$weight_df) > 0) {
+        patient_info$weight_history <- data$weight_df
+      }
+      
+      if (!is.null(data$dose_df) && nrow(data$dose_df) > 0) {
+        patient_info$dosing_history <- data$dose_df
+      }
+    })
 
 
     # Weight history when click on "Add Weight" _______________________________________________
