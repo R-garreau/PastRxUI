@@ -1,27 +1,5 @@
-## NAMESPACE dependecies declaration -------------
-#' @importFrom dplyr case_when
-#' @importFrom stringr str_ends
-#' @importFrom cgwtools lsdata
-#' @importFrom rvest html_elements read_html html_text html_attr html_element
-#' @importFrom openxlsx write.xlsx read.xlsx
-#' @importFrom shinyFiles shinyDirChoose shinyDirButton
-#' @importFrom fs path_home
-#' @import officer
-#' @import bs4Dash
-#' @import rhandsontable
-#' @import shinyjs
-#' @import shinySelect
-#' @import shinyTime
-#' @import shinyvalidate
-#' @import yaml
-#' @import utils
-NULL
+# Utility functions
 
-# utility function -----------
-
-# Description
-#
-#
 
 #' @title date_time_format
 #' @description
@@ -30,6 +8,7 @@ NULL
 #'
 #' @param date can take any date value. Default value is Sys.Date()
 #' @param time can take any time value. Default value is Sys.time()
+#' 
 #' @export 
 
 date_time_format <- function(date = Sys.Date(),
@@ -37,6 +16,10 @@ date_time_format <- function(date = Sys.Date(),
   output <- paste(format(date, "%Y/%m/%d"), format(time, "%H:%M"))
   return(output)
 }
+
+
+
+
 
 #' is_unique
 #'
@@ -50,6 +33,10 @@ is_unique <- function(vector) {
   return(!any(duplicated(vector)))
 }
 
+
+
+
+
 #' combine_input
 #'
 #' @description
@@ -58,7 +45,7 @@ is_unique <- function(vector) {
 #' This prevent unecessary repetition of text while generating report
 #'
 #' @param var is the variable of interest
-#'
+#' @export 
 
 combine_input <- function(var) {
   if (length(var) > 1) {
@@ -91,3 +78,7 @@ calc_age <- function(birthdate) {
   age <- as.numeric(round((difftime(Sys.Date(), birthdate, units = "days") / 365.25), digits = 0))
   return(age)
 }
+
+# Ensure these functions are exported when this file is loaded as a box module
+# (box supports explicit exports via `box::export()`)
+box::export(date_time_format, is_unique, combine_input, calc_age)
