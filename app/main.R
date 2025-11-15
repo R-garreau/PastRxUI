@@ -145,9 +145,9 @@ server <- function(id) {
         # Update weight history to select the appropriate weight type
         # Priority: BSA > Mod Weight > TBW (default when both unchecked)
         weight_history_data <- a_data$weight_history
-        if (input$mb2_settings_weight_type_selection == "bsa") {
+        if (input$weight_type_selection == "BSA") {
           selected_weight_data <- select(weight_history_data, .data$Weight_date, .data$bsa)
-        } else if (input$mb2_settings_weight_type_selection == "mod_weight") {
+        } else if (input$weight_type_selection == "mod_weight") {
           selected_weight_data <- select(weight_history_data, .data$Weight_date, .data$Weight_value)
         } else {
           # Both unchecked - default to TBW
