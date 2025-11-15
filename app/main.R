@@ -1,17 +1,21 @@
 box::use(
   bs4Dash[dashboardBody, dashboardPage, bs4DashNavbar, dashboardSidebar, tabsetPanel],
   dplyr[select],
-  shiny[downloadButton, downloadHandler, fileInput, fluidPage, icon,moduleServer, NS,
-        observeEvent, reactive, reactiveVal, req, selectInput, showNotification,
-        tagList, tags, updateDateInput, updateSelectInput, updateSelectizeInput, updateTextInput],
+  shiny[
+    downloadButton, downloadHandler, fileInput, fluidPage, icon, moduleServer, NS,
+    observeEvent, reactive, reactiveVal, req, selectInput, showNotification,
+    tagList, tags, updateDateInput, updateSelectInput, updateSelectizeInput, updateTextInput
+  ],
   shiny.i18n[Translator, usei18n, update_lang],
-  shinyWidgets[dropdownButton]
+  shinyWidgets[dropdownButton],
+  utils[zip]
 )
 
 box::use(
   app / logic / fun_name_file[name_file],
   app / logic / fun_write_mb2[write_mb2],
   app / logic / mb2_read[read_mb2],
+  app / logic / json_state[save_app_state_json, load_app_state_json, get_json_filename],
   app / view / administration,
   app / view / patient_information,
   app / view / tdm_data,
@@ -19,7 +23,7 @@ box::use(
 
 # Initialize translator
 i18n <- Translator$new(translation_json_path = "app/static/translations.json", automatic = FALSE)
-i18n$set_translation_language("en") # English as default
+i18n$set_translation_language("fr") # English as default
 
 #' @export
 ui <- function(id) {
@@ -56,7 +60,7 @@ ui <- function(id) {
           fileInput(
             ns("load_file"),
             label = NULL,
-            accept = ".mb2",
+            accept = c(".mb2", ".json"),
             buttonLabel = i18n$translate("Load"),
             placeholder = "",
             width = "150px"
@@ -108,13 +112,14 @@ server <- function(id) {
       filename = function() {
         req(patient_data())
         p_data <- patient_data()
-        name_file(
+        base_name <- name_file(
           first_name = p_data$first_name,
           last_name = p_data$last_name,
           hospital = p_data$hospital,
           drug = p_data$drug,
-          ext = ".mb2"
+          ext = ""
         )
+        paste0(base_name, ".zip")
       },
       content = function(file) {
         # Require data from modules - only patient data is mandatory
@@ -134,11 +139,15 @@ server <- function(id) {
         mb2_tdm_history <- tdm_data
         mb2_dosing_history <- a_data$dosing_history
 
+        # Determine correction factor
+        correction_factor <- 1
+
         # Check if concentration correction should be applied only for MB2 file
         if (nrow(mb2_tdm_history) > 0 && max(mb2_tdm_history$concentration) > 100) {
           mb2_tdm_history$concentration <- mb2_tdm_history$concentration / 10
           mb2_dosing_history$Dose <- mb2_dosing_history$Dose / 10
           mb2_dosing_history$Infusion_rate <- mb2_dosing_history$Infusion_rate / 10
+          correction_factor <- 10
           showNotification("All concentration and dose will be divided by 10 in the MB2 file", type = "warning")
         }
 
@@ -163,7 +172,6 @@ server <- function(id) {
           hospital = p_data$hospital,
           ward = p_data$ward,
           room = "",
-          phone_number = p_data$phone_number,
           height = a_data$height,
           birthdate = format(p_data$birthdate, "%Y/%m/%d"),
           drug_name = p_data$drug,
@@ -175,13 +183,59 @@ server <- function(id) {
           weight_data = selected_weight_data,
           administration_data = mb2_dosing_history,
           level_data = mb2_tdm_history,
-          mic_value = 0 # TODO: Get MIC value from inputs
+          mic_value = 0
         )
 
-        writeLines(mb2_content, file)
+        # Create JSON with complete app state
+        settings_list <- list(
+          weight_type = input$weight_type_selection,
+          creatinine_unit = ifelse(a_data$mg_dl_unit, "mg/dL", "uM/L"),
+          african = a_data$african,
+          denorm_ccr = a_data$denorm_ccr,
+          weight_lbs_unit = a_data$weight_lbs_unit,
+          mg_dl_unit = a_data$mg_dl_unit
+        )
+
+        json_content <- save_app_state_json(
+          patient_data = p_data,
+          admin_data = a_data,
+          tdm_data = tdm_data,
+          settings = settings_list,
+          correction_factor = correction_factor
+        )
+
+        # Create temporary directory for files
+        temp_dir <- tempdir()
+
+        # Generate base filename
+        base_filename <- name_file(
+          first_name = p_data$first_name,
+          last_name = p_data$last_name,
+          hospital = p_data$hospital,
+          drug = p_data$drug,
+          ext = ""
+        )
+
+        # Write both files to temp directory
+        mb2_file <- file.path(temp_dir, paste0(base_filename, ".mb2"))
+        json_file <- file.path(temp_dir, paste0(base_filename, ".json"))
+
+        writeLines(mb2_content, mb2_file)
+        writeLines(json_content, json_file)
+
+        # Create zip file
+        zip(
+          zipfile = file,
+          files = c(mb2_file, json_file),
+          flags = "-j" # junk (don't record) directory names
+        )
+
+        # Clean up temp files
+        file.remove(mb2_file)
+        file.remove(json_file)
 
         showNotification(
-          "File saved successfully!",
+          "Files saved successfully! (MB2 + JSON in ZIP)",
           type = "message",
           duration = 3
         )
@@ -197,33 +251,94 @@ server <- function(id) {
           # Read the MB2 file
           data_file <- read_mb2(input$load_file$datapath)
 
-          # Update Patient Information tab inputs
-          updateTextInput(session, "patient_info-first_name", value = data_file$patient_first_name)
-          updateTextInput(session, "patient_info-last_name", value = data_file$patient_last_name)
-          updateTextInput(session, "patient_info-ward", value = data_file$ward)
-          updateTextInput(session, "patient_info-phone_number", value = "")
-          updateDateInput(session, "patient_info-birthdate", value = as.Date(data_file$birthdate))
-          updateSelectInput(session, "patient_info-sex", selected = data_file$sex)
-          updateSelectInput(session, "patient_info-drug", selected = data_file$drug_name)
-          updateSelectizeInput(session, "patient_info-hospital",
-            selected = data_file$hospital,
-            choices = c("HCL", "CHU", data_file$hospital)
-          )
+          # Check if corresponding JSON file exists
+          json_path <- get_json_filename(input$load_file$datapath)
+          json_loaded <- FALSE
 
-          # Trigger module data loading by setting the reactive
-          loaded_file_data(data_file)
+          if (file.exists(json_path)) {
+            tryCatch(
+              {
+                app_state <- load_app_state_json(json_path)
 
-          # Show success notifications
-          showNotification(
-            paste(
-              "File loaded successfully!",
-              "Weight:", nrow(data_file$weight_df), "entries,",
-              "Dosing:", nrow(data_file$dose_df), "entries,",
-              "TDM:", nrow(data_file$level_df), "values"
-            ),
-            type = "message",
-            duration = 5
-          )
+                # Update all inputs from JSON state
+                updateTextInput(session, "patient_info-first_name", value = app_state$patient$first_name)
+                updateTextInput(session, "patient_info-last_name", value = app_state$patient$last_name)
+                updateTextInput(session, "patient_info-ward", value = app_state$patient$ward)
+                updateDateInput(session, "patient_info-birthdate", value = app_state$patient$birthdate)
+                updateSelectInput(session, "patient_info-sex", selected = app_state$patient$sex)
+                updateSelectInput(session, "patient_info-drug", selected = app_state$patient$drug)
+                updateSelectizeInput(session, "patient_info-hospital",
+                  selected = app_state$patient$hospital,
+                  choices = c("HCL", "CHU", app_state$patient$hospital)
+                )
+
+                # Update settings
+                if (!is.null(app_state$settings$weight_type)) {
+                  updateSelectInput(session, "weight_type_selection", selected = app_state$settings$weight_type)
+                }
+
+                # Create loaded data with full state from JSON
+                full_data <- data_file
+                full_data$weight_df <- app_state$weight_history
+                full_data$dose_df <- app_state$dosing_history
+                full_data$level_df <- app_state$tdm_history
+                full_data$settings <- app_state$settings
+                full_data$correction_factor <- app_state$correction$factor
+
+                loaded_file_data(full_data)
+                json_loaded <- TRUE
+
+                showNotification(
+                  paste(
+                    "File loaded successfully with settings!",
+                    "Weight:", nrow(app_state$weight_history), "entries,",
+                    "Dosing:", nrow(app_state$dosing_history), "entries,",
+                    "TDM:", nrow(app_state$tdm_history), "values,",
+                    "Correction factor:", app_state$correction$factor
+                  ),
+                  type = "message",
+                  duration = 5
+                )
+              },
+              error = function(e) {
+                showNotification(
+                  paste("Could not load JSON file, loading MB2 only:", e$message),
+                  type = "warning",
+                  duration = 5
+                )
+              }
+            )
+          }
+
+          # Fallback to MB2 only if JSON not found or failed
+          if (!json_loaded) {
+            # Update Patient Information tab inputs
+            updateTextInput(session, "patient_info-first_name", value = data_file$patient_first_name)
+            updateTextInput(session, "patient_info-last_name", value = data_file$patient_last_name)
+            updateTextInput(session, "patient_info-ward", value = data_file$ward)
+            updateDateInput(session, "patient_info-birthdate", value = as.Date(data_file$birthdate))
+            updateSelectInput(session, "patient_info-sex", selected = data_file$sex)
+            updateSelectInput(session, "patient_info-drug", selected = data_file$drug_name)
+            updateSelectizeInput(session, "patient_info-hospital",
+              selected = data_file$hospital,
+              choices = c("HCL", "CHU", data_file$hospital)
+            )
+
+            # Trigger module data loading by setting the reactive
+            loaded_file_data(data_file)
+
+            # Show success notifications
+            showNotification(
+              paste(
+                "File loaded successfully!",
+                "Weight:", nrow(data_file$weight_df), "entries,",
+                "Dosing:", nrow(data_file$dose_df), "entries,",
+                "TDM:", nrow(data_file$level_df), "values"
+              ),
+              type = "message",
+              duration = 5
+            )
+          }
         },
         error = function(e) {
           showNotification(
