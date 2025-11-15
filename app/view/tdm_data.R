@@ -49,16 +49,16 @@ server <- function(id, i18n = NULL, loaded_data = NULL) {
 
       if (!is.null(data$level_df) && nrow(data$level_df) > 0) {
         tdm_reactive(data$level_df)
-        output$tdm_history <- renderRHandsontable({
-          rhandsontable(data$level_df, rowHeaders = NULL)
-        })
       }
     })
 
+    # Add new TDM entry when button is clicked
     observeEvent(input$make_tdm_history, {
       # Get existing data from the table
       existing_data <- if (!is.null(input$tdm_history)) {
         hot_to_r(input$tdm_history)
+      } else {
+        tdm_reactive()
       }
 
       # Create new entry
@@ -69,19 +69,12 @@ server <- function(id, i18n = NULL, loaded_data = NULL) {
 
       # Combine existing data with new entry
       updated_data <- rbind(existing_data, new_entry)
-
+      tdm_reactive(updated_data)
     })
 
-    # Render the updated table
-    output$tdm_history <- renderRHandsontable({ rhandsontable(updated_data, rowHeaders = NULL) })
-
-    # Initialize empty administration table
-    output$administration_table <- renderRHandsontable({
-      tdm_history <- data.frame(
-        tdm_time = character(),
-        concentration = numeric()
-      )
-      rhandsontable(tdm_history, rowHeaders = NULL)
+    # Render the TDM history table
+    output$tdm_history <- renderRHandsontable({
+      rhandsontable(tdm_reactive(), rowHeaders = NULL)
     })
 
     # Return reactive values for use by other modules
@@ -89,10 +82,7 @@ server <- function(id, i18n = NULL, loaded_data = NULL) {
       if (!is.null(input$tdm_history)) {
         hot_to_r(input$tdm_history)
       } else {
-        data.frame(
-          tdm_time = character(),
-          concentration = numeric()
-        )
+        tdm_reactive()
       }
     }))
   })
