@@ -98,25 +98,38 @@ mb2_json_read <- function(json_file_path) {
   }
 
   # Read and parse JSON
-  app_state <- fromJSON(json_file_path, simplifyDataFrame = TRUE)
+  mb2_json <- fromJSON(json_file_path, simplifyDataFrame = TRUE)
 
   # Validate version compatibility (optional)
-  if (!is.null(app_state$metadata$version)) {
+  if (!is.null(mb2_json$metadata$version)) {
     # Future version checks can be added here
   }
 
   # Convert date fields back to proper types
-  if (!is.null(app_state$patient$birthdate)) {
-    app_state$patient$birthdate <- as.Date(app_state$patient$birthdate)
+  if (!is.null(mb2_json$patient$birthdate)) {
+    mb2_json$patient$birthdate <- as.Date(mb2_json$patient$birthdate)
   }
 
-  if (!is.null(app_state$administration_settings$date_next_dose)) {
-    app_state$administration_settings$date_next_dose <- as.Date(app_state$administration_settings$date_next_dose)
+  if (!is.null(mb2_json$administration_settings$date_next_dose)) {
+    mb2_json$administration_settings$date_next_dose <- as.Date(mb2_json$administration_settings$date_next_dose)
+  }
+
+  # correct dose and concentration if correction was applied, parameters cannot be null or empty when saved
+  if (mb2_json$correction$applied) {
+    factor <- mb2_json$correction$factor
+    mb2_json$dosing_history$Dose <- mb2_json$dosing_history$Dose * factor
+    mb2_json$dosing_history$Infusion_rate <- mb2_json$dosing_history$Infusion_rate * factor
+    mb2_json$tdm_history$concentration <- mb2_json$tdm_history$concentration * factor
+  }
+
+  # correct the unit in weight history history based on saved settings
+  if (length(mb2_json$weight_history) > 0) {
+    mb2_json$weight_history$weight_unit <- ifelse(mb2_json$settings$weight_lbs, "lbs", "kg")
   }
 
   # Ensure data frames are properly formatted
-  if (is.null(app_state$weight_history) || length(app_state$weight_history) == 0) {
-    app_state$weight_history <- data.frame(
+  if (is.null(mb2_json$weight_history) || length(mb2_json$weight_history) == 0) {
+    mb2_json$weight_history <- data.frame(
       Weight_date = character(),
       Weight_value = numeric(),
       mod_weight_type = character(),
@@ -126,8 +139,8 @@ mb2_json_read <- function(json_file_path) {
     )
   }
 
-  if (is.null(app_state$dosing_history) || length(app_state$dosing_history) == 0) {
-    app_state$dosing_history <- data.frame(
+  if (is.null(mb2_json$dosing_history) || length(mb2_json$dosing_history) == 0) {
+    mb2_json$dosing_history <- data.frame(
       Admin_date = character(),
       Route = character(),
       Infusion_rate = numeric(),
@@ -139,14 +152,14 @@ mb2_json_read <- function(json_file_path) {
     )
   }
 
-  if (is.null(app_state$tdm_history) || length(app_state$tdm_history) == 0) {
-    app_state$tdm_history <- data.frame(
+  if (is.null(mb2_json$tdm_history) || length(mb2_json$tdm_history) == 0) {
+    mb2_json$tdm_history <- data.frame(
       tdm_time = character(),
       concentration = numeric()
     )
   }
 
-  return(app_state)
+  return(mb2_json)
 }
 
 
