@@ -196,7 +196,7 @@ server <- function(id) {
           mg_dl_unit = a_data$mg_dl_unit
         )
 
-        json_content <- mb2_json_write()(
+        json_content <- mb2_json_write(
           patient_data = p_data,
           admin_data = a_data,
           tdm_data = tdm_data,
