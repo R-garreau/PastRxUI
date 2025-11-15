@@ -32,14 +32,47 @@ ui <- function(id) {
   usei18n(i18n)
 
   dashboardPage(
-    dark = FALSE,
-    help = FALSE,
+    dark = NULL,
+    help = NULL,
     skin = "info",
     header = bs4DashNavbar(
-      title = "PastRx TDM",
+      title = tagList(
+        tags$img(
+          src = "static/BD_shortlogo.png",
+          height = "80px",
+          style = "margin-right: 5px;"
+        ), tags$h3("PastRx")
+      ),
+      skin = "dark",
+      status = "lightblue",
       leftUi = tagList(
         tags$li(
           class = "dropdown",
+          style = "display: flex; align-items: center; margin-top: 22px; margin-left: 50px;",
+          tags$style(".shiny-file-input-progress {display: none}"),
+          fileInput(
+            ns("load_file"),
+            label = NULL,
+            accept = c(".mb2", ".json"),
+            buttonLabel = i18n$translate("Load"),
+            placeholder = "",
+            width = "300px"
+          )
+        ),
+        tags$li(
+          class = "dropdown",
+          style = "display: flex; align-items: center;",
+          downloadButton(
+            ns("save_file"),
+            i18n$translate("Save"),
+            style = "background-color: #3d9970; color: white; margin-left: 10px;"
+          )
+        )
+      ),
+      rightUi = tagList(
+        tags$li(
+          class = "dropdown",
+          style = "margin-right: 20px;",
           dropdownButton(
             inputId = ns("mb2_settings"),
             label = i18n$translate("Settings"),
@@ -51,27 +84,6 @@ ui <- function(id) {
             tags$h3(i18n$translate("Settings")),
             selectInput(ns("weight_type_selection"), label = i18n$translate("Weight Type"), choices = c("Total Weight" = "TBW", "Modified weight" = "mod_weight", "Body Surface Area" = "BSA"), selected = "TBW"),
             selectInput(ns("language"), label = i18n$translate("Language"), choices = i18n$get_languages(), selected = i18n$get_key_translation(), width = "150px")
-          )
-        )
-      ),
-      rightUi = tagList(
-        tags$li(
-          class = "dropdown",
-          fileInput(
-            ns("load_file"),
-            label = NULL,
-            accept = c(".mb2", ".json"),
-            buttonLabel = i18n$translate("Load"),
-            placeholder = "",
-            width = "150px"
-          )
-        ),
-        tags$li(
-          class = "dropdown",
-          downloadButton(
-            ns("save_file"),
-            i18n$translate("Save"),
-            style = "background-color: #3d9970; color: white; margin-left: 10px;"
           )
         )
       )
@@ -98,9 +110,9 @@ server <- function(id) {
     loaded_file_data <- reactiveVal(NULL)
 
     # Call module servers with loaded_data reactive
-    patient_data <- patient_information$server("patient_info", i18n)
     admin_data <- administration$server("admin", i18n, patient_data, reactive(loaded_file_data()))
     tdm_values <- tdm_data$server("tdm_data", i18n, reactive(loaded_file_data()))
+    patient_data <- patient_information$server("patient_info", i18n, admin_data, tdm_values, reactive(input$weight_type_selection))
 
     # Handle language change
     observeEvent(input$language, {
