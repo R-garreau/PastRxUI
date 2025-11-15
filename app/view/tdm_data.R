@@ -1,6 +1,6 @@
 box::use(
   bs4Dash[actionButton, box],
-  rhandsontable[hot_to_r, rhandsontable, rHandsontableOutput, renderRHandsontable],
+  DT[datatable, dataTableOutput, renderDataTable],
   shiny[column, dateInput, div, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactive, reactiveVal, req, tabPanel, tagList, tags],
   shinyTime[timeInput],
 )
@@ -26,9 +26,7 @@ ui <- function(id, i18n) {
         numericInput(ns("concentration_value"), label = i18n$translate("Concentration Value"), value = 0),
         column(width = 4, actionButton(ns("make_tdm_history"), i18n$translate("Add TDM Data"), style = "background-color: #3d9970; color: white;"))
       ),
-      tags$div(
-        rHandsontableOutput(ns("tdm_history"))
-      )
+      column(width = 4, dataTableOutput(ns("tdm_history")))
     )
   )
 }
@@ -54,12 +52,8 @@ server <- function(id, i18n = NULL, loaded_data = NULL) {
 
     # Add new TDM entry when button is clicked
     observeEvent(input$make_tdm_history, {
-      # Get existing data from the table
-      existing_data <- if (!is.null(input$tdm_history)) {
-        hot_to_r(input$tdm_history)
-      } else {
-        tdm_reactive()
-      }
+      # Get existing data
+      existing_data <- tdm_reactive()
 
       # Create new entry
       new_entry <- data.frame(
@@ -72,18 +66,67 @@ server <- function(id, i18n = NULL, loaded_data = NULL) {
       tdm_reactive(updated_data)
     })
 
+    # Observer to sync manual edits from tdm_history table
+    observeEvent(input$tdm_history_cell_edit, {
+      info <- input$tdm_history_cell_edit
+      if (!is.null(info)) {
+        current_data <- tdm_reactive()
+        current_data[info$row, info$col] <- info$value
+        tdm_reactive(current_data)
+      }
+    })
+
+    # Observer to delete tdm_history rows
+    observeEvent(input$delete_tdm_row, {
+      row_to_delete <- input$delete_tdm_row
+      if (!is.null(row_to_delete) && row_to_delete > 0 && row_to_delete <= nrow(tdm_reactive())) {
+        current_data <- tdm_reactive()
+        tdm_reactive(current_data[-row_to_delete, , drop = FALSE])
+      }
+    })
+
     # Render the TDM history table
-    output$tdm_history <- renderRHandsontable({
-      rhandsontable(tdm_reactive(), rowHeaders = NULL)
+    output$tdm_history <- renderDataTable({
+      if (nrow(tdm_reactive()) > 0) {
+        data_with_delete <- tdm_reactive()
+        data_with_delete$Delete <- sprintf(
+          '<button class="btn btn-danger btn-sm" onclick="Shiny.setInputValue(\'%s\', %d, {priority: \'event\'})"><i class="fa fa-trash"></i></button>',
+          session$ns("delete_tdm_row"),
+          seq_len(nrow(data_with_delete))
+        )
+        datatable(
+          data_with_delete,
+          class = "cell-border stripe",
+          editable = list(target = "cell", disable = list(columns = ncol(data_with_delete) - 1)),
+          colnames = c("Date", "Concentration", "Delete"),
+          rownames = FALSE,
+          escape = FALSE,
+          options = list(
+            pageLength = 10,
+            scrollX = TRUE,
+            dom = 't',
+            columnDefs = list(list(orderable = FALSE, targets = ncol(data_with_delete) - 1))
+          )
+        )
+      } else {
+        datatable(
+          tdm_reactive(),
+          class = "cell-border stripe",
+          colnames = c("Date", "Concentration", "Delete"),
+          editable = TRUE,
+          rownames = FALSE,
+          options = list(
+            pageLength = 10,
+            scrollX = TRUE,
+            dom = 't'
+          )
+        )
+      }
     })
 
     # Return reactive values for use by other modules
     return(reactive({
-      if (!is.null(input$tdm_history)) {
-        hot_to_r(input$tdm_history)
-      } else {
-        tdm_reactive()
-      }
+      tdm_reactive()
     }))
   })
 }

@@ -1,7 +1,7 @@
 box::use(
   bs4Dash[actionButton, box],
   dplyr[arrange, bind_rows, case_when],
-  rhandsontable[hot_to_r, rHandsontableOutput, rhandsontable, renderRHandsontable],
+  DT[datatable, dataTableOutput, renderDataTable],
   shiny[br, column, conditionalPanel, dateInput, div, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactive, reactiveValues, req, selectInput, tabPanel, tagList, hr, uiOutput],
   shinyTime[timeInput],
   shinyWidgets[dropdownButton, prettyCheckbox],
@@ -182,9 +182,9 @@ ui <- function(id, i18n) {
       ),
       column( ## Dataframe output generated in body_tdm_input ----
         width = 8,
-        column(width = 12, div(style = "height: 20vh; overflow-y: auto; overflow-x: auto;", rHandsontableOutput(ns("weight_history")))),
+        column(width = 12, div(style = "height: 20vh; overflow-y: auto; overflow-x: auto;", dataTableOutput(ns("weight_history")))),
         br(),
-        column(width = 12, div(style = "height: 60vh; overflow-y: auto; overflow-x: auto;", rHandsontableOutput(ns("dosing_history"))))
+        column(width = 12, div(style = "height: 60vh; overflow-y: auto; overflow-x: auto;", dataTableOutput(ns("dosing_history"))))
       )
     )
   )
@@ -363,32 +363,120 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
     })
 
     # Observer to sync manual edits from dosing_history table
-    observeEvent(input$dosing_history, {
-      if (!is.null(input$dosing_history)) {
-        edited_data <- hot_to_r(input$dosing_history)
+    observeEvent(input$dosing_history_cell_edit, {
+      info <- input$dosing_history_cell_edit
+      if (!is.null(info)) {
+        patient_info$dosing_history[info$row, info$col] <- info$value
         # Sort by date/time
-        edited_data <- arrange(edited_data, Admin_date)
-        patient_info$dosing_history <- edited_data
+        patient_info$dosing_history <- arrange(patient_info$dosing_history, Admin_date)
+      }
+    })
+
+    # Observer to delete dosing_history rows
+    observeEvent(input$delete_dosing_row, {
+      row_to_delete <- input$delete_dosing_row
+      if (!is.null(row_to_delete) && row_to_delete > 0 && row_to_delete <= nrow(patient_info$dosing_history)) {
+        patient_info$dosing_history <- patient_info$dosing_history[-row_to_delete, , drop = FALSE]
       }
     })
 
     # Observer to sync manual edits from weight_history table
-    observeEvent(input$weight_history, {
-      if (!is.null(input$weight_history)) {
-        edited_data <- hot_to_r(input$weight_history)
+    observeEvent(input$weight_history_cell_edit, {
+      info <- input$weight_history_cell_edit
+      if (!is.null(info)) {
+        patient_info$weight_history[info$row, info$col] <- info$value
         # Sort by date/time
-        edited_data <- arrange(edited_data, Weight_date)
-        patient_info$weight_history <- edited_data
+        patient_info$weight_history <- arrange(patient_info$weight_history, Weight_date)
+      }
+    })
+
+    # Observer to delete weight_history rows
+    observeEvent(input$delete_weight_row, {
+      row_to_delete <- input$delete_weight_row
+      if (!is.null(row_to_delete) && row_to_delete > 0 && row_to_delete <= nrow(patient_info$weight_history)) {
+        patient_info$weight_history <- patient_info$weight_history[-row_to_delete, , drop = FALSE]
       }
     })
 
     # Render updated dosing history table
-    output$dosing_history <- renderRHandsontable({
-      rhandsontable(patient_info$dosing_history, rowHeaders = NULL)
+    output$dosing_history <- renderDataTable({
+      if (nrow(patient_info$dosing_history) > 0) {
+        data_with_delete <- patient_info$dosing_history
+        data_with_delete$Delete <- sprintf(
+          '<button class="btn btn-danger btn-sm" onclick="Shiny.setInputValue(\'%s\', %d, {priority: \'event\'})"><i class="fa fa-trash"></i></button>',
+          session$ns("delete_dosing_row"),
+          seq_len(nrow(data_with_delete))
+        )
+        datatable(
+          data_with_delete,
+          class = "cell-border stripe",
+          editable = list(target = "cell", disable = list(columns = ncol(data_with_delete) - 1)),
+          colnames = c("Date", "Route", "Infusion Rate", "Infusion Duration", "Dose", "Creatinine Clearance", "Creatinine", "Creatinine Unit", "Delete"),
+          rownames = FALSE,
+          escape = FALSE,
+          options = list(
+            pageLength = 20,
+            scrollX = TRUE,
+            scrollY = "50vh",
+            dom = "t",
+            columnDefs = list(list(orderable = FALSE, targets = ncol(data_with_delete) - 1))
+          )
+        )
+      } else {
+        datatable(
+          patient_info$dosing_history,
+					class = "cell-border stripe",
+					colnames = c("Date", "Route", "Infusion Rate", "Infusion Duration", "Dose", "Creatinine Clearance", "Creatinine", "Creatinine Unit", "Delete"),
+          editable = TRUE,
+          rownames = FALSE,
+          options = list(
+            pageLength = 20,
+            scrollX = TRUE,
+            scrollY = "50vh",
+            dom = "t"
+          )
+        )
+      }
     })
     # Render updated weight history table
-    output$weight_history <- renderRHandsontable({
-      rhandsontable(patient_info$weight_history, rowHeaders = NULL)
+    output$weight_history <- renderDataTable({
+      if (nrow(patient_info$weight_history) > 0) {
+        data_with_delete <- patient_info$weight_history
+        data_with_delete$Delete <- sprintf(
+          '<button class="btn btn-danger btn-sm" onclick="Shiny.setInputValue(\'%s\', %d, {priority: \'event\'})"><i class="fa fa-trash"></i></button>',
+          session$ns("delete_weight_row"),
+          seq_len(nrow(data_with_delete))
+        )
+        datatable(
+          data_with_delete,
+          class = "cell-border stripe",
+          editable = list(target = "cell", disable = list(columns = ncol(data_with_delete) - 1)),
+          colnames = c("Date", "Weight Value", "Weight Used", "Total Weight", "BSA (m²)", "Unit", "Delete"),
+          rownames = FALSE,
+          escape = FALSE,
+          options = list(
+            pageLength = 20,
+            scrollX = TRUE,
+            scrollY = "15vh",
+            dom = "t",
+            columnDefs = list(list(orderable = FALSE, targets = ncol(data_with_delete) - 1))
+          )
+        )
+      } else {
+        datatable(
+          patient_info$weight_history,
+					class = "cell-border stripe",
+					colnames = c("Date", "Weight Value", "Weight Used", "Total Weight", "BSA (m²)", "Unit", "Delete"),
+          editable = TRUE,
+          rownames = FALSE,
+          options = list(
+            pageLength = 20,
+            scrollX = TRUE,
+            scrollY = "15vh",
+            dom = "t"
+          )
+        )
+      }
     })
 
     # Return reactive containing all administration data needed by main module
