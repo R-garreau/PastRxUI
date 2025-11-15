@@ -1,6 +1,6 @@
 box::use(
   bs4Dash[actionButton, box],
-  dplyr[arrange, bind_rows],
+  dplyr[arrange, bind_rows, case_when],
   rhandsontable[hot_to_r, rHandsontableOutput, rhandsontable, renderRHandsontable],
   shiny[br, column, conditionalPanel, dateInput, div, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactive, reactiveValues, req, selectInput, tabPanel, tagList, hr, uiOutput],
   shinyTime[timeInput],
@@ -25,7 +25,7 @@ ui <- function(id, i18n) {
       column(
         width = 4,
         box(
-          title = tagList(shiny::icon("vials"), i18n$translate("Lab Values")),
+          title = tagList(shiny::icon("vials"), i18n$translate("Covariates")),
           status = "info",
           width = 12,
           solidHeader = TRUE,
@@ -61,45 +61,6 @@ ui <- function(id, i18n) {
                 fluidRow(
                   column(width = 6, numericInput(ns("urine_creatinine"), i18n$translate("Urinary Creatinine"), value = 0)),
                   column(width = 6, numericInput(ns("urine_output"), i18n$translate("Urinary Output"), value = 0))
-                )
-              )
-            ),
-            column(
-              width = 3,
-              offset = 1,
-              dropdownButton(
-                label = i18n$translate("Renal Calculator"),
-                status = "info",
-                size = "sm",
-                circle = FALSE,
-                icon = icon("calculator"),
-                width = "300px",
-                fluidRow(
-                  column(
-                    width = 8,
-                    numericInput(ns("weight_calculator"), i18n$translate("Weight for Renal Calc."), value = 70),
-                    numericInput(ns("creatinine_calculator"), i18n$translate("Creatinine for Renal Calc."), value = 60)
-                  ),
-                  column(
-                    width = 4,
-                    uiOutput(ns("renal_calc_output"))
-                  )
-                )
-              ),
-              # actionButton(ns("renal_formula_calculator"), i18n$translate("Renal Calculator"), icon = icon("calculator")),
-              dropdownButton(
-                label = i18n$translate("options"),
-                status = "info",
-                size = "sm",
-                circle = FALSE,
-                icon = icon("gear"),
-                width = "300px",
-                column(
-                  width = 12,
-                  prettyCheckbox(inputId = ns("african"), label = "Africain", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
-                  prettyCheckbox(inputId = ns("mg_dl_unit"), label = "creat (mg/dL)", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
-                  prettyCheckbox(inputId = ns("weight_lbs_unit"), label = "Poids (lbs)", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
-                  prettyCheckbox(inputId = ns("denorm_ccr"), label = "CRCL denorm", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly")
                 )
               )
             )
@@ -144,19 +105,19 @@ ui <- function(id, i18n) {
             ),
             fluidRow(
               column(width = 6, numericInput(ns("dose_input"), label = i18n$translate("Dose"), value = 0)),
-              column(width = 6, numericInput(ns("administration_duration"), label = i18n$translate("Administration Duration"), value = 0.5, step = 0.1))
+              column(
+                width = 6,
+                conditionalPanel(
+                  condition = sprintf("input['%s'] == 'IV'", ns("administration_route")),
+                  numericInput(ns("administration_duration"), label = i18n$translate("Administration Duration"), value = 0.5, step = 0.1)
+                )
+              ) # ,
+              # column(width = 6, numericInput(ns("administration_duration"), label = i18n$translate("Administration Duration"), value = 0.5, step = 0.1))
             )
-          ),
-
-          # Next dose section
-          fluidRow(
-            column(width = 6, dateInput(ns("date"), label = i18n$translate("Next Dose Date"), format = "yyyy-mm-dd", value = Sys.Date(), language = i18n$get_key_translation())),
-            column(width = 6, timeInput(ns("time"), label = i18n$translate("Next Dose Time"), seconds = FALSE, value = Sys.time()))
           ),
 
           # Multiple dose controls
           fluidRow(
-            column(width = 4, actionButton(ns("make_dosing_history"), i18n$translate("Add Dosing"), status = "success", style = paste("margin-top: 30px;"), width = "100%")),
             column(width = 4, numericInput(ns("multiple_dose_admin"), i18n$translate("Multiple Doses"), min = 1, max = 50, step = 1, value = 1, width = "100%")),
             column(
               width = 4,
@@ -164,12 +125,63 @@ ui <- function(id, i18n) {
                 condition = sprintf("input['%s'] > 1", ns("multiple_dose_admin")),
                 numericInput(ns("multiple_dose_interval"), i18n$translate("Dose Interval"), min = 0.5, step = 0.5, value = 24, width = "100%")
               )
+            ),
+            column(width = 4, actionButton(ns("make_dosing_history"), i18n$translate("Add Dosing"), status = "success", style = paste("margin-top: 30px;"), width = "100%"))
+          )
+        ),
+        box(
+          title = tagList(shiny::icon("info"), i18n$translate("Additional Settings")),
+          status = "info",
+          width = 12,
+          solidHeader = TRUE,
+          fluidRow(
+            column(width = 4, dateInput(ns("date"), label = i18n$translate("Next Dose Date"), format = "yyyy-mm-dd", value = Sys.Date(), language = i18n$get_key_translation())),
+            column(width = 4, timeInput(ns("time"), label = i18n$translate("Next Dose Time"), seconds = FALSE, value = Sys.time())),
+            column(
+              width = 3,
+              offset = 1,
+              dropdownButton(
+                label = i18n$translate("Renal Calculator"),
+                status = "info",
+                size = "sm",
+                circle = FALSE,
+                icon = icon("calculator"),
+                width = "300px",
+                fluidRow(
+                  column(
+                    width = 8,
+                    numericInput(ns("weight_calculator"), i18n$translate("Weight for Renal Calc."), value = 70),
+                    numericInput(ns("creatinine_calculator"), i18n$translate("Creatinine for Renal Calc."), value = 60)
+                  ),
+                  column(
+                    width = 4,
+                    uiOutput(ns("renal_calc_output"))
+                  )
+                )
+              ),
+
+              # options
+              dropdownButton(
+                label = i18n$translate("options"),
+                status = "info",
+                size = "sm",
+                circle = FALSE,
+                icon = icon("gear"),
+                width = "300px",
+                column(
+                  width = 12,
+                  prettyCheckbox(inputId = ns("african"), label = "Africain", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
+                  prettyCheckbox(inputId = ns("mg_dl_unit"), label = "creat (mg/dL)", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
+                  prettyCheckbox(inputId = ns("weight_lbs_unit"), label = "Poids (lbs)", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
+                  prettyCheckbox(inputId = ns("denorm_ccr"), label = "CRCL denorm", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly")
+                )
+              )
             )
           )
         )
       ),
       column( ## Dataframe output generated in body_tdm_input ----
-        width = 6,
+        width = 8,
         column(width = 12, div(style = "height: 20vh; overflow-y: auto; overflow-x: auto;", rHandsontableOutput(ns("weight_history")))),
         br(),
         column(width = 12, div(style = "height: 60vh; overflow-y: auto; overflow-x: auto;", rHandsontableOutput(ns("dosing_history"))))
@@ -300,25 +312,19 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
         end_time = input$end_time_CI
       )
 
-      # Infusion rate calculation
-      infusion_rate <- ifelse(
-        input$administration_route == "CI",
-        round(daily_dose / cont_infusion_dur, digits = 8),
-        round(input$dose_input / max(input$administration_duration, 0.1), digits = 8)
+      # Infusion rate calculation basded on route
+      infusion_rate <- case_when(
+        input$administration_route == "CI" ~ round(daily_dose / cont_infusion_dur, digits = 8),
+        input$administration_route == "IV" ~ round(input$dose_input / max(input$administration_duration, 0.001), digits = 8),
+        TRUE ~ 0
       )
 
-
-      # Add new dosing entry
-      # new_dosing <- data.frame(
-      #   Admin_date = paste(as.character(input$date_administration), format(input$administration_time, "%H:%M:%S")),
-      #   Route = input$administration_route,
-      #   Infusion_rate = infusion_rate,
-      #   Infusion_duration = ifelse(input$administration_route != "CI", input$administration_duration, NA),
-      #   Dose = ifelse(input$administration_route != "CI", input$dose_input, input$syringe_dose),
-      #   Creatinin_Clearance = ccr,  # Placeholder, calculation can be added
-      #   creatinine = input$creatinine  # Placeholder, can be filled with actual value
-      # )
-
+      # calculate infusion duration based on route
+      infusion_duration <- case_when(
+        input$administration_route == "CI" ~ cont_infusion_dur,
+        input$administration_route == "IV" ~ input$administration_duration,
+        TRUE ~ 0
+      )
       # Handle multiple doses
       num_doses <- max(1, input$multiple_dose_admin)
       interval_hours <- if (num_doses > 1) input$multiple_dose_interval else 0
@@ -342,7 +348,7 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
           Admin_date = format(admin_datetime, "%Y/%m/%d %H:%M:%S"),
           Route = ifelse(input$administration_route == "CI", "IV", input$administration_route),
           Infusion_rate = infusion_rate,
-          Infusion_duration = ifelse(input$administration_route == "CI", cont_infusion_dur, input$administration_duration),
+          Infusion_duration = infusion_duration,
           Dose = ifelse(input$administration_route == "CI", daily_dose, input$dose_input),
           Creatinin_Clearance = ifelse("denorm_ccr" %in% input$unit_value, renal_clearance * weight_metric$bsa, renal_clearance),
           creatinine = input$creatinine,
