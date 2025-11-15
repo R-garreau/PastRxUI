@@ -30,11 +30,11 @@ mb2_json_write <- function(patient_data, admin_data, tdm_data, settings, correct
     ),
     settings = list(
       weight_type = settings$weight_type,
-      weight_unit = settings$weight_lbs_unit,
+      weight_lbs = settings$weight_lbs_unit,
       creatinine_unit = settings$creatinine_unit,
       african = settings$african,
       denorm_ccr = settings$denorm_ccr,
-      mg_dl_unit = settings$mg_dl_unit
+      creat_mg_dl = settings$mg_dl_unit
     ),
     correction = list(
       factor = correction_factor,
@@ -48,7 +48,6 @@ mb2_json_write <- function(patient_data, admin_data, tdm_data, settings, correct
       birthdate = as.character(patient_data$birthdate),
       hospital = patient_data$hospital,
       ward = patient_data$ward,
-      phone_number = patient_data$phone_number,
       drug = patient_data$drug
     ),
     weight_history = if (!is.null(admin_data$weight_history) && nrow(admin_data$weight_history) > 0) {
