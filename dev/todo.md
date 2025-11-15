@@ -13,8 +13,10 @@
 - [x] mutliple dose is not working properly
 - [x] add observe to sort data by date/time if user change date/time in the rhandsontable
 - [x] observe to update the R object if user change data in the rhandsontable
-- [ ] Optionnal change table format to Reacttable if editable or to DT if Reactable can't be edited
+- [ ] Change table format to DT and allow editing
 - [x] add administration history and weight history in a fixed space with scroll bar
+- [ ] Mofidy header in dosing, weight and tdm history to be more user friendly (add units in the header, format date/time properly)
+  - [ ] mod weight type should disaplay "Weight Type" instead of "mod weight"
 
 
 ## general functions
