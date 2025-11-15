@@ -1,6 +1,6 @@
 ## toolbox
 - [ ] split toolbox 
-  - [ ] "Use mod weight"/ Use BSA are only for the file to be computed" => create report option in header or open a modal to chose option when creating the mb2 file
+  - [x] "Use mod weight"/ Use BSA are only for the file to be computed" => create report option in header or open a modal to chose option when creating the mb2 file
   - [ ] other option should be in the administration tab
 - [ ] Remove Phone Number in patient information
 
@@ -12,6 +12,7 @@
 ## administration tab
 - [ ] mutliple dose is not working properly
 - [ ] add observe to sort data by date/time if user change date/time in the rhandsontable
+- [ ] observe to update the R object if user change data in the rhandsontable
 - [ ] Optionnal change table format to Reacttable if editable or to DT if Reactable can't be edited
 - [ ] add administration history and weight history in a fixed space with scroll bar
 
@@ -40,3 +41,6 @@
 ## documentation
 - [ ] Add a short documentation in a closable box on the main page to explain very general functionality of the app
 - [ ] add information by using popovers or tooltips to explain specific inputs or options
+
+## Saving mb files
+- [ ] create a .json file that save all the informations in the mb2.file plus the settings from the toolbox (weight type, creatinine unit, african american, denorm crcl) etc.
