@@ -1,27 +1,6 @@
 box::use(
-  stringr[str_ends, str_sub, str_squish],
-  dplyr[case_when],
+  stringr[str_squish, str_sub],
 )
-
-# #' @title read_file
-# #' @description
-# #' read_file purpose is to identify the file extension and call the right subfunctions
-# #' to open and extract data from file
-# #'
-# #' @param file_path correspond to the file location
-
-# read_file <- function(file_path) {
-#   extension <- dplyr::case_when(
-#     stringr::str_ends(file_path, pattern = ".mb2") ~ "bestdose",
-#     TRUE ~ "unknown"
-#   )
-#   read_function <- switch(extension,
-#     "bestdose" = read_file.mb2
-#   )
-
-#   data_file <- read_function(file_path)
-#   return(data_file)
-# }
 
 #' @title read_mb2
 #' @description
