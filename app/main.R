@@ -1,27 +1,30 @@
 box::use(
   bs4Dash[dashboardBody, dashboardPage, bs4DashNavbar, dashboardSidebar, tabsetPanel],
   dplyr[select],
-  shiny[downloadButton, downloadHandler, fileInput, fluidPage, moduleServer, NS, observeEvent, reactive, reactiveVal, reactiveValues, req, selectInput, showNotification, tagList, tags, updateDateInput, updateSelectInput, updateSelectizeInput, updateTextInput],
+  shiny[downloadButton, downloadHandler, fileInput, fluidPage, icon,moduleServer, NS,
+        observeEvent, reactive, reactiveVal, req, selectInput, showNotification,
+        tagList, tags, updateDateInput, updateSelectInput, updateSelectizeInput, updateTextInput],
   shiny.i18n[Translator, usei18n, update_lang],
+  shinyWidgets[dropdownButton]
 )
 
 box::use(
-  app/logic/fun_name_file[name_file],
-  app/logic/fun_write_mb2[write_mb2],
-  app/logic/mb2_read[read_mb2],
-  app/view/administration,
-  app/view/patient_information,
-  app/view/tdm_data,
+  app / logic / fun_name_file[name_file],
+  app / logic / fun_write_mb2[write_mb2],
+  app / logic / mb2_read[read_mb2],
+  app / view / administration,
+  app / view / patient_information,
+  app / view / tdm_data,
 )
 
 # Initialize translator
 i18n <- Translator$new(translation_json_path = "app/static/translations.json", automatic = FALSE)
-i18n$set_translation_language("fr") # French as default
+i18n$set_translation_language("en") # English as default
 
 #' @export
 ui <- function(id) {
   ns <- NS(id)
-  
+
   usei18n(i18n)
 
   dashboardPage(
@@ -30,17 +33,24 @@ ui <- function(id) {
     skin = "info",
     header = bs4DashNavbar(
       title = "PastRx TDM",
-      rightUi = tagList(
+      leftUi = tagList(
         tags$li(
           class = "dropdown",
-          selectInput(
-            ns("language"),
-            label = NULL,
-            choices = i18n$get_languages(),
-            selected = i18n$get_key_translation(),
-            width = "150px"
+          dropdownButton(
+            inputId = ns("mb2_settings"),
+            label = i18n$translate("Settings"),
+            status = "danger",
+            size = "sm",
+            circle = FALSE,
+            icon = icon("gear"),
+            width = "300px",
+            tags$h3(i18n$translate("Settings")),
+            selectInput(ns("weight_type_selection"), label = i18n$translate("Weight Type"), choices = c("Total Weight" = "TBW", "Modified weight" = "mod_weight", "Body Surface Area" = "BSA"), selected = "TBW"),
+            selectInput(ns("language"), label = i18n$translate("Language"), choices = i18n$get_languages(), selected = i18n$get_key_translation(), width = "150px")
           )
-        ),
+        )
+      ),
+      rightUi = tagList(
         tags$li(
           class = "dropdown",
           fileInput(
@@ -80,20 +90,19 @@ ui <- function(id) {
 #' @export
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    
     # Reactive value to store loaded file data
     loaded_file_data <- reactiveVal(NULL)
-    
+
     # Call module servers with loaded_data reactive
     patient_data <- patient_information$server("patient_info", i18n)
     admin_data <- administration$server("admin", i18n, patient_data, reactive(loaded_file_data()))
     tdm_values <- tdm_data$server("tdm_data", i18n, reactive(loaded_file_data()))
-    
+
     # Handle language change
     observeEvent(input$language, {
       update_lang(input$language)
     })
-    
+
     # Handle file download
     output$save_file <- downloadHandler(
       filename = function() {
@@ -110,11 +119,11 @@ server <- function(id) {
       content = function(file) {
         # Require data from modules - only patient data is mandatory
         req(patient_data())
-        
+
         p_data <- patient_data()
         a_data <- admin_data()
         tdm_data <- tdm_values()
-        
+
         # Validate that we have at least patient data
         if (is.null(p_data) || is.null(a_data) || is.null(tdm_data)) {
           showNotification("Please fill in all required data before saving", type = "error")
@@ -136,9 +145,9 @@ server <- function(id) {
         # Update weight history to select the appropriate weight type
         # Priority: BSA > Mod Weight > TBW (default when both unchecked)
         weight_history_data <- a_data$weight_history
-        if (a_data$bsa_selection) {
+        if (input$mb2_settings_weight_type_selection == "bsa") {
           selected_weight_data <- select(weight_history_data, .data$Weight_date, .data$bsa)
-        } else if (a_data$weight_type_selection) {
+        } else if (input$mb2_settings_weight_type_selection == "mod_weight") {
           selected_weight_data <- select(weight_history_data, .data$Weight_date, .data$Weight_value)
         } else {
           # Both unchecked - default to TBW
@@ -170,7 +179,7 @@ server <- function(id) {
         )
 
         writeLines(mb2_content, file)
-        
+
         showNotification(
           "File saved successfully!",
           type = "message",
@@ -182,45 +191,48 @@ server <- function(id) {
     # Load file observer - MB2 file loading
     observeEvent(input$load_file, {
       req(input$load_file)
-      
-      tryCatch({
-        # Read the MB2 file
-        data_file <- read_mb2(input$load_file$datapath)
-        
-        # Update Patient Information tab inputs
-        updateTextInput(session, "patient_info-first_name", value = data_file$patient_first_name)
-        updateTextInput(session, "patient_info-last_name", value = data_file$patient_last_name)
-        updateTextInput(session, "patient_info-ward", value = data_file$ward)
-        updateTextInput(session, "patient_info-phone_number", value = "")
-        updateDateInput(session, "patient_info-birthdate", value = as.Date(data_file$birthdate))
-        updateSelectInput(session, "patient_info-sex", selected = data_file$sex)
-        updateSelectInput(session, "patient_info-drug", selected = data_file$drug_name)
-        updateSelectizeInput(session, "patient_info-hospital", 
-          selected = data_file$hospital,
-          choices = c("HCL", "CHU", data_file$hospital)
-        )
-        
-        # Trigger module data loading by setting the reactive
-        loaded_file_data(data_file)
-        
-        # Show success notifications
-        showNotification(
-          paste("File loaded successfully!",
-                "Weight:", nrow(data_file$weight_df), "entries,",
-                "Dosing:", nrow(data_file$dose_df), "entries,",
-                "TDM:", nrow(data_file$level_df), "values"),
-          type = "message",
-          duration = 5
-        )
-        
-      }, error = function(e) {
-        showNotification(
-          paste("Error loading file:", e$message),
-          type = "error",
-          duration = 10
-        )
-      })
-    })
 
+      tryCatch(
+        {
+          # Read the MB2 file
+          data_file <- read_mb2(input$load_file$datapath)
+
+          # Update Patient Information tab inputs
+          updateTextInput(session, "patient_info-first_name", value = data_file$patient_first_name)
+          updateTextInput(session, "patient_info-last_name", value = data_file$patient_last_name)
+          updateTextInput(session, "patient_info-ward", value = data_file$ward)
+          updateTextInput(session, "patient_info-phone_number", value = "")
+          updateDateInput(session, "patient_info-birthdate", value = as.Date(data_file$birthdate))
+          updateSelectInput(session, "patient_info-sex", selected = data_file$sex)
+          updateSelectInput(session, "patient_info-drug", selected = data_file$drug_name)
+          updateSelectizeInput(session, "patient_info-hospital",
+            selected = data_file$hospital,
+            choices = c("HCL", "CHU", data_file$hospital)
+          )
+
+          # Trigger module data loading by setting the reactive
+          loaded_file_data(data_file)
+
+          # Show success notifications
+          showNotification(
+            paste(
+              "File loaded successfully!",
+              "Weight:", nrow(data_file$weight_df), "entries,",
+              "Dosing:", nrow(data_file$dose_df), "entries,",
+              "TDM:", nrow(data_file$level_df), "values"
+            ),
+            type = "message",
+            duration = 5
+          )
+        },
+        error = function(e) {
+          showNotification(
+            paste("Error loading file:", e$message),
+            type = "error",
+            duration = 10
+          )
+        }
+      )
+    })
   })
 }
