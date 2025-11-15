@@ -1,13 +1,13 @@
 ## toolbox
-- [ ] split toolbox 
+- [x] split toolbox 
   - [x] "Use mod weight"/ Use BSA are only for the file to be computed" => create report option in header or open a modal to chose option when creating the mb2 file
-  - [ ] other option should be in the administration tab
-- [ ] Remove Phone Number in patient information
+  - [x] other option should be in the administration tab
+- [x] Remove Phone Number in patient information
 
 ## renal function
-- [ ] renal calculator shoulb be an option in the lab values
+- [w] renal calculator shoulb be an option in the lab values
 - [ ] renal function is not calculated when adding a new row
-- [ ] improve the ergonomics of addiv dosing or weight
+- [ ] improve the ergonomics of adding dosing or weight
 
 ## administration tab
 - [ ] mutliple dose is not working properly
@@ -24,8 +24,8 @@
   - [x] populate the UI with the data from the mb2 file
 
 ## mb2 file
-- [ ] add option to choose weight formula when writing mb2 file (this is performed by the ticked value in toolbox) bsa/tbw or modified weight needs to be exclusive options, only one can be selected at a time
-- [ ] use a reserved space in the mb2 file to if concentration/dose are corrected (numeric value either 1 (no correction) or 10 (which is the correction applied))
+- [x] add option to choose weight formula when writing mb2 file (this is performed by the ticked value in toolbox) bsa/tbw or modified weight needs to be exclusive options, only one can be selected at a time
+- [ ] use a reserved space in the mb2 file to if concentration/dose are corrected (numeric value either 1 (no correction) or 10 (which is the correction applied)) SUPERSEEDED by the .json
 - [ ] use the space to mutliply the dose by the correction factor when loading the mb2 file
 
 ## translation
