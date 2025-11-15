@@ -238,7 +238,8 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
         Weight_value = weight_metric$weight,
         mod_weight_type = input$weight_formula_selection,
         tbw = input$weight,
-        bsa = weight_metric$bsa
+        bsa = weight_metric$bsa,
+				weight_unit = ifelse(input$weight_lbs_unit, "lbs", "kg")
       )
       # increment the data frame by adding a row with the new information provided
       patient_info$weight_history <- bind_rows(patient_info$weight_history, new_row_weight)
@@ -319,22 +320,22 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
       # Handle multiple doses
       num_doses <- max(1, input$multiple_dose_admin)
       interval_hours <- if (num_doses > 1) input$multiple_dose_interval else 0
-      
+
       # Create multiple dose entries if needed
       for (dose_idx in 0:(num_doses - 1)) {
         # Calculate time offset for this dose
         time_offset_hours <- dose_idx * interval_hours
-        
+
         # Adjust administration time based on offset
         if (input$administration_route == "CI") {
           admin_datetime <- as.POSIXct(paste(input$start_date_CI, format(input$start_time_CI, "%H:%M:%S")))
         } else {
           admin_datetime <- as.POSIXct(paste(input$date_administration, format(input$administration_time, "%H:%M:%S")))
         }
-        
+
         # Add offset
         admin_datetime <- admin_datetime + (time_offset_hours * 3600)
-        
+
         new_dosing <- data.frame(
           Admin_date = format(admin_datetime, "%Y/%m/%d %H:%M:%S"),
           Route = ifelse(input$administration_route == "CI", "IV", input$administration_route),
@@ -342,12 +343,13 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
           Infusion_duration = ifelse(input$administration_route == "CI", cont_infusion_dur, input$administration_duration),
           Dose = ifelse(input$administration_route == "CI", daily_dose, input$dose_input),
           Creatinin_Clearance = ifelse("denorm_ccr" %in% input$unit_value, renal_clearance * weight_metric$bsa, renal_clearance),
-          creatinine = input$creatinine
+          creatinine = input$creatinine,
+					creat_unit = ifelse(input$mg_dl_unit, "mg/dL", "µM")
         )
-        
+
         patient_info$dosing_history <- bind_rows(patient_info$dosing_history, new_dosing)
       }
-      
+
       # Sort by date after adding
       patient_info$dosing_history <- arrange(patient_info$dosing_history, Admin_date)
     })
@@ -361,7 +363,7 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
         patient_info$dosing_history <- edited_data
       }
     })
-    
+
     # Observer to sync manual edits from weight_history table
     observeEvent(input$weight_history, {
       if (!is.null(input$weight_history)) {
@@ -371,7 +373,7 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
         patient_info$weight_history <- edited_data
       }
     })
-    
+
     # Render updated dosing history table
     output$dosing_history <- renderRHandsontable({
       rhandsontable(patient_info$dosing_history, rowHeaders = NULL)
@@ -390,7 +392,12 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
         weight_type_selection = input$weight_type_selection,
         height = input$height,
         date_next_dose = input$date,
-        time_next_dose = input$time
+        time_next_dose = input$time,
+        # Settings for JSON export
+        african = input$african,
+        mg_dl_unit = input$mg_dl_unit,
+        weight_lbs_unit = input$weight_lbs_unit,
+        denorm_ccr = input$denorm_ccr
       )
     }))
   })
