@@ -1,5 +1,5 @@
 box::use(
-  jsonlite[toJSON, fromJSON, prettify],
+  jsonlite[toJSON, fromJSON],
 )
 
 #' @title save_mb2_json
@@ -98,7 +98,7 @@ mb2_json_read <- function(json_file_path) {
   }
 
   # Read and parse JSON
-  mb2_json <- fromJSON(json_file_path, simplifyDataFrame = TRUE)
+  mb2_json <- fromJSON(json_file_path)
 
   # Validate version compatibility (optional)
   if (!is.null(mb2_json$metadata$version)) {
@@ -115,7 +115,7 @@ mb2_json_read <- function(json_file_path) {
   }
 
   # correct dose and concentration if correction was applied, parameters cannot be null or empty when saved
-  if (mb2_json$correction$applied) {
+  if (mb2_json$correction$applied && !is.null(mb2_json$correction$factor) && length(mb2_json$correction$factor) > 0) {
     factor <- mb2_json$correction$factor
     mb2_json$dosing_history$Dose <- mb2_json$dosing_history$Dose * factor
     mb2_json$dosing_history$Infusion_rate <- mb2_json$dosing_history$Infusion_rate * factor

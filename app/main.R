@@ -284,8 +284,7 @@ server <- function(id) {
               weight_df = app_state$weight_history,
               dose_df = app_state$dosing_history,
               level_df = app_state$tdm_history,
-              settings = app_state$settings,
-              correction_factor = if (!is.null(app_state$correction$applied) && app_state$correction$applied) 1 else app_state$correction$factor
+              settings = app_state$settings
             )
 
             loaded_file_data(loaded_data)
@@ -324,22 +323,6 @@ server <- function(id) {
               tryCatch(
                 {
                   app_state <- mb2_json_read(json_path)
-
-                  # Apply correction for divided-by-10 values if needed
-                  if (!is.null(app_state$correction$applied) && app_state$correction$applied == TRUE) {
-                    correction_multiplier <- app_state$correction$factor
-
-                    # Correct concentration values in TDM history
-                    if (!is.null(app_state$tdm_history) && nrow(app_state$tdm_history) > 0) {
-                      app_state$tdm_history$concentration <- app_state$tdm_history$concentration * correction_multiplier
-                    }
-
-                    # Correct dose and infusion rate in dosing history
-                    if (!is.null(app_state$dosing_history) && nrow(app_state$dosing_history) > 0) {
-                      app_state$dosing_history$Dose <- app_state$dosing_history$Dose * correction_multiplier
-                      app_state$dosing_history$Infusion_rate <- app_state$dosing_history$Infusion_rate * correction_multiplier
-                    }
-                  }
 
                   # Update all inputs from JSON state
                   updateTextInput(session, "patient_info-first_name", value = app_state$patient$first_name)
