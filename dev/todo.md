@@ -6,8 +6,8 @@
 
 ## renal function
 - [w] renal calculator shoulb be an option in the lab values
-- [ ] renal function is not calculated when adding a new row
-- [ ] improve the ergonomics of adding dosing or weight
+- [x] renal function is not calculated when adding a new row
+- [x] improve the ergonomics of adding dosing or weight
 
 ## administration tab
 - [x] mutliple dose is not working properly
@@ -40,11 +40,15 @@
 
 ## mb2 file (creation/saving and loading)
 - [x] add option to choose weight formula when writing mb2 file (this is performed by the ticked value in toolbox) bsa/tbw or modified weight needs to be exclusive options, only one can be selected at a time
-- [ ] use a reserved space in the mb2 file to if concentration/dose are corrected (numeric value either 1 (no correction) or 10 (which is the correction applied)) SUPERSEEDED by the .json
-- [ ] use the space to mutliply the dose by the correction factor when loading the mb2 file
-- [ ] create a .json file that save all the informations in the mb2.file plus all the information necessary to have a fully functionning reading when loading including :
-    - [ ]  The settings from the toolbox (weight type, creatinine unit, african american, denorm crcl) etc.
-    - [ ]  If concentration was divided by 10 or not
-    - [ ]  The full weight history (the current weight_history and add the weight unit in a new column that should be implemented based on selected weight unit in menu) 
-    - [ ] the full dosing history (best dose only for creatinine clearance and not creatinine value when we want to have both, also include the unit of creatinine used)
+- [x] create a .json file that save all the informations in the mb2.file plus all the information necessary to have a fully functionning reading when loading including :
+    - [x] The settings from the toolbox (weight type, creatinine unit, african american, denorm crcl) etc.
+    - [x] If concentration was divided by 10 or not
+    - [x] The full weight history (the current weight_history and add the weight unit in a new column that should be implemented based on selected weight unit in menu) 
+    - [x] the full dosing history (best dose only for creatinine clearance and not creatinine value when we want to have both, also include the unit of creatinine used)
+- [x] Loading file should be possible with either the mb2 file or the json file. Don't have a fallback in place (next point). this allow backward compatibility with already existing mb2 files
+- [x] if json is not loaded properly, just default to everything staying empty and give a notification to the user (danger either json corrected or not found, load the mb2 file only)
+- [x] if concentration, dose; and infusion were divided by 10 based on the settings in the json file, correct the values during the reading of the json file
   
+
+## patient info
+- [ ] add file display in patient info tab
