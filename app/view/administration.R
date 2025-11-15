@@ -1,8 +1,8 @@
 box::use(
   bs4Dash[actionButton, box],
-  dplyr[bind_rows],
-  rhandsontable[rHandsontableOutput, rhandsontable, renderRHandsontable],
-  shiny[br, column, conditionalPanel, dateInput, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactive, reactiveValues, req, selectInput, tabPanel, tagList, hr, uiOutput],
+  dplyr[arrange, bind_rows],
+  rhandsontable[hot_to_r, rHandsontableOutput, rhandsontable, renderRHandsontable],
+  shiny[br, column, conditionalPanel, dateInput, div, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactive, reactiveValues, req, selectInput, tabPanel, tagList, hr, uiOutput],
   shinyTime[timeInput],
   shinyWidgets[dropdownButton, prettyCheckbox],
 )
@@ -170,9 +170,9 @@ ui <- function(id, i18n) {
       ),
       column( ## Dataframe output generated in body_tdm_input ----
         width = 6,
-        column(width = 12, rHandsontableOutput(ns("weight_history"))),
+        column(width = 12, div(style = "height: 20vh; overflow-y: auto; overflow-x: auto;", rHandsontableOutput(ns("weight_history")))),
         br(),
-        column(width = 12, rHandsontableOutput(ns("dosing_history")))
+        column(width = 12, div(style = "height: 60vh; overflow-y: auto; overflow-x: auto;", rHandsontableOutput(ns("dosing_history"))))
       )
     )
   )
@@ -316,23 +316,62 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
       #   creatinine = input$creatinine  # Placeholder, can be filled with actual value
       # )
 
-      new_dosing <- data.frame(
-        Admin_date = ifelse(
-          input$administration_route == "CI",
-          date_time_format(input$start_date_CI, input$start_time_CI),
-          date_time_format(input$date_administration, input$administration_time)
-        ),
-        Route = ifelse(input$administration_route == "CI", "IV", input$administration_route),
-        Infusion_rate = infusion_rate,
-        Infusion_duration = ifelse(input$administration_route == "CI", cont_infusion_dur, input$administration_duration),
-        Dose = ifelse(input$administration_route == "CI", daily_dose, input$dose_input),
-        Creatinin_Clearance = ifelse("denorm_ccr" %in% input$unit_value, renal_clearance * weight_metric$bsa, renal_clearance),
-        creatinine = input$creatinine
-      )
-
-      patient_info$dosing_history <- rbind(patient_info$dosing_history, new_dosing)
+      # Handle multiple doses
+      num_doses <- max(1, input$multiple_dose_admin)
+      interval_hours <- if (num_doses > 1) input$multiple_dose_interval else 0
+      
+      # Create multiple dose entries if needed
+      for (dose_idx in 0:(num_doses - 1)) {
+        # Calculate time offset for this dose
+        time_offset_hours <- dose_idx * interval_hours
+        
+        # Adjust administration time based on offset
+        if (input$administration_route == "CI") {
+          admin_datetime <- as.POSIXct(paste(input$start_date_CI, format(input$start_time_CI, "%H:%M:%S")))
+        } else {
+          admin_datetime <- as.POSIXct(paste(input$date_administration, format(input$administration_time, "%H:%M:%S")))
+        }
+        
+        # Add offset
+        admin_datetime <- admin_datetime + (time_offset_hours * 3600)
+        
+        new_dosing <- data.frame(
+          Admin_date = format(admin_datetime, "%Y/%m/%d %H:%M:%S"),
+          Route = ifelse(input$administration_route == "CI", "IV", input$administration_route),
+          Infusion_rate = infusion_rate,
+          Infusion_duration = ifelse(input$administration_route == "CI", cont_infusion_dur, input$administration_duration),
+          Dose = ifelse(input$administration_route == "CI", daily_dose, input$dose_input),
+          Creatinin_Clearance = ifelse("denorm_ccr" %in% input$unit_value, renal_clearance * weight_metric$bsa, renal_clearance),
+          creatinine = input$creatinine
+        )
+        
+        patient_info$dosing_history <- bind_rows(patient_info$dosing_history, new_dosing)
+      }
+      
+      # Sort by date after adding
+      patient_info$dosing_history <- arrange(patient_info$dosing_history, Admin_date)
     })
 
+    # Observer to sync manual edits from dosing_history table
+    observeEvent(input$dosing_history, {
+      if (!is.null(input$dosing_history)) {
+        edited_data <- hot_to_r(input$dosing_history)
+        # Sort by date/time
+        edited_data <- arrange(edited_data, Admin_date)
+        patient_info$dosing_history <- edited_data
+      }
+    })
+    
+    # Observer to sync manual edits from weight_history table
+    observeEvent(input$weight_history, {
+      if (!is.null(input$weight_history)) {
+        edited_data <- hot_to_r(input$weight_history)
+        # Sort by date/time
+        edited_data <- arrange(edited_data, Weight_date)
+        patient_info$weight_history <- edited_data
+      }
+    })
+    
     # Render updated dosing history table
     output$dosing_history <- renderRHandsontable({
       rhandsontable(patient_info$dosing_history, rowHeaders = NULL)
