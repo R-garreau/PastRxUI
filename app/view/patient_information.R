@@ -1,11 +1,12 @@
 box::use(
-  bs4Dash[box],
-  shiny[column, dateInput, fluidRow, icon, moduleServer, NS, reactive, renderText, selectInput, selectizeInput, tabPanel, tagList, tags, textInput, verbatimTextOutput],
+  bs4Dash[box, removePopover],
+  shiny[column, dateInput, fluidRow, icon, moduleServer, NS, observeEvent, reactive, renderText, req, selectInput, selectizeInput, tabPanel, tagList, tags, textInput, verbatimTextOutput],
 )
 
 box::use(
   app / logic / selectInput_helpers[getDrugs],
   app / logic / fun_write_mb2[write_mb2],
+  app / logic / popover[init_popovers, remove_popovers]
 )
 
 #' Patient Information Tab UI
@@ -67,8 +68,19 @@ ui <- function(id, i18n) {
 #'
 #' @param id Module ID
 #' @export
-server <- function(id, i18n = NULL, admin_data = NULL, tdm_data = NULL, weight_type = NULL) {
+server <- function(id, i18n = NULL, admin_data = NULL, tdm_data = NULL, weight_type = NULL, help_mode = FALSE) {
   moduleServer(id, function(input, output, session) {
+    
+    # Watch for help mode changes and add/remove popovers
+    observeEvent(help_mode(), {
+      req(help_mode())
+      if (help_mode()) {
+        init_popovers("patient_information", session)
+      } else {
+        remove_popovers("patient_information", session = session)
+      }
+    }, ignoreNULL = FALSE)
+
     # Reactive for MB2 file preview
     output$mb2_preview <- renderText({
       # Only generate preview if we have basic patient data
