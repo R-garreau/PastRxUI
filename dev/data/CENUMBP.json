@@ -1,0 +1,248 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created_date": "2025-11-15 14:38:25",
+    "app_name": "PastRx TDM"
+  },
+  "settings": {
+    "weight_type": "mod_weight",
+    "weight_unit": true,
+    "creatinine_unit": "uM/L",
+    "african": false,
+    "denorm_ccr": false,
+    "mg_dl_unit": false
+  },
+  "correction": {
+    "factor": 1,
+    "applied": false,
+    "description": "No correction applied"
+  },
+  "patient": {
+    "first_name": "P_test",
+    "last_name": "Numb_1",
+    "sex": "Male",
+    "birthdate": "1980-12-12",
+    "hospital": "XR",
+    "ward": "Test",
+    "phone_number": {},
+    "drug": "Cefiderocol"
+  },
+  "weight_history": [
+    {
+      "Weight_date": "2024/07/18 09:18",
+      "Weight_value": 95,
+      "weight_unit": true,
+      "_row": "1"
+    },
+    {
+      "Weight_date": "2024/07/19 07:44",
+      "Weight_value": 97,
+      "weight_unit": true,
+      "_row": "2"
+    },
+    {
+      "Weight_date": "2024/07/20 11:38",
+      "Weight_value": 98,
+      "weight_unit": true,
+      "_row": "3"
+    },
+    {
+      "Weight_date": "2024/07/21 00:20",
+      "Weight_value": 97,
+      "weight_unit": true,
+      "_row": "4"
+    },
+    {
+      "Weight_date": "2024/07/22 00:30",
+      "Weight_value": 93,
+      "weight_unit": true,
+      "_row": "5"
+    },
+    {
+      "Weight_date": "2025/11/15 14:37",
+      "Weight_value": 78.5,
+      "mod_weight_type": "LBW",
+      "tbw": 70,
+      "bsa": 2.5,
+      "weight_unit": true,
+      "_row": "...6"
+    }
+  ],
+  "dosing_history": [
+    {
+      "Admin_date": "2024/07/18 09:18",
+      "Route": "IV",
+      "Infusion_rate": 2000,
+      "Infusion_duration": 1,
+      "Dose": 2000,
+      "Creatinin_Clearance": 35,
+      "creatinine_unit": "uM/L",
+      "_row": "1"
+    },
+    {
+      "Admin_date": "2024/07/19 07:44",
+      "Route": "IV",
+      "Infusion_rate": 2000,
+      "Infusion_duration": 1,
+      "Dose": 2000,
+      "Creatinin_Clearance": 28.2,
+      "creatinine_unit": "uM/L",
+      "_row": "2"
+    },
+    {
+      "Admin_date": "2024/07/19 20:34",
+      "Route": "IV",
+      "Infusion_rate": 500,
+      "Infusion_duration": 1,
+      "Dose": 500,
+      "Creatinin_Clearance": 28.2,
+      "creatinine_unit": "uM/L",
+      "_row": "3"
+    },
+    {
+      "Admin_date": "2024/07/20 08:04",
+      "Route": "IV",
+      "Infusion_rate": 500,
+      "Infusion_duration": 1,
+      "Dose": 500,
+      "Creatinin_Clearance": 36.5,
+      "creatinine_unit": "uM/L",
+      "_row": "4"
+    },
+    {
+      "Admin_date": "2024/07/20 11:38",
+      "Route": "IV",
+      "Infusion_rate": 1000,
+      "Infusion_duration": 1,
+      "Dose": 1000,
+      "Creatinin_Clearance": 36.9,
+      "creatinine_unit": "uM/L",
+      "_row": "5"
+    },
+    {
+      "Admin_date": "2024/07/20 18:00",
+      "Route": "IV",
+      "Infusion_rate": 1000,
+      "Infusion_duration": 1,
+      "Dose": 1000,
+      "Creatinin_Clearance": 36.9,
+      "creatinine_unit": "uM/L",
+      "_row": "6"
+    },
+    {
+      "Admin_date": "2024/07/21 00:20",
+      "Route": "IV",
+      "Infusion_rate": 1000,
+      "Infusion_duration": 1,
+      "Dose": 1000,
+      "Creatinin_Clearance": 44.6,
+      "creatinine_unit": "uM/L",
+      "_row": "7"
+    },
+    {
+      "Admin_date": "2024/07/21 06:00",
+      "Route": "IV",
+      "Infusion_rate": 1000,
+      "Infusion_duration": 1,
+      "Dose": 1000,
+      "Creatinin_Clearance": 44.6,
+      "creatinine_unit": "uM/L",
+      "_row": "8"
+    },
+    {
+      "Admin_date": "2024/07/21 12:00",
+      "Route": "IV",
+      "Infusion_rate": 1000,
+      "Infusion_duration": 1,
+      "Dose": 1000,
+      "Creatinin_Clearance": 44.6,
+      "creatinine_unit": "uM/L",
+      "_row": "9"
+    },
+    {
+      "Admin_date": "2024/07/21 18:00",
+      "Route": "IV",
+      "Infusion_rate": 1000,
+      "Infusion_duration": 1,
+      "Dose": 1000,
+      "Creatinin_Clearance": 44.6,
+      "creatinine_unit": "uM/L",
+      "_row": "10"
+    },
+    {
+      "Admin_date": "2024/07/22 00:30",
+      "Route": "IV",
+      "Infusion_rate": 1000,
+      "Infusion_duration": 1,
+      "Dose": 1000,
+      "Creatinin_Clearance": 48.4,
+      "creatinine_unit": "uM/L",
+      "_row": "11"
+    },
+    {
+      "Admin_date": "2024/07/22 06:00",
+      "Route": "IV",
+      "Infusion_rate": 1000,
+      "Infusion_duration": 1,
+      "Dose": 1000,
+      "Creatinin_Clearance": 48.4,
+      "creatinine_unit": "uM/L",
+      "_row": "12"
+    },
+    {
+      "Admin_date": "2025/11/15 14:37:00",
+      "Route": "IV",
+      "Infusion_rate": 0,
+      "Infusion_duration": 0.5,
+      "Dose": 0,
+      "Creatinin_Clearance": 152.9,
+      "creatinine": 60,
+      "creatinine_unit": "uM/L",
+      "_row": "...13"
+    },
+    {
+      "Admin_date": "2025/11/16 14:37:00",
+      "Route": "IV",
+      "Infusion_rate": 0,
+      "Infusion_duration": 0.5,
+      "Dose": 0,
+      "Creatinin_Clearance": 152.9,
+      "creatinine": 60,
+      "creatinine_unit": "uM/L",
+      "_row": "...14"
+    },
+    {
+      "Admin_date": "2025/11/17 14:37:00",
+      "Route": "IV",
+      "Infusion_rate": 0,
+      "Infusion_duration": 0.5,
+      "Dose": 0,
+      "Creatinin_Clearance": 152.9,
+      "creatinine": 60,
+      "creatinine_unit": "uM/L",
+      "_row": "...15"
+    },
+    {
+      "Admin_date": "2025/11/18 14:37:00",
+      "Route": "IV",
+      "Infusion_rate": 0,
+      "Infusion_duration": 0.5,
+      "Dose": 0,
+      "Creatinin_Clearance": 152.9,
+      "creatinine": 60,
+      "creatinine_unit": "uM/L",
+      "_row": "...16"
+    }
+  ],
+  "tdm_history": [
+    {
+      "tdm_time": "2024/07/19 07:30",
+      "concentration": 29.1
+    }
+  ],
+  "administration_settings": {
+    "height": 170,
+    "date_next_dose": "2025-11-15",
+    "time_next_dose": "2025-11-15 14:37:00"
+  }
+}
