@@ -1,3 +1,31 @@
+// BestDose Theme Colors
+$bestdose-primary: #3d9970; // Green from Save button
+$bestdose-secondary: #0073b7; // Blue
+$bestdose-accent: #ff8c00; // Orange
+$bestdose-dark: #2c3e50;
+
+// Header customization
+.main-header {
+  background-color: $bestdose-primary !important;
+  
+  .navbar-nav .nav-link {
+    color: white !important;
+  }
+  
+  .navbar-brand {
+    color: white !important;
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+}
+
+// Logo styling
+.app-logo {
+  height: 40px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
 // Navigation buttons styling
 .btn-nav {
   background-color: #6c757d;
