@@ -1,3 +1,7 @@
+box::use(
+  dplyr[case_when],
+)
+
 # function that write the administration history for bestdose
 
 #' @title administration_history
@@ -92,14 +96,14 @@ weight_history <- function(df) {
       # code to write 1 line with reported level
       weight_n <- paste0(                                                                       # weight day and time
          df[i, 1],
-         dplyr::case_when(                                                                      # if weight is > 100 kg total nchar should be 11, 10 if > 100 and 9 if > 10kg
+         case_when(                                                                      # if weight is > 100 kg total nchar should be 11, 10 if > 100 and 9 if > 10kg
             df[i, 2] > 100 ~ strrep(" ", 5),
             df[i, 2] < 10 ~ strrep(" ", 7),
             .default = strrep(" ", 6)
          ),
          # code for the space between weight and date of measurement.
          format(round(df[i, 2], 1), nsmall = 1),                                                # round weight to a 1 decimal value
-         dplyr::case_when(                                                                      # if weight is > 100 kg total nchar should be 11, 10 if > 100 and 9 if > 10kg
+         case_when(                                                                      # if weight is > 100 kg total nchar should be 11, 10 if > 100 and 9 if > 10kg
             df[i, 2] > 100 ~ strrep("0", (11 - nchar(format(round(df[i, 2], 1), nsmall = 1)))),
             df[i, 2] < 10 ~ strrep("0", (9 - nchar(format(round(df[i, 2], 1), nsmall = 1)))),
             .default = strrep("0", (10 - nchar(format(round(df[i, 2], 1), nsmall = 1))))

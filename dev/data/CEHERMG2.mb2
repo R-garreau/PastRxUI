@@ -1,0 +1,40 @@
+PASTRx Version: 1.2.0.27.     2024/07/22 17:38         !version, date this file written.
+   1      2024/07/22 17:38    2024/07/22 20:00         !Format key, created on, date of next regimen
+Numb_1              P_test      MN Unknown genetic grou! Last, First, Ethnic grp., Gender(F/M), Dialysis(D/N)
+XR        Test             in 182.0 100 1980/12/12     !Chart,Ward,Room,cm/in,hgt(cm), muscle %,Birth(yr/mn/dy)
+   2                                                   !no. of Effects
+   5 Weight                             M3020          !No. samples, name, units, Metric indicator
+   0.0000000         250.0000000                       !Minimum, Maximum values
+kg                 1.0000      7                       !unit str, conversion factor, precision
+lbs                2.2046      6                       !unit str, conversion factor, precision
+2024/07/18 09:18      95.0000000                       !Date-time, value, comment
+2024/07/19 07:44      97.0000000                       !Date-time, value, comment
+2024/07/20 11:38      98.0000000                       !Date-time, value, comment
+2024/07/21 00:20      97.0000000                       !Date-time, value, comment
+2024/07/22 00:30      93.0000000                       !Date-time, value, comment
+   0 SCr                                M2030          !No. samples, name, units, Metric indicator
+   0.0000000          30.0000000                       !Minimum, Maximum values
+mg/dL              1.0000      7                       !unit str, conversion factor, precision
+ug/mL             10.0000      6                       !unit str, conversion factor, precision
+uM/L              88.4000      5                       !unit str, conversion factor, precision
+   1                                                   !No. of drugs
+Cefiderocol            0.00000    12   1               !Drug name, MIC,# dose entries,# Serum entries
+1                                                      !Dose units(0 = 0.001:ug, 1 = 1.0:mg, 2 = 1000.:gm)
+1                                                      !Dose units display(0 = 0.001:ug, 1 = 1.0:mg, 2 = 1000.:gm)
+!  Date-time     route       rate          time          dose          CCr     *=calc  *=actual
+2024/07/18 09:18  IV   2000.0000000     1.00000000   2000.0000000    35.00000000  
+2024/07/19 07:44  IV   2000.0000000     1.00000000   2000.0000000    28.20000000  
+2024/07/19 20:34  IV   500.00000000     1.00000000   500.00000000    28.20000000  
+2024/07/20 08:04  IV   500.00000000     1.00000000   500.00000000    36.50000000  
+2024/07/20 11:38  IV   1000.0000000     1.00000000   1000.0000000    36.90000000  
+2024/07/20 18:00  IV   1000.0000000     1.00000000   1000.0000000    36.90000000  
+2024/07/21 00:20  IV   1000.0000000     1.00000000   1000.0000000    44.60000000  
+2024/07/21 06:00  IV   1000.0000000     1.00000000   1000.0000000    44.60000000  
+2024/07/21 12:00  IV   1000.0000000     1.00000000   1000.0000000    44.60000000  
+2024/07/21 18:00  IV   1000.0000000     1.00000000   1000.0000000    44.60000000  
+2024/07/22 00:30  IV   1000.0000000     1.00000000   1000.0000000    48.40000000  
+2024/07/22 06:00  IV   1000.0000000     1.00000000   1000.0000000    48.40000000  
+ug/mL                                                  !Serum level units
+ug/mL                                                  !Serum level units display
+2024/07/19 07:30       29.100000                       !Date-time, value, comment
+   0                                                   !No. of Covariate records
