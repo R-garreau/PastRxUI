@@ -7,7 +7,7 @@ box::use(
     tagList, tags, updateDateInput, updateSelectInput, updateSelectizeInput, updateTextInput
   ],
   shiny.i18n[Translator, usei18n, update_lang],
-  shinyWidgets[dropdownButton],
+  shinyWidgets[dropdownButton, materialSwitch],
   utils[zip]
 )
 
@@ -72,6 +72,17 @@ ui <- function(id) {
       rightUi = tagList(
         tags$li(
           class = "dropdown",
+          style = "margin-right: 20px; margin-top: 10px;",
+          materialSwitch(
+            ns("help_toggle"),
+            label = i18n$translate("Help Mode"),
+            inline = TRUE,
+            status = "warning",
+            value = FALSE
+          )
+        ),
+        tags$li(
+          class = "dropdown",
           style = "margin-right: 20px;",
           dropdownButton(
             inputId = ns("mb2_settings"),
@@ -112,7 +123,7 @@ server <- function(id) {
     # Call module servers with loaded_data reactive
     admin_data <- administration$server("admin", i18n, patient_data, reactive(loaded_file_data()))
     tdm_values <- tdm_data$server("tdm_data", i18n, reactive(loaded_file_data()))
-    patient_data <- patient_information$server("patient_info", i18n, admin_data, tdm_values, reactive(input$weight_type_selection))
+    patient_data <- patient_information$server("patient_info", i18n, admin_data, tdm_values, reactive(input$weight_type_selection), help_mode = reactive(input$help_toggle))
 
     # Handle language change
     observeEvent(input$language, {
