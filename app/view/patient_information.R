@@ -1,7 +1,6 @@
 box::use(
   bs4Dash[box],
-  shiny[column, dateInput, fluidRow, icon, moduleServer, NS, observeEvent, reactive, reactiveValues, selectInput, selectizeInput, tabPanel, tagList, tags, textInput, updateSelectInput],
-  stats[setNames],
+  shiny[column, dateInput, fluidRow, icon, moduleServer, NS, reactive, selectInput, selectizeInput, tabPanel, tagList, tags, textInput],
 )
 
 box::use(
