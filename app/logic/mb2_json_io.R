@@ -114,20 +114,7 @@ mb2_json_read <- function(json_file_path) {
     mb2_json$administration_settings$date_next_dose <- as.Date(mb2_json$administration_settings$date_next_dose)
   }
 
-  # correct dose and concentration if correction was applied, parameters cannot be null or empty when saved
-  if (mb2_json$correction$applied && !is.null(mb2_json$correction$factor) && length(mb2_json$correction$factor) > 0) {
-    factor <- mb2_json$correction$factor
-    mb2_json$dosing_history$Dose <- mb2_json$dosing_history$Dose * factor
-    mb2_json$dosing_history$Infusion_rate <- mb2_json$dosing_history$Infusion_rate * factor
-    mb2_json$tdm_history$concentration <- mb2_json$tdm_history$concentration * factor
-  }
-
-  # correct the unit in weight history history based on saved settings
-  if (length(mb2_json$weight_history) > 0) {
-    mb2_json$weight_history$weight_unit <- ifelse(mb2_json$settings$weight_lbs, "lbs", "kg")
-  }
-
-  # Ensure data frames are properly formatted
+  # Ensure data frames are properly formatted first
   if (is.null(mb2_json$weight_history) || length(mb2_json$weight_history) == 0) {
     mb2_json$weight_history <- data.frame(
       Weight_date = character(),
@@ -135,7 +122,7 @@ mb2_json_read <- function(json_file_path) {
       mod_weight_type = character(),
       tbw = numeric(),
       bsa = numeric(),
-      weight_unit = logical()
+      weight_unit = character()
     )
   }
 
@@ -157,6 +144,27 @@ mb2_json_read <- function(json_file_path) {
       tdm_time = character(),
       concentration = numeric()
     )
+  }
+
+  # correct dose and concentration if correction was applied
+  if (!is.null(mb2_json$correction$applied) && mb2_json$correction$applied && !is.null(mb2_json$correction$factor)) {
+    factor <- mb2_json$correction$factor
+    
+    # Correct dosing history if it has data
+    if (nrow(mb2_json$dosing_history) > 0) {
+      mb2_json$dosing_history$Dose <- mb2_json$dosing_history$Dose * factor
+      mb2_json$dosing_history$Infusion_rate <- mb2_json$dosing_history$Infusion_rate * factor
+    }
+    
+    # Correct TDM history if it has data
+    if (nrow(mb2_json$tdm_history) > 0) {
+      mb2_json$tdm_history$concentration <- mb2_json$tdm_history$concentration * factor
+    }
+  }
+
+  # correct the unit in weight history based on saved settings
+  if (nrow(mb2_json$weight_history) > 0 && !is.null(mb2_json$settings$weight_lbs)) {
+    mb2_json$weight_history$weight_unit <- ifelse(mb2_json$settings$weight_lbs, "lbs", "kg")
   }
 
   return(mb2_json)
