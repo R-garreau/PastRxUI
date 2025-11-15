@@ -13,10 +13,10 @@
 - [x] mutliple dose is not working properly
 - [x] add observe to sort data by date/time if user change date/time in the rhandsontable
 - [x] observe to update the R object if user change data in the rhandsontable
-- [ ] Change table format to DT and allow editing
+- [x] Change table format to DT and allow editing
 - [x] add administration history and weight history in a fixed space with scroll bar
-- [ ] Mofidy header in dosing, weight and tdm history to be more user friendly (add units in the header, format date/time properly)
-  - [ ] mod weight type should disaplay "Weight Type" instead of "mod weight"
+- [x] Mofidy header in dosing, weight and tdm history to be more user friendly (add units in the header, format date/time properly)
+  - [x] mod weight type should disaplay "Weight Type" instead of "mod weight"
 
 
 ## general functions
@@ -50,7 +50,20 @@
 - [x] Loading file should be possible with either the mb2 file or the json file. Don't have a fallback in place (next point). this allow backward compatibility with already existing mb2 files
 - [x] if json is not loaded properly, just default to everything staying empty and give a notification to the user (danger either json corrected or not found, load the mb2 file only)
 - [x] if concentration, dose; and infusion were divided by 10 based on the settings in the json file, correct the values during the reading of the json file
-  
+- [ ] Correct error when saving administration (multiple doses) in the mb2/json (see the bag alignement because of second being captured in time)
+ ```
+2024/07/21 18:00  IV   1000.0000000     1.00000000   1000.0000000    44.60000000  
+2024/07/22 00:30  IV   1000.0000000     1.00000000   1000.0000000    48.40000000  
+2024/07/22 06:00  IV   1000.0000000     1.00000000   1000.0000000    48.40000000  
+2025/11/15 15:34:00  IV   0.0000000000     0.50000000   0.0000000000    152.9000000  
+2025/11/16 15:34:00  IV   0.0000000000     0.50000000   0.0000000000    152.9000000  
+2025/11/17 15:34:00  IV   0.0000000000     0.50000000   0.0000000000    152.9000000  
+2025/11/18 15:34:00  IV   0.0000000000     0.50000000   0.0000000000    152.9000000 
+```
 
 ## patient info
-- [ ] add file display in patient info tab
+- [x] add file display in patient info tab
+
+## UI improvements
+  - [x] change Add logo in header. Change color to match bestDose theme
+  - [x] invert loading/saving file position with settings in the header
