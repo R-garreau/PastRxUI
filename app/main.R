@@ -15,7 +15,7 @@ box::use(
   app / logic / fun_name_file[name_file],
   app / logic / fun_write_mb2[write_mb2],
   app / logic / mb2_read[read_mb2],
-  app / logic / json_state[save_app_state_json, load_app_state_json, get_json_filename],
+  app / logic / mb2_json_io[get_json_filename, mb2_json_read, mb2_json_write],
   app / view / administration,
   app / view / patient_information,
   app / view / tdm_data,
@@ -196,7 +196,7 @@ server <- function(id) {
           mg_dl_unit = a_data$mg_dl_unit
         )
 
-        json_content <- save_app_state_json(
+        json_content <- mb2_json_write()(
           patient_data = p_data,
           admin_data = a_data,
           tdm_data = tdm_data,
@@ -258,7 +258,7 @@ server <- function(id) {
           if (file.exists(json_path)) {
             tryCatch(
               {
-                app_state <- load_app_state_json(json_path)
+                app_state <- mb2_json_read(json_path)
 
                 # Update all inputs from JSON state
                 updateTextInput(session, "patient_info-first_name", value = app_state$patient$first_name)
