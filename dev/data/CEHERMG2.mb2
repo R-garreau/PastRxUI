@@ -1,7 +1,7 @@
 PASTRx Version: 1.2.0.27.     2024/07/22 17:38         !version, date this file written.
    1      2024/07/22 17:38    2024/07/22 20:00         !Format key, created on, date of next regimen
 Numb_1              P_test      MN Unknown genetic grou! Last, First, Ethnic grp., Gender(F/M), Dialysis(D/N)
-CR        Mallet           in 182.0 100 1980/12/12     !Chart,Ward,Room,cm/in,hgt(cm), muscle %,Birth(yr/mn/dy)
+XR        Test             in 182.0 100 1980/12/12     !Chart,Ward,Room,cm/in,hgt(cm), muscle %,Birth(yr/mn/dy)
    2                                                   !no. of Effects
    5 Weight                             M3020          !No. samples, name, units, Metric indicator
    0.0000000         250.0000000                       !Minimum, Maximum values
