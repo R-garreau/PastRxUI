@@ -1,27 +1,6 @@
 box::use(
-  stringr,
-  dplyr,
+  stringr[str_squish, str_sub],
 )
-
-# #' @title read_file
-# #' @description
-# #' read_file purpose is to identify the file extension and call the right subfunctions
-# #' to open and extract data from file
-# #'
-# #' @param file_path correspond to the file location
-
-# read_file <- function(file_path) {
-#   extension <- dplyr::case_when(
-#     stringr::str_ends(file_path, pattern = ".mb2") ~ "bestdose",
-#     TRUE ~ "unknown"
-#   )
-#   read_function <- switch(extension,
-#     "bestdose" = read_file.mb2
-#   )
-
-#   data_file <- read_function(file_path)
-#   return(data_file)
-# }
 
 #' @title read_mb2
 #' @description
@@ -57,7 +36,7 @@ read_mb2 <- function(file_path) {
   # create empty df to store the level history
   level_df <- data.frame(
     tdm_time = as.character(),
-    Concentration = as.numeric()
+    concentration = as.numeric()
   )
 
   # Variable mandatory to adapt file based on the different number of inputs (weight, dose, level)
@@ -73,9 +52,9 @@ read_mb2 <- function(file_path) {
 
   # extract all necessary variables
   parts <- strsplit(lines[3], "\\s+")[[1]]
-  patient_last_name <- stringr::str_sub(lines[3], 1, 20) |> stringr::str_squish()
-  patient_first_name <- stringr::str_sub(lines[3], 20, 32) |> stringr::str_squish()
-  sex_extract <- stringr::str_sub(lines[3], 33, 33)
+  patient_last_name <- str_sub(lines[3], 1, 20) |> str_squish()
+  patient_first_name <- str_sub(lines[3], 20, 32) |> str_squish()
+  sex_extract <- str_sub(lines[3], 33, 33)
   sex <- ifelse(sex_extract == "F", "Female", "Male")
 
   # Extract patient hospital, Height and birth-date (line 4)
@@ -92,12 +71,12 @@ read_mb2 <- function(file_path) {
   # get ward the patient is in
   get_ward <- substr(lines[4], start = 11, stop = 20)
   ward <- ifelse(length(get_ward) > 1, paste(get_ward[1], get_ward[2]), get_ward) |>
-    stringr::str_squish() # removes whitespace from start and end of string
+    str_squish() # removes whitespace from start and end of string
 
   # get the room the patient is in
   get_room <- substr(lines[4], start = 21, stop = 27)
   room <- ifelse(length(get_room) > 1, paste(get_room[1], get_room[2]), get_room) |>
-    stringr::str_squish() # removes whitespace from start and end of string
+    str_squish() # removes whitespace from start and end of string
 
 
   # Extract weight value
