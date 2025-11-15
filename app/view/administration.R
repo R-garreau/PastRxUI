@@ -190,14 +190,16 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
         Infusion_duration = numeric(),
         Dose = numeric(),
         Creatinin_Clearance = numeric(),
-        creatinine = numeric()
+        creatinine = numeric(),
+        creat_unit = character()
       ),
       weight_history = data.frame(
         Weight_date = character(),
         Weight_value = numeric(),
         mod_weight_type = character(),
         tbw = numeric(),
-        bsa = numeric()
+        bsa = numeric(),
+        weight_unit = character()
       )
     )
 
@@ -239,7 +241,7 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
         mod_weight_type = input$weight_formula_selection,
         tbw = input$weight,
         bsa = weight_metric$bsa,
-				weight_unit = ifelse(input$weight_lbs_unit, "lbs", "kg")
+        weight_unit = ifelse(input$weight_lbs_unit, "lbs", "kg")
       )
       # increment the data frame by adding a row with the new information provided
       patient_info$weight_history <- bind_rows(patient_info$weight_history, new_row_weight)
@@ -344,7 +346,7 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
           Dose = ifelse(input$administration_route == "CI", daily_dose, input$dose_input),
           Creatinin_Clearance = ifelse("denorm_ccr" %in% input$unit_value, renal_clearance * weight_metric$bsa, renal_clearance),
           creatinine = input$creatinine,
-					creat_unit = ifelse(input$mg_dl_unit, "mg/dL", "µM")
+          creat_unit = ifelse(input$mg_dl_unit, "mg/dL", "µM")
         )
 
         patient_info$dosing_history <- bind_rows(patient_info$dosing_history, new_dosing)
