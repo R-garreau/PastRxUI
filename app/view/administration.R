@@ -9,6 +9,10 @@ box::use(
 )
 
 box::use(
+  app / logic / popover[init_popovers, remove_popovers],
+)
+
+box::use(
   app / logic / utils[calc_age, date_time_format],
   app / logic / fun_weight_formula[weight_formula],
   app / logic / validators[validate_unique_times],
@@ -192,7 +196,7 @@ ui <- function(id, i18n) {
 }
 
 #' @export
-server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
+server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, help_mode = NULL) {
   moduleServer(id, function(input, output, session) {
     # i18n language update for input
     observe({
@@ -207,6 +211,15 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
       )
       updateSelectInput(session, "weight_formula_selection", label = i18n$translate("Weight Formula"), choices = weight_choices)
     })
+
+    # Watch for help mode changes and add/remove popovers
+    observeEvent(help_mode(), {
+      if (help_mode()) {
+        init_popovers("administration", session)
+      } else {
+        remove_popovers("administration", session = session)
+      }
+    }, ignoreNULL = FALSE)
 
 
     # Reactive values to store patient information _________________________________________

@@ -127,7 +127,7 @@ server <- function(id) {
     loaded_file_data <- reactiveVal(NULL)
 
     # Call module servers with loaded_data reactive
-    admin_data <- administration$server("admin", i18n = i18n, patient_data, reactive(loaded_file_data()))
+    admin_data <- administration$server("admin", i18n = i18n, patient_data, reactive(loaded_file_data()), help_mode = reactive(input$help_toggle))
     tdm_values <- tdm_data$server("tdm_data", i18n = i18n, reactive(loaded_file_data()))
     patient_data <- patient_information$server("patient_info", i18n = i18n, admin_data, tdm_values, reactive(input$weight_type_selection), help_mode = reactive(input$help_toggle))
 
