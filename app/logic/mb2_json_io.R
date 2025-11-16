@@ -58,10 +58,7 @@ mb2_json_write <- function(patient_data, admin_data, tdm_data, settings, correct
       data.frame()
     },
     dosing_history = if (!is.null(admin_data$dosing_history) && nrow(admin_data$dosing_history) > 0) {
-      # Add creatinine unit to dosing history
-      dosing_with_units <- admin_data$dosing_history
-      dosing_with_units$creatinine_unit <- settings$creatinine_unit
-      dosing_with_units
+      admin_data$dosing_history
     } else {
       data.frame()
     },

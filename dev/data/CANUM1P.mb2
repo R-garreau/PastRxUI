@@ -1,0 +1,27 @@
+PASTRx Version: 1.2.0.27.     2025/11/16 18:40         !version, date this file written.
+   1      2025/11/16 18:40    2025/11/16 18:39         !Format key, created on, date of next regimen
+num1                Pstr_test   MN Unknown genetic grou! Last, First, Ethnic grp., Gender(F/M), Dialysis(D/N)
+HCL       None             in 170.0 100 2025/11/16     !Chart,Ward,Room,cm/in,hgt(cm), muscle %,Birth(yr/mn/dy)
+   2                                                   !no. of Effects
+   2 Weight                             M3020          !No. samples, name, units, Metric indicator
+   0.0000000         250.0000000                       !Minimum, Maximum values
+kg                 1.0000      7                       !unit str, conversion factor, precision
+lbs                2.2046      6                       !unit str, conversion factor, precision
+2025/11/16 18:39      70.0000000                       !Date-time, value, comment
+2025/11/17 18:39      54.5000000                       !Date-time, value, comment
+   0 SCr                                M2030          !No. samples, name, units, Metric indicator
+   0.0000000          30.0000000                       !Minimum, Maximum values
+mg/dL              1.0000      7                       !unit str, conversion factor, precision
+ug/mL             10.0000      6                       !unit str, conversion factor, precision
+uM/L              88.4000      5                       !unit str, conversion factor, precision
+   1                                                   !No. of drugs
+Caspofungin            0.00000     2   1               !Drug name, MIC,# dose entries,# Serum entries
+1                                                      !Dose units(0 = 0.001:ug, 1 = 1.0:mg, 2 = 1000.:gm)
+1                                                      !Dose units display(0 = 0.001:ug, 1 = 1.0:mg, 2 = 1000.:gm)
+!  Date-time     route       rate          time          dose          CCr     *=calc  *=actual
+2025/11/16 18:50:00  IV   33.330000000     3.00000000   100.00000000    158.3000000  
+2025/11/17 18:50:00  IV   33.330000000     3.00000000   100.00000000    158.3000000  
+ug/mL                                                  !Serum level units
+ug/mL                                                  !Serum level units display
+2025/11/16 18:39       30.000000                       !Date-time, value, comment
+   0                                                   !No. of Covariate records
