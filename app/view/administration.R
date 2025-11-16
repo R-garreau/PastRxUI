@@ -13,6 +13,7 @@ box::use(
   app / logic / validators[validate_unique_times],
   app / logic / fun_renal_function[renal_function],
   app / logic / fun_calculate_inf_speed[continuous_infusion_time, calculate_daily_dose],
+  app / logic / selectInput_helpers[getWeightFormulas],
 )
 
 #' @export
@@ -38,7 +39,7 @@ ui <- function(id, i18n) {
           ),
           fluidRow(
             column(width = 3, numericInput(ns("height"), i18n$translate("Height"), min = 0, max = 230, step = 1, value = 170)),
-            column(width = 4, offset = 1, selectInput(ns("weight_formula_selection"), i18n$translate("Weight Formula"), choices = c("TBW", "IBW", "LBW", "ABW"), selected = "TBW")),
+            column(width = 4, offset = 1, selectInput(ns("weight_formula_selection"), i18n$translate("Weight Formula"), choices = getWeightFormulas(i18n), selected = "TBW")),
             column(width = 3, offset = 1, actionButton(ns("add_weight"), i18n$translate("Add Weight"), style = "margin-top: 30px;", status = "success", width = "100%"))
           ),
           hr(),
@@ -111,8 +112,7 @@ ui <- function(id, i18n) {
                   condition = sprintf("input['%s'] == 'IV'", ns("administration_route")),
                   numericInput(ns("administration_duration"), label = i18n$translate("Administration Duration"), value = 0.5, step = 0.1)
                 )
-              ) # ,
-              # column(width = 6, numericInput(ns("administration_duration"), label = i18n$translate("Administration Duration"), value = 0.5, step = 0.1))
+              )
             )
           ),
 
@@ -362,6 +362,8 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
       patient_info$dosing_history <- arrange(patient_info$dosing_history, Admin_date)
     })
 
+
+    # Automatic update of dosing_history and weight_history tables _________________________________
     # Observer to sync manual edits from dosing_history table
     observeEvent(input$dosing_history_cell_edit, {
       info <- input$dosing_history_cell_edit
@@ -398,7 +400,8 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
       }
     })
 
-    # Render updated dosing history table
+
+    # Render updated dosing history table ___________________________________________________
     output$dosing_history <- renderDataTable({
       if (nrow(patient_info$dosing_history) > 0) {
         data_with_delete <- patient_info$dosing_history
@@ -411,7 +414,17 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
           data_with_delete,
           class = "cell-border stripe",
           editable = list(target = "cell", disable = list(columns = ncol(data_with_delete) - 1)),
-          colnames = c("Date", "Route", "Infusion Rate", "Infusion Duration", "Dose", "Creatinine Clearance", "Creatinine", "Creatinine Unit", "Delete"),
+          colnames = c(
+            i18n$translate("Date"),
+            i18n$translate("Route"),
+            i18n$translate("Infusion Rate"),
+            i18n$translate("Infusion Duration"),
+            i18n$translate("Dose"),
+            i18n$translate("Creatinine Clearance"),
+            i18n$translate("Creatinine"),
+            i18n$translate("Creatinine Unit"),
+            i18n$translate("Delete")
+          ),
           rownames = FALSE,
           escape = FALSE,
           options = list(
@@ -425,8 +438,18 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
       } else {
         datatable(
           patient_info$dosing_history,
-					class = "cell-border stripe",
-					colnames = c("Date", "Route", "Infusion Rate", "Infusion Duration", "Dose", "Creatinine Clearance", "Creatinine", "Creatinine Unit", "Delete"),
+          class = "cell-border stripe",
+          colnames = c(
+            i18n$translate("Date"),
+            i18n$translate("Route"),
+            i18n$translate("Infusion Rate"),
+            i18n$translate("Infusion Duration"),
+            i18n$translate("Dose"),
+            i18n$translate("Creatinine Clearance"),
+            i18n$translate("Creatinine"),
+            i18n$translate("Creatinine Unit"),
+            i18n$translate("Delete")
+          ),
           editable = TRUE,
           rownames = FALSE,
           options = list(
@@ -438,7 +461,9 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
         )
       }
     })
-    # Render updated weight history table
+
+
+    # Render updated weight history table _________________________________________________
     output$weight_history <- renderDataTable({
       if (nrow(patient_info$weight_history) > 0) {
         data_with_delete <- patient_info$weight_history
@@ -451,7 +476,7 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
           data_with_delete,
           class = "cell-border stripe",
           editable = list(target = "cell", disable = list(columns = ncol(data_with_delete) - 1)),
-          colnames = c("Date", "Weight Value", "Weight Used", "Total Weight", "BSA (m²)", "Unit", "Delete"),
+          colnames = c(i18n$translate("Date"), i18n$translate("Weight Value"), i18n$translate("Weight Used"), i18n$translate("Total Weight"), i18n$translate("BSA (m²)"), i18n$translate("Unit"), i18n$translate("Delete")),
           rownames = FALSE,
           escape = FALSE,
           options = list(
@@ -465,8 +490,8 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
       } else {
         datatable(
           patient_info$weight_history,
-					class = "cell-border stripe",
-					colnames = c("Date", "Weight Value", "Weight Used", "Total Weight", "BSA (m²)", "Unit", "Delete"),
+          class = "cell-border stripe",
+          colnames = c(i18n$translate("Date"), i18n$translate("Weight Value"), i18n$translate("Weight Used"), i18n$translate("Total Weight"), i18n$translate("BSA (m²)"), i18n$translate("Unit"), i18n$translate("Delete")),
           editable = TRUE,
           rownames = FALSE,
           options = list(
@@ -479,7 +504,7 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
       }
     })
 
-    # Return reactive containing all administration data needed by main module
+    # Return reactive containing all administration data needed by main module ________________________
     return(reactive({
       list(
         dosing_history = patient_info$dosing_history,

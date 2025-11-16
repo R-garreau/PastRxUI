@@ -28,9 +28,9 @@
 
 ## translation
 - [x] make the translation system to work properly and be dynamic
-- [ ] add flag icons to choose language in the select input (flag + fr or eng) instead of select input only with text
+- [x] add flag icons to choose language in the select input (flag + fr or eng) instead of select input only with text
 - [x] add translation for toolbox
-- [ ] add translation for notification messages 
+- [x] add translation for notification messages 
 
 ## add validation for inputs
  - [ ] add validation based on the validators.R file
