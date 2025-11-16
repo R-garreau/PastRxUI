@@ -31,6 +31,7 @@
 - [x] add flag icons to choose language in the select input (flag + fr or eng) instead of select input only with text
 - [x] add translation for toolbox
 - [x] add translation for notification messages 
+- [ ] Weight choices not being translated (minor issue)
 
 ## add validation for inputs
  - [ ] add validation based on the validators.R file

@@ -2,9 +2,10 @@ box::use(
   bs4Dash[actionButton, box],
   dplyr[arrange, bind_rows, case_when],
   DT[datatable, dataTableOutput, renderDataTable],
-  shiny[br, column, conditionalPanel, dateInput, div, fluidRow, icon, moduleServer, NS, numericInput, observeEvent, reactive, reactiveValues, req, selectInput, tabPanel, tagList, hr, uiOutput],
+  shiny[br, column, conditionalPanel, dateInput, div, fluidRow, icon, moduleServer, NS, numericInput, observe, observeEvent, reactive, reactiveValues, req, selectInput, tabPanel, tagList, hr, uiOutput, updateSelectInput],
   shinyTime[timeInput],
   shinyWidgets[dropdownButton, prettyCheckbox],
+  stats[setNames],
 )
 
 box::use(
@@ -39,7 +40,7 @@ ui <- function(id, i18n) {
           ),
           fluidRow(
             column(width = 3, numericInput(ns("height"), i18n$translate("Height"), min = 0, max = 230, step = 1, value = 170)),
-            column(width = 4, offset = 1, selectInput(ns("weight_formula_selection"), i18n$translate("Weight Formula"), choices = getWeightFormulas(i18n), selected = "TBW")),
+            column(width = 4, offset = 1, selectInput(ns("weight_formula_selection"), i18n$translate("Weight Formula"), choices = c(""), selected = "TBW")),
             column(width = 3, offset = 1, actionButton(ns("add_weight"), i18n$translate("Add Weight"), style = "margin-top: 30px;", status = "success", width = "100%"))
           ),
           hr(),
@@ -193,6 +194,21 @@ ui <- function(id, i18n) {
 #' @export
 server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
   moduleServer(id, function(input, output, session) {
+    # i18n language update for input
+    observe({
+      weight_choices <- setNames(
+        c("TBW", "IBW", "LBW", "ABW"),
+        c(
+          i18n$translate("Total Body Weight (TBW)"),
+          i18n$translate("Ideal Body Weight (IBW)"),
+          i18n$translate("Lean Body Weight (LBW)"),
+          i18n$translate("Adjusted Body Weight (ABW)")
+        )
+      )
+      updateSelectInput(session, "weight_formula_selection", label = i18n$translate("Weight Formula"), choices = weight_choices)
+    })
+
+
     # Reactive values to store patient information _________________________________________
     patient_info <- reactiveValues(
       dosing_history = data.frame(
