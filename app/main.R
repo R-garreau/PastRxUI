@@ -17,6 +17,7 @@ box::use(
   app / logic / mb2_read[read_mb2],
   app / logic / mb2_json_io[get_json_filename, mb2_json_read, mb2_json_write],
   app / view / administration,
+  app / view / documentation,
   app / view / patient_information,
   app / view / tdm_data,
 )
@@ -104,7 +105,8 @@ ui <- function(id) {
           type = "tabs",
           patient_information$ui(ns("patient_info"), i18n),
           administration$ui(ns("admin"), i18n),
-          tdm_data$ui(ns("tdm_data"), i18n)
+          tdm_data$ui(ns("tdm_data"), i18n),
+          documentation$ui(ns("documentation"), i18n)
         )
       )
     )
