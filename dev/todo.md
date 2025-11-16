@@ -38,7 +38,7 @@
 
 
 ## documentation
-- [ ] Add a short documentation in a closable box on the main page to explain very general functionality of the app
+- [x] Add a short documentation in a closable box on the main page to explain very general functionality of the app
 - [ ] add information by using popovers or tooltips to explain specific inputs or options
 - [x] Add toggle for help model in the header to enable/disable help mode (popovers/tooltips and documentation box)
 - [ ] fix bug with toggle (help mode can be enable when swtiching to on, but cannot be disabled when switching to off)
@@ -71,4 +71,4 @@
 ## UI improvements
   - [x] change Add logo in header. Change color to match bestDose theme
   - [x] invert loading/saving file position with settings in the header
-  - [ ] Add a reset button to reset all inputs to default values (new patient + warning if unsaved data)
+  - [x] Add a reset button to reset all inputs to default values (new patient + warning if unsaved data)
