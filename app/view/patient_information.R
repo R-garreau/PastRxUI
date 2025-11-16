@@ -1,5 +1,5 @@
 box::use(
-  bs4Dash[box, removePopover],
+  bs4Dash[actionButton, box, removePopover],
   shiny[column, dateInput, fluidRow, icon, includeMarkdown, moduleServer, NS, observeEvent, reactive, renderText, req, selectInput, selectizeInput, tabPanel, tagList, tags, textInput, verbatimTextOutput],
 )
 
@@ -55,7 +55,7 @@ ui <- function(id, i18n) {
         )
       ),
       column(
-        width = 9,
+        width = 8,
         box(
           title = tagList(icon("file-lines"), i18n$translate("MB2 File Preview")),
           status = "info",
@@ -68,7 +68,8 @@ ui <- function(id, i18n) {
             verbatimTextOutput(ns("mb2_preview"))
           )
         )
-      )
+      ),
+      column(width = 1, actionButton(ns("reset"), i18n$translate("New Patient"), icon = icon("user-plus"), status = "warning", flat = TRUE))
     )
   )
 }
@@ -79,7 +80,13 @@ ui <- function(id, i18n) {
 #' @export
 server <- function(id, i18n = NULL, admin_data = NULL, tdm_data = NULL, weight_type = NULL, help_mode = FALSE) {
   moduleServer(id, function(input, output, session) {
-    
+
+    # Reset button to clear all inputs
+    observeEvent(input$reset, {
+      session$reload()
+    })
+
+
     # Watch for help mode changes and add/remove popovers
     observeEvent(help_mode(), {
       req(help_mode())
