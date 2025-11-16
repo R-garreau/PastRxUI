@@ -1,11 +1,11 @@
-# Options Explanation
+# <span style="color:darkred">Options Explanation</span>
 
 This document explains the various options available in the PastRxUI application.
 
 ---
 
 <details open>
-<summary><strong>1. Language</strong></summary>
+<summary><strong><span style="color:#2993D6">1. Language</span></strong></summary>
 
 - **Description**: Allows users to select the language for the application's interface.
 - **Options**:
@@ -14,38 +14,30 @@ This document explains the various options available in the PastRxUI application
 - **Default**: French
 - **Impact**: Changes all text labels, buttons, and messages to the selected language.
 
+![alt text](image-13.png)
 </details>
 
 ---
 
 <details open>
-<summary><strong>2. Type of Weight in Report</strong></summary>
+<summary><strong><span style="color:#2993D6">2. Type of Weight in Report</span></strong></summary>
 
-- **Description**: Determines which weight calculation is used in reports and calculations.
+- **Description**: Determines which weight calculation is used in the BestDose file. The default is Total Body Weight (TBW).
 - **Options**:
   - Total Weight (TBW): Uses the patient's total body weight.
   - Modified Weight: Applies adjustments based on specific formulas.
   - Body Surface Area (BSA): Calculates weight based on body surface area.
-- **Default**: Total Weight
-- **Impact**: Affects dosing calculations and renal function estimates.
+
+
+![alt text](image-11.png)
 
 </details>
+
 
 ---
 
 <details open>
-<summary><strong>3. Special Unit Selection in Administration</strong></summary>
-
-- **Description**: Allows selection of special units for drug administration, such as concentration units or infusion rates.
-- **Options**: Varies depending on the drug and administration route.
-- **Impact**: Ensures accurate dosing and compatibility with BestDose software.
-
-</details>
-
----
-
-<details open>
-<summary><strong>4. Renal Calculators</strong></summary>
+<summary><strong><span style="color:#2993D6">3. Renal Calculators</span></strong></summary>
 
 - **Description**: Tools for calculating renal function, including creatinine clearance and glomerular filtration rate (GFR).
 - **Inputs**:
@@ -53,6 +45,11 @@ This document explains the various options available in the PastRxUI application
   - Patient weight
   - Age, sex
 - **Formulas**: Supports multiple renal estimation formulas (e.g., Cockcroft-Gault, MDRD).
-- **Output**: Estimated renal clearance values used in dosing adjustments.
+- **Output**: Calculate the renale function based on patient sex, age, creatinine and weight entered in the calculator.
+
+This may be used to update renal function values in the administration table.
+
+
+![alt text](image-14.png)
 
 </details>
