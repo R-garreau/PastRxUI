@@ -108,6 +108,7 @@
     { "en": "Files saved successfully! (MB2 + JSON in ZIP)", "fr": "Fichiers sauvegardés avec succès ! (MB2 + JSON dans ZIP)" },
     { "en": "Ideal Weight", "fr": "Poids idéal" },
     { "en": "Lean Weight", "fr": "Masse maigre" },
-    { "en": "Adjusted Weight", "fr": "Poids ajusté" }
+    { "en": "Adjusted Weight", "fr": "Poids ajusté" },
+    { "en": "Options", "fr": "Options" }
   ]
 }
