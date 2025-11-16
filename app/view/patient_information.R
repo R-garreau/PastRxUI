@@ -89,7 +89,6 @@ server <- function(id, i18n = NULL, admin_data = NULL, tdm_data = NULL, weight_t
 
     # Watch for help mode changes and add/remove popovers
     observeEvent(help_mode(), {
-      req(help_mode())
       if (help_mode()) {
         init_popovers("patient_information", session)
       } else {
