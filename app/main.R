@@ -90,7 +90,7 @@ ui <- function(id) {
             width = "300px",
             tags$h3(i18n$translate("Settings")),
             selectInput(ns("weight_type_selection"), label = i18n$translate("Weight Type"), choices = c("Total Weight" = "TBW", "Modified weight" = "mod_weight", "Body Surface Area" = "BSA"), selected = "TBW"),
-            selectInput(ns("language"), label = i18n$translate("Language"), choices = i18n$get_languages(), selected = i18n$get_key_translation(), width = "150px")
+            selectInput(ns("language"), label = i18n$translate("Language"), choices = c("🇺🇸 en" = "en", "🇫🇷 fr" = "fr"), selected = i18n$get_key_translation(), width = "150px")
           )
         )
       )
@@ -154,7 +154,7 @@ server <- function(id) {
 
         # Validate that we have at least patient data
         if (is.null(p_data) || is.null(a_data) || is.null(tdm_data)) {
-          showNotification("Please fill in all required data before saving", type = "error")
+          showNotification(i18n$translate("Please fill in all required data before saving"), type = "error")
           return()
         }
 
@@ -171,7 +171,7 @@ server <- function(id) {
           mb2_dosing_history$Dose <- mb2_dosing_history$Dose / 10
           mb2_dosing_history$Infusion_rate <- mb2_dosing_history$Infusion_rate / 10
           correction_factor <- 10
-          showNotification("All concentration and dose will be divided by 10 in the MB2 file", type = "warning")
+          showNotification(i18n$translate("All concentration and dose will be divided by 10 in the MB2 file"), type = "warning")
         }
 
         # Update weight history to select the appropriate weight type
@@ -184,7 +184,7 @@ server <- function(id) {
         } else {
           # Both unchecked - default to TBW
           selected_weight_data <- select(weight_history_data, .data$Weight_date, .data$tbw)
-          showNotification("No weight type selected, using TBW as default", type = "message")
+          showNotification(i18n$translate("No weight type selected, using TBW as default"), type = "message")
         }
 
         # Write the MB2 file content
@@ -258,7 +258,7 @@ server <- function(id) {
         file.remove(json_file)
 
         showNotification(
-          "Files saved successfully! (MB2 + JSON in ZIP)",
+          i18n$translate("Files saved successfully! (MB2 + JSON in ZIP)"),
           type = "message",
           duration = 3
         )
@@ -314,7 +314,7 @@ server <- function(id) {
 
             showNotification(
               paste(
-                "JSON file loaded successfully!",
+                i18n$translate("File loaded successfully"),
                 "Weight:", nrow(app_state$weight_history), "entries,",
                 "Dosing:", nrow(app_state$dosing_history), "entries,",
                 "TDM:", nrow(app_state$tdm_history), "values"
@@ -325,7 +325,7 @@ server <- function(id) {
           },
           error = function(e) {
             showNotification(
-              paste("Error loading JSON file:", e$message, "- Please check the file format or load the MB2 file instead."),
+              paste(i18n$translate("Error loading file"), e$message),
               type = "error",
               duration = 10
             )
@@ -387,7 +387,7 @@ server <- function(id) {
                 },
                 error = function(e) {
                   showNotification(
-                    paste("JSON file corrupted or not found. Loading MB2 file only."),
+                    i18n$translate("JSON file not found or invalid. Loading MB2 file only."),
                     type = "error",
                     duration = 7
                   )
@@ -415,7 +415,7 @@ server <- function(id) {
               # Show success notifications
               showNotification(
                 paste(
-                  "MB2 file loaded successfully!",
+                  i18n$translate("File loaded successfully"),
                   "Weight:", nrow(data_file$weight_df), "entries,",
                   "Dosing:", nrow(data_file$dose_df), "entries,",
                   "TDM:", nrow(data_file$level_df), "values"
@@ -427,7 +427,7 @@ server <- function(id) {
           },
           error = function(e) {
             showNotification(
-              paste("Error loading MB2 file:", e$message),
+              paste(i18n$translate("Error loading file"), e$message),
               type = "error",
               duration = 10
             )
@@ -435,7 +435,7 @@ server <- function(id) {
         )
       } else {
         showNotification(
-          "Unsupported file format. Please upload a .mb2 or .json file.",
+          i18n$translate("Unsupported file format. Please select a .mb2 or .json file."),
           type = "error",
           duration = 5
         )

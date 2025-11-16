@@ -98,7 +98,7 @@ server <- function(id, i18n = NULL, loaded_data = NULL) {
           data_with_delete,
           class = "cell-border stripe",
           editable = list(target = "cell", disable = list(columns = ncol(data_with_delete) - 1)),
-          colnames = c("Date", "Concentration", "Delete"),
+          colnames = c(i18n$translate("Date"), i18n$translate("Concentration"), i18n$translate("Delete")),
           rownames = FALSE,
           escape = FALSE,
           options = list(
@@ -112,7 +112,7 @@ server <- function(id, i18n = NULL, loaded_data = NULL) {
         datatable(
           tdm_reactive(),
           class = "cell-border stripe",
-          colnames = c("Date", "Concentration", "Delete"),
+          colnames = c(i18n$translate("Date"), i18n$translate("Concentration"), i18n$translate("Delete")),
           editable = TRUE,
           rownames = FALSE,
           options = list(

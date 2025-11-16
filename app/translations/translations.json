@@ -93,7 +93,22 @@
     { "en": "Creatinine for Renal Calc.", "fr": "Créatinine pour calcul rénal" },
     { "en": "Some administration time are identical and may cause a crash when using BestDose", "fr": "Certaines heures d'administration sont identiques et peuvent causer un plantage avec BestDose" },
     { "en": "Some weight measurement have identical time. Please fix it as this may cause a crash when using BestDose", "fr": "Certaines mesures de poids ont des heures identiques. Veuillez corriger car cela peut causer un plantage avec BestDose" },
-    { "en": "Some concentrations have identical sampling time. This may cause a crash when using BestDose. Please fix it", "fr": "Certaines concentrations ont des heures de prélèvement identiques. Cela peut causer un plantage avec BestDose. Veuillez corriger"
-    }
+    { "en": "Some concentrations have identical sampling time. This may cause a crash when using BestDose. Please fix it", "fr": "Certaines concentrations ont des heures de prélèvement identiques. Cela peut causer un plantage avec BestDose. Veuillez corriger"},
+    { "en": "Route", "fr": "Voie" },
+    { "en": "Infusion Rate", "fr": "Vitesse de perfusion" },
+    { "en": "Infusion Duration", "fr": "Durée de perfusion" },
+    { "en": "Creatinine Clearance", "fr": "Clairance de la créatinine" },
+    { "en": "Creatinine Unit", "fr": "Unité de créatinine" },
+    { "en": "Weight Value", "fr": "Valeur du poids" },
+    { "en": "Weight Used", "fr": "Poids utilisé" },
+    { "en": "BSA (m²)", "fr": "SC (m²)" },
+    { "en": "Unit", "fr": "Unité" },
+    { "en": "Concentration", "fr": "Concentration" },
+    { "en": "Delete", "fr": "Supprimer" },
+    { "en": "Files saved successfully! (MB2 + JSON in ZIP)", "fr": "Fichiers sauvegardés avec succès ! (MB2 + JSON dans ZIP)" },
+    { "en": "Total Weight", "fr": "Poids total" },
+    { "en": "Ideal Weight", "fr": "Poids idéal" },
+    { "en": "Lean Weight", "fr": "Masse maigre" },
+    { "en": "Adjusted Weight", "fr": "Poids ajusté" }
   ]
 }
