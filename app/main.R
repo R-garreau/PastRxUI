@@ -1,14 +1,14 @@
 box::use(
-  bs4Dash[dashboardBody, dashboardPage, bs4DashNavbar, dashboardSidebar, tabsetPanel],
+  bs4Dash[bs4DashNavbar, dashboardBody, dashboardPage,  dashboardSidebar, tabsetPanel],
   dplyr[select],
+  shiny.i18n[Translator, update_lang, usei18n],
   shiny[
     downloadButton, downloadHandler, fileInput, fluidPage, icon, moduleServer, NS,
     observeEvent, reactive, reactiveVal, req, selectInput, showNotification,
     tagList, tags, updateDateInput, updateSelectInput, updateSelectizeInput, updateTextInput
   ],
-  shiny.i18n[Translator, usei18n, update_lang],
   shinyWidgets[dropdownButton, materialSwitch],
-  utils[zip]
+  utils[zip],
 )
 
 box::use(
@@ -22,8 +22,8 @@ box::use(
 )
 
 # Initialize translator
-i18n <- Translator$new(translation_json_path = "app/static/translations.json", automatic = FALSE)
-i18n$set_translation_language("fr") # English as default
+i18n <- Translator$new(translation_json_path = "app/lang/translations.json", automatic = FALSE)
+i18n$set_translation_language("en") # English as default
 
 #' @export
 ui <- function(id) {
@@ -43,8 +43,6 @@ ui <- function(id) {
           style = "margin-right: 5px;"
         ), tags$h3("PastRx")
       ),
-      skin = "dark",
-      status = "lightblue",
       leftUi = tagList(
         tags$li(
           class = "dropdown",
@@ -117,18 +115,20 @@ ui <- function(id) {
 #' @export
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    # Reactive value to store loaded file data
-    loaded_file_data <- reactiveVal(NULL)
-
-    # Call module servers with loaded_data reactive
-    admin_data <- administration$server("admin", i18n, patient_data, reactive(loaded_file_data()))
-    tdm_values <- tdm_data$server("tdm_data", i18n, reactive(loaded_file_data()))
-    patient_data <- patient_information$server("patient_info", i18n, admin_data, tdm_values, reactive(input$weight_type_selection), help_mode = reactive(input$help_toggle))
-
+    
     # Handle language change
     observeEvent(input$language, {
       update_lang(input$language)
     })
+
+    # Reactive value to store loaded file data
+    loaded_file_data <- reactiveVal(NULL)
+
+    # Call module servers with loaded_data reactive
+    admin_data <- administration$server("admin", i18n = i18n, patient_data, reactive(loaded_file_data()))
+    tdm_values <- tdm_data$server("tdm_data", i18n = i18n, reactive(loaded_file_data()))
+    patient_data <- patient_information$server("patient_info", i18n = i18n, admin_data, tdm_values, reactive(input$weight_type_selection), help_mode = reactive(input$help_toggle))
+
 
     # Handle file download
     output$save_file <- downloadHandler(
