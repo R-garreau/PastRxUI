@@ -163,7 +163,7 @@ ui <- function(id, i18n) {
 
               # options
               dropdownButton(
-                label = i18n$translate("options"),
+                label = i18n$translate("Options"),
                 status = "info",
                 size = "sm",
                 circle = FALSE,
@@ -199,10 +199,10 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
       weight_choices <- setNames(
         c("TBW", "IBW", "LBW", "ABW"),
         c(
-          i18n$translate("Total Body Weight (TBW)"),
-          i18n$translate("Ideal Body Weight (IBW)"),
-          i18n$translate("Lean Body Weight (LBW)"),
-          i18n$translate("Adjusted Body Weight (ABW)")
+          i18n$translate("Total Weight"),
+          i18n$translate("Ideal Weight"),
+          i18n$translate("Lean Weight"),
+          i18n$translate("Adjusted Weight")
         )
       )
       updateSelectInput(session, "weight_formula_selection", label = i18n$translate("Weight Formula"), choices = weight_choices)
@@ -219,7 +219,8 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
         Dose = numeric(),
         Creatinin_Clearance = numeric(),
         creatinine = numeric(),
-        creat_unit = character()
+        creat_unit = character(),
+        renal_formula = character()
       ),
       weight_history = data.frame(
         Weight_date = character(),
@@ -361,14 +362,15 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
         admin_datetime <- admin_datetime + (time_offset_hours * 3600)
 
         new_dosing <- data.frame(
-          Admin_date = format(admin_datetime, "%Y/%m/%d %H:%M:%S"),
+          Admin_date = format(admin_datetime, "%Y/%m/%d %H:%M"),
           Route = ifelse(input$administration_route == "CI", "IV", input$administration_route),
           Infusion_rate = infusion_rate,
           Infusion_duration = infusion_duration,
           Dose = ifelse(input$administration_route == "CI", daily_dose, input$dose_input),
           Creatinin_Clearance = ifelse("denorm_ccr" %in% input$unit_value, renal_clearance * weight_metric$bsa, renal_clearance),
           creatinine = input$creatinine,
-          creat_unit = ifelse(input$mg_dl_unit, "mg/dL", "µM")
+          creat_unit = ifelse(input$mg_dl_unit, "mg/dL", "µM"),
+          renal_formula = input$eGFR
         )
 
         patient_info$dosing_history <- bind_rows(patient_info$dosing_history, new_dosing)
@@ -429,7 +431,7 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
         datatable(
           data_with_delete,
           class = "cell-border stripe",
-          editable = list(target = "cell", disable = list(columns = ncol(data_with_delete) - 1)),
+          editable = list(target = "cell", disable = list(columns = c(ncol(data_with_delete) - 2, ncol(data_with_delete) - 1))),
           colnames = c(
             i18n$translate("Date"),
             i18n$translate("Route"),
@@ -439,6 +441,7 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
             i18n$translate("Creatinine Clearance"),
             i18n$translate("Creatinine"),
             i18n$translate("Creatinine Unit"),
+            i18n$translate("Renal Formula"),
             i18n$translate("Delete")
           ),
           rownames = FALSE,
@@ -464,6 +467,7 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL) {
             i18n$translate("Creatinine Clearance"),
             i18n$translate("Creatinine"),
             i18n$translate("Creatinine Unit"),
+            i18n$translate("Renal Formula"),
             i18n$translate("Delete")
           ),
           editable = TRUE,

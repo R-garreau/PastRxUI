@@ -296,6 +296,14 @@ server <- function(id) {
             }
 
             # Create loaded data structure from JSON
+            # Ensure dosing history has renal_formula column
+            dosing_with_formula <- app_state$dosing_history
+            if (!is.null(dosing_with_formula) && nrow(dosing_with_formula) > 0) {
+              if (!"renal_formula" %in% colnames(dosing_with_formula)) {
+                dosing_with_formula$renal_formula <- "CG"
+              }
+            }
+            
             loaded_data <- list(
               patient_first_name = app_state$patient$first_name,
               patient_last_name = app_state$patient$last_name,
@@ -305,7 +313,7 @@ server <- function(id) {
               drug_name = app_state$patient$drug,
               hospital = app_state$patient$hospital,
               weight_df = app_state$weight_history,
-              dose_df = app_state$dosing_history,
+              dose_df = dosing_with_formula,
               level_df = app_state$tdm_history,
               settings = app_state$settings
             )
@@ -337,6 +345,21 @@ server <- function(id) {
           {
             # Read the MB2 file
             data_file <- read_mb2(input$load_file$datapath)
+
+            # Add missing columns for legacy MB2 files
+            if (!is.null(data_file$dose_df) && nrow(data_file$dose_df) > 0) {
+              data_file$dose_df$renal_formula <- "CG"
+              data_file$dose_df$creatinine <- 60
+              data_file$dose_df$creat_unit <- "µM"
+            }
+            
+            # Add missing columns to weight_df from MB2
+            if (!is.null(data_file$weight_df) && nrow(data_file$weight_df) > 0) {
+              data_file$weight_df$mod_weight_type <- "TBW"
+              data_file$weight_df$tbw <- data_file$weight_df$Weight_value
+              data_file$weight_df$bsa <- 1.8
+              data_file$weight_df$weight_unit <- "kg"
+            }
 
             # Check if corresponding JSON file exists
             json_path <- get_json_filename(input$load_file$datapath)

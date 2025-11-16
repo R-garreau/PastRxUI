@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0.0",
-    "created_date": "2025-11-16 18:40:35",
+    "created_date": "2025-11-16 19:22:47",
     "app_name": "PastRx TDM"
   },
   "settings": {
@@ -28,7 +28,7 @@
   },
   "weight_history": [
     {
-      "Weight_date": "2025/11/16 18:39",
+      "Weight_date": "2025/11/16 19:20",
       "Weight_value": 70,
       "mod_weight_type": "TBW",
       "tbw": 70,
@@ -36,45 +36,86 @@
       "weight_unit": false
     },
     {
-      "Weight_date": "2025/11/17 18:39",
-      "Weight_value": 54.5,
-      "mod_weight_type": "LBW",
-      "tbw": 70,
-      "bsa": 1.8,
+      "Weight_date": "2025/11/18 19:20",
+      "Weight_value": 65.9,
+      "mod_weight_type": "IBW",
+      "tbw": 83,
+      "bsa": 1.9,
       "weight_unit": false
     }
   ],
   "dosing_history": [
     {
-      "Admin_date": "2025/11/16 18:50:00",
+      "Admin_date": "2025/11/16 19:20",
       "Route": "IV",
-      "Infusion_rate": 33.3333,
-      "Infusion_duration": 3,
-      "Dose": 100,
-      "Creatinin_Clearance": 158.3,
-      "creatinine": 60,
-      "creat_unit": "µM"
+      "Infusion_rate": 300,
+      "Infusion_duration": 0.5,
+      "Dose": 150,
+      "Creatinin_Clearance": 63.4,
+      "creatinine": 190,
+      "creat_unit": "µM",
+      "renal_formula": "CG"
     },
     {
-      "Admin_date": "2025/11/17 18:50:00",
+      "Admin_date": "2025/11/17 03:20",
       "Route": "IV",
-      "Infusion_rate": 33.3333,
-      "Infusion_duration": 3,
-      "Dose": 100,
-      "Creatinin_Clearance": 158.3,
-      "creatinine": 60,
-      "creat_unit": "µM"
-    }
-  ],
-  "tdm_history": [
+      "Infusion_rate": 300,
+      "Infusion_duration": 0.5,
+      "Dose": 150,
+      "Creatinin_Clearance": 63.4,
+      "creatinine": 190,
+      "creat_unit": "µM",
+      "renal_formula": "CG"
+    },
     {
-      "tdm_time": "2025/11/16 18:39",
-      "concentration": 30
+      "Admin_date": "2025/11/17 11:20",
+      "Route": "IV",
+      "Infusion_rate": 300,
+      "Infusion_duration": 0.5,
+      "Dose": 150,
+      "Creatinin_Clearance": 63.4,
+      "creatinine": 190,
+      "creat_unit": "µM",
+      "renal_formula": "CG"
+    },
+    {
+      "Admin_date": "2025/11/17 19:20",
+      "Route": "IV",
+      "Infusion_rate": 300,
+      "Infusion_duration": 0.5,
+      "Dose": 150,
+      "Creatinin_Clearance": 63.4,
+      "creatinine": 190,
+      "creat_unit": "µM",
+      "renal_formula": "CG"
+    },
+    {
+      "Admin_date": "2025/11/18 03:20",
+      "Route": "IV",
+      "Infusion_rate": 300,
+      "Infusion_duration": 0.5,
+      "Dose": 150,
+      "Creatinin_Clearance": 67.1,
+      "creatinine": 147,
+      "creat_unit": "µM",
+      "renal_formula": "CKD_2009"
+    },
+    {
+      "Admin_date": "2025/11/18 11:20",
+      "Route": "IV",
+      "Infusion_rate": 300,
+      "Infusion_duration": 0.5,
+      "Dose": 150,
+      "Creatinin_Clearance": 67.1,
+      "creatinine": 147,
+      "creat_unit": "µM",
+      "renal_formula": "CKD_2009"
     }
   ],
+  "tdm_history": [],
   "administration_settings": {
     "height": 170,
     "date_next_dose": "2025-11-16",
-    "time_next_dose": "2025-11-16 18:39:00"
+    "time_next_dose": "2025-11-16 19:20:00"
   }
 }
