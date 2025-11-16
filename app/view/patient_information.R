@@ -1,11 +1,12 @@
 box::use(
-  bs4Dash[box],
-  shiny[column, dateInput, fluidRow, icon, moduleServer, NS, reactive, renderText, selectInput, selectizeInput, tabPanel, tagList, tags, textInput, verbatimTextOutput],
+  bs4Dash[actionButton, box, removePopover],
+  shiny[column, dateInput, fluidRow, icon, includeMarkdown, moduleServer, NS, observeEvent, reactive, renderText, req, selectInput, selectizeInput, tabPanel, tagList, tags, textInput, verbatimTextOutput],
 )
 
 box::use(
   app / logic / selectInput_helpers[getDrugs],
   app / logic / fun_write_mb2[write_mb2],
+  app / logic / popover[init_popovers, remove_popovers]
 )
 
 #' Patient Information Tab UI
@@ -42,10 +43,19 @@ ui <- function(id, i18n) {
           fluidRow(
             column(width = 6, selectizeInput(inputId = ns("drug"), label = i18n$translate("Drug"), choices = getDrugs(), width = "100%"))
           )
+        ),
+        box(
+          title = tagList(icon("info"), i18n$translate("General Informations")),
+          status = "info",
+          width = 12,
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          includeMarkdown("app/documentation/general_information.md")
         )
       ),
       column(
-        width = 9,
+        width = 8,
         box(
           title = tagList(icon("file-lines"), i18n$translate("MB2 File Preview")),
           status = "info",
@@ -58,7 +68,8 @@ ui <- function(id, i18n) {
             verbatimTextOutput(ns("mb2_preview"))
           )
         )
-      )
+      ),
+      column(width = 1, actionButton(ns("reset"), i18n$translate("New Patient"), icon = icon("user-plus"), status = "warning", flat = TRUE))
     )
   )
 }
@@ -67,8 +78,24 @@ ui <- function(id, i18n) {
 #'
 #' @param id Module ID
 #' @export
-server <- function(id, i18n = NULL, admin_data = NULL, tdm_data = NULL, weight_type = NULL) {
+server <- function(id, i18n = NULL, admin_data = NULL, tdm_data = NULL, weight_type = NULL, help_mode = FALSE) {
   moduleServer(id, function(input, output, session) {
+
+    # Reset button to clear all inputs
+    observeEvent(input$reset, {
+      session$reload()
+    })
+
+
+    # Watch for help mode changes and add/remove popovers
+    observeEvent(help_mode(), {
+      if (help_mode()) {
+        init_popovers("patient_information", session)
+      } else {
+        remove_popovers("patient_information", session = session)
+      }
+    }, ignoreNULL = FALSE)
+
     # Reactive for MB2 file preview
     output$mb2_preview <- renderText({
       # Only generate preview if we have basic patient data

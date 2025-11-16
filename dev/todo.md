@@ -27,18 +27,21 @@
 
 
 ## translation
-- [ ] make the translation system to work properly
-- [ ] add flag icons to choose language in the select input (flag + fr or eng)
-- [ ] add translation for toolbox
-- [ ] add translation for notification messages
+- [x] make the translation system to work properly and be dynamic
+- [x] add flag icons to choose language in the select input (flag + fr or eng) instead of select input only with text
+- [x] add translation for toolbox
+- [x] add translation for notification messages 
+- [x] Weight choices not being translated (minor issue)
 
 ## add validation for inputs
  - [ ] add validation based on the validators.R file
 
 
 ## documentation
-- [ ] Add a short documentation in a closable box on the main page to explain very general functionality of the app
-- [ ] add information by using popovers or tooltips to explain specific inputs or options
+- [x] Add a short documentation in a closable box on the main page to explain very general functionality of the app
+- [x] add information by using popovers or tooltips to explain specific inputs or options
+- [x] Add toggle for help model in the header to enable/disable help mode (popovers/tooltips and documentation box)
+- [x] fix bug with toggle (help mode can be enable when swtiching to on, but cannot be disabled when switching to off)
 
 ## mb2 file (creation/saving and loading)
 - [x] add option to choose weight formula when writing mb2 file (this is performed by the ticked value in toolbox) bsa/tbw or modified weight needs to be exclusive options, only one can be selected at a time
@@ -50,7 +53,7 @@
 - [x] Loading file should be possible with either the mb2 file or the json file. Don't have a fallback in place (next point). this allow backward compatibility with already existing mb2 files
 - [x] if json is not loaded properly, just default to everything staying empty and give a notification to the user (danger either json corrected or not found, load the mb2 file only)
 - [x] if concentration, dose; and infusion were divided by 10 based on the settings in the json file, correct the values during the reading of the json file
-- [ ] Correct error when saving administration (multiple doses) in the mb2/json (see the bag alignement because of second being captured in time)
+- [x] Correct error when saving administration (multiple doses) in the mb2/json (see the bag alignement because of second being captured in time)
  ```
 2024/07/21 18:00  IV   1000.0000000     1.00000000   1000.0000000    44.60000000  
 2024/07/22 00:30  IV   1000.0000000     1.00000000   1000.0000000    48.40000000  
@@ -60,6 +63,7 @@
 2025/11/17 15:34:00  IV   0.0000000000     0.50000000   0.0000000000    152.9000000  
 2025/11/18 15:34:00  IV   0.0000000000     0.50000000   0.0000000000    152.9000000 
 ```
+- [x] when loading json file some column are not in the right place (weight unit is in the weight used column )
 
 ## patient info
 - [x] add file display in patient info tab
@@ -67,3 +71,4 @@
 ## UI improvements
   - [x] change Add logo in header. Change color to match bestDose theme
   - [x] invert loading/saving file position with settings in the header
+  - [x] Add a reset button to reset all inputs to default values (new patient + warning if unsaved data)
