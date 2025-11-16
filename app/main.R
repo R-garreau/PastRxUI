@@ -22,14 +22,12 @@ box::use(
 )
 
 # Initialize translator
-i18n <- Translator$new(translation_json_path = "app/lang/translations.json", automatic = FALSE)
-i18n$set_translation_language("en") # English as default
+i18n <- Translator$new(translation_json_path = "app/translations/translations.json")
+i18n$set_translation_language("fr") # English as default
 
 #' @export
 ui <- function(id) {
   ns <- NS(id)
-
-  usei18n(i18n)
 
   dashboardPage(
     dark = NULL,
@@ -99,6 +97,7 @@ ui <- function(id) {
     ),
     sidebar = dashboardSidebar(disable = TRUE),
     body = dashboardBody(
+      usei18n(i18n),
       fluidPage(
         tabsetPanel(
           id = ns("main_tabs"),
@@ -118,7 +117,8 @@ server <- function(id) {
     
     # Handle language change
     observeEvent(input$language, {
-      update_lang(input$language)
+      i18n$set_translation_language(input$language)
+      update_lang(input$language, session)
     })
 
     # Reactive value to store loaded file data

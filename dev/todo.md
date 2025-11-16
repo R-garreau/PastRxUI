@@ -27,9 +27,9 @@
 
 
 ## translation
-- [ ] make the translation system to work properly
-- [ ] add flag icons to choose language in the select input (flag + fr or eng)
-- [ ] add translation for toolbox
+- [x] make the translation system to work properly and be dynamic
+- [ ] add flag icons to choose language in the select input (flag + fr or eng) instead of select input only with text
+- [x] add translation for toolbox
 - [ ] add translation for notification messages 
 
 ## add validation for inputs
