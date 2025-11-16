@@ -1,6 +1,6 @@
 box::use(
   bs4Dash[box, removePopover],
-  shiny[column, dateInput, fluidRow, icon, moduleServer, NS, observeEvent, reactive, renderText, req, selectInput, selectizeInput, tabPanel, tagList, tags, textInput, verbatimTextOutput],
+  shiny[column, dateInput, fluidRow, icon, includeMarkdown, moduleServer, NS, observeEvent, reactive, renderText, req, selectInput, selectizeInput, tabPanel, tagList, tags, textInput, verbatimTextOutput],
 )
 
 box::use(
@@ -43,6 +43,15 @@ ui <- function(id, i18n) {
           fluidRow(
             column(width = 6, selectizeInput(inputId = ns("drug"), label = i18n$translate("Drug"), choices = getDrugs(), width = "100%"))
           )
+        ),
+        box(
+          title = tagList(icon("info"), i18n$translate("General Informations")),
+          status = "info",
+          width = 12,
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          includeMarkdown("app/documentation/general_information.md")
         )
       ),
       column(
