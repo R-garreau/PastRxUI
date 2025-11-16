@@ -39,9 +39,9 @@
 
 ## documentation
 - [x] Add a short documentation in a closable box on the main page to explain very general functionality of the app
-- [ ] add information by using popovers or tooltips to explain specific inputs or options
+- [x] add information by using popovers or tooltips to explain specific inputs or options
 - [x] Add toggle for help model in the header to enable/disable help mode (popovers/tooltips and documentation box)
-- [ ] fix bug with toggle (help mode can be enable when swtiching to on, but cannot be disabled when switching to off)
+- [x] fix bug with toggle (help mode can be enable when swtiching to on, but cannot be disabled when switching to off)
 
 ## mb2 file (creation/saving and loading)
 - [x] add option to choose weight formula when writing mb2 file (this is performed by the ticked value in toolbox) bsa/tbw or modified weight needs to be exclusive options, only one can be selected at a time
