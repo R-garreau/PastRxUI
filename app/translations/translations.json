@@ -109,6 +109,7 @@
     { "en": "Ideal Weight", "fr": "Poids idéal" },
     { "en": "Lean Weight", "fr": "Masse maigre" },
     { "en": "Adjusted Weight", "fr": "Poids ajusté" },
-    { "en": "Options", "fr": "Options" }
+    { "en": "Options", "fr": "Options" },
+    { "en": "Documentation", "fr": "Documentation" }
   ]
 }
