@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created_date": "2025-11-16 18:40:35",
+    "app_name": "PastRx TDM"
+  },
+  "settings": {
+    "weight_type": "mod_weight",
+    "weight_lbs": false,
+    "creatinine_unit": "uM/L",
+    "african": false,
+    "denorm_ccr": false,
+    "creat_mg_dl": false
+  },
+  "correction": {
+    "factor": 1,
+    "applied": false,
+    "description": "No correction applied"
+  },
+  "patient": {
+    "first_name": "Pstr_test",
+    "last_name": "num1",
+    "sex": "Male",
+    "birthdate": "2025-11-16",
+    "hospital": "HCL",
+    "ward": "None",
+    "drug": "Caspofungin"
+  },
+  "weight_history": [
+    {
+      "Weight_date": "2025/11/16 18:39",
+      "Weight_value": 70,
+      "mod_weight_type": "TBW",
+      "tbw": 70,
+      "bsa": 1.8,
+      "weight_unit": false
+    },
+    {
+      "Weight_date": "2025/11/17 18:39",
+      "Weight_value": 54.5,
+      "mod_weight_type": "LBW",
+      "tbw": 70,
+      "bsa": 1.8,
+      "weight_unit": false
+    }
+  ],
+  "dosing_history": [
+    {
+      "Admin_date": "2025/11/16 18:50:00",
+      "Route": "IV",
+      "Infusion_rate": 33.3333,
+      "Infusion_duration": 3,
+      "Dose": 100,
+      "Creatinin_Clearance": 158.3,
+      "creatinine": 60,
+      "creat_unit": "µM"
+    },
+    {
+      "Admin_date": "2025/11/17 18:50:00",
+      "Route": "IV",
+      "Infusion_rate": 33.3333,
+      "Infusion_duration": 3,
+      "Dose": 100,
+      "Creatinin_Clearance": 158.3,
+      "creatinine": 60,
+      "creat_unit": "µM"
+    }
+  ],
+  "tdm_history": [
+    {
+      "tdm_time": "2025/11/16 18:39",
+      "concentration": 30
+    }
+  ],
+  "administration_settings": {
+    "height": 170,
+    "date_next_dose": "2025-11-16",
+    "time_next_dose": "2025-11-16 18:39:00"
+  }
+}
