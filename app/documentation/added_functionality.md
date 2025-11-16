@@ -1,95 +1,146 @@
-## <span style="color:#2993D6"> App functionality </span>
+# <span style="color:darkred">App Functionality</span>
 
-This document explains the newly added features in the PastRxUI application. 
-There is 3 steps to create a file for the BestDose software :
-- Provide patient informations
-- Provide administration data
-- Provide concentration data
+This document explains the features in the PastRxUI application.
 
-#### Patient informations
-This step is straightforward, the user need to provide all the necessary information in the patient info tab. 
-Once this step is done, you can go to the **Administration Tab** 
+There are 3 steps to create a file for the BestDose software:
 
-> **Note** : that some drug have been pre-configured but you can still manually enter any drug name
-> Same apply for Hospital name you just need to click on Add ... once entered (see image below) <br>
-> ![alt text](image.png)
+1. **Provide patient information**
+2. **Provide administration data**
+3. **Provide concentration data**
 
+---
 
-### Administration Tab
-You need to create a full history of weight and administration for the patient.
+<details open>
+<summary><strong><span style="color:#2993D6">1. Patient Information</span></strong></summary>
 
-<details>
+This step is straightforward — the user needs to provide all necessary information in the Patient Info tab. Once complete, proceed to the **Administration Tab**.
 
-#### <summary> ▶ Weight History </summary>
-Weight history is mandatory (at least one value is required)
-
-To create the list of all the weight for a given patient just select the date/time, enter the weight value and unit then click on Add Weight button.
-you can select a specific way to calculate weight thanks to the weight formula input (TBW, BSA or Modified weight)
-![alt text](image-1.png)
-
-This will implement the weight in the weight history table below.
-If you want to edit or delete a weight entry just click on the field and manually edit the value.
-You can also delete a row by clicking on the trash icon at the end of the line you want to delete.
-![alt text](image-2.png)
-
-In the table you can see the Date, time and weight value that are the only variable necessary for bestdose.
-However, to help the user, the application tracks the formula used to calculate weight, the total weight, the body surface area and the weight unit (lbs or kg).
-</details>
-
-<details>
-
-#### <summary> ▶ Administration History </summary>
-
-Similarly to weight history you need to create a full administration history for the patient.
-For this you need to first select the route of administration as this will impact the way you will enter data.
-
-For oral or extravascular administration you need to provide Date/Time and Dose.
-There is no subcutaneous administration in BestDose, if this case happen you need to use the IM route.
-
-![alt text](image-7.png)
-
-For IV (Non continuous) administration you need to provide Date/Time, Dose, and the Infusion duration in hours.
-As seen in the image below if you decide to enter several administration at once you can use the Multiple Dose option.
-This will create several administration spaced by the interval you provide in "Dose Interval (hours)" input.
-
-![alt text](image-6.png)
-
-For Continuous IV adminstration you need to provide more information.
-The dose adminsitered will be calculated based on the beginning and the end date/time you provide.
-You need to provide the electronic syringe volume (mL) and the dose of drug in the syringe (mg).
-finally by providing the infusion rate (mL/h) the app will be able to calculate the dose administered over the time period.
-![alt text](image-5.png)
-
-This will create the administration history in the table below.
-creatinie and weight used to calculated the creatinine clearance are the one in the covariates menu.
-You can select the formula you want to use to calculate renal function by selecting it. 
-Creatinine value alongside its unit and the formulat use are shown in the table.
-![alt text](image-9.png)
-
-
->**Note** : Due to BestDose limitation, the weight use to calculate renal function is the weight in "Weight" input. 
-> Therefore, make sure to always have the correct weight in this input adding a new administration, otherwise the renal function will be calculated with a wrong weight for Cockcroft-Gault formula.
+> **Note:** Some drugs have been pre-configured, but you can manually enter any drug name. The same applies to Hospital name — just click "Add..." once entered (see image below).
+>
+> ![Hospital selection](image.png)
 
 </details>
 
+---
+
+<details open>
+<summary><strong><span style="color:#2993D6">2. Administration Tab</span></strong></summary>
+
+You need to create a complete weight and administration history for the patient.
 
 <details>
+<summary><strong><span style="color:#2993D6">2.1 Weight History</span></strong></summary>
 
-### <summary> ▶ Next dose and options </summary>
+**Weight history is mandatory** (at least one value is required).
 
-The final menu is necessary to provide information about the next dose to be administered and some options for BestDose file creation.
+To create the weight history:
+1. Select the date/time
+2. Enter the weight value and unit
+3. Click the **Add Weight** button
 
-![alt text](image-8.png)
-<br>
-You can change the unit used for both createinine and weight by selecting the desired unit in the options.
-Similarly you can select if the patient is african american or not and if you want to denormalize the creatinine clearance.
+You can select a specific calculation method using the weight formula input (TBW, BSA, or Modified weight).
 
-![alt text](image-10.png)
+![Weight entry form](image-1.png)
+
+This will add the weight to the Weight History table below. To edit or delete an entry:
+- Click on any field to manually edit the value
+- Click the trash icon at the end of the row to delete it
+
+![Weight history table](image-2.png)
+
+The table displays Date, Time, and Weight Value — the variables required for BestDose. The application also tracks the formula used, total weight, body surface area, and weight unit (lbs or kg) to assist users.
 
 </details>
 
+<details>
+<summary><strong><span style="color:#2993D6">2.2 Administration History</span></strong></summary>
 
-### Concentration correction
-Bestdose Cannot accept Concentration > 100. 
-This app automatically rescales concentrations higher than 100 by dividing them by 10.  
-However, while this behavior is always applied when saving files, the only way load the original data is to use the `.json` file created alongside the `.mb2` file.
+Similar to weight history, you need to create a complete administration history.
+
+First, select the **route of administration**, as this determines the required data fields.
+
+<details>
+<summary><strong><span style="color:#2993D6">2.2.1 Oral or Extravascular Administration</span></strong></summary>
+
+Provide:
+- Date/Time
+- Dose
+
+> **Note:** There is no subcutaneous route in BestDose. Use the IM route if needed.
+
+![Oral administration](image-7.png)
+
+</details>
+
+<details>
+<summary><strong><span style="color:#2993D6">2.2.2 IV (Non-Continuous) Administration</span></strong></summary>
+
+Provide:
+- Date/Time
+- Dose
+- Infusion duration (hours)
+
+For **multiple doses**, use the Multiple Dose option to create several administrations spaced by the interval specified in "Dose Interval (hours)".
+
+![IV administration](image-6.png)
+
+</details>
+
+<details>
+<summary><strong><span style="color:#2993D6">2.2.3 Continuous IV Administration</span></strong></summary>
+
+For continuous infusion, more information is required. The dose administered will be calculated based on:
+- Beginning and end date/time
+- Electronic syringe volume (mL)
+- Dose of drug in the syringe (mg)
+- Infusion rate (mL/h)
+
+The app calculates the dose administered over the time period.
+
+![Continuous IV](image-5.png)
+
+</details>
+
+</details>
+
+<details>
+<summary><strong> <span style="color:#2993D6"> 2.3 Administration History Table </span></strong></summary>
+
+The table displays the administration history. <br>
+Creatinine and weight values used to calculate creatinine clearance come from the Covariates menu. Select the desired formula for renal function calculation. <br>
+The table shows creatinine value, unit, and formula used.
+
+![Administration history table](image-9.png)
+
+> **Important:** Due to BestDose limitations, the weight used for renal function calculation is the weight in the "Weight" input field. Always ensure the correct weight is entered before adding a new administration, otherwise the Cockcroft-Gault formula will use an incorrect weight.
+
+</details>
+
+<details>
+<summary><strong><span style="color:#2993D6">2.4 Next Dose and Options</span></strong></summary>
+
+This menu provides information about the next dose to be administered and options for BestDose file creation.
+
+![Next dose settings](image-8.png)
+
+You can modify:
+- Unit used for creatinine and weight
+- Whether the patient is African American
+- Whether to denormalize the creatinine clearance
+
+![Options settings](image-10.png)
+
+</details>
+
+</details>
+
+---
+
+<details>
+<summary><strong><span style="color:#2993D6">3. Concentration Correction</span></strong></summary>
+
+**BestDose cannot accept concentrations > 100.**
+
+This app automatically rescales concentrations higher than 100 by dividing them by 10. While this is always applied when saving files, the only way to load the original data is to use the `.json` file created alongside the `.mb2` file.
+
+</details>

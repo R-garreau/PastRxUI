@@ -1,5 +1,5 @@
 box::use(
-  shiny[includeMarkdown, NS, tags, tabPanel, moduleServer],
+  shiny[includeMarkdown, tabPanel, moduleServer, NS, tags],
   bs4Dash[tabsetPanel],
 )
 
@@ -12,19 +12,25 @@ ui <- function(id, i18n) {
 
   tabPanel(
     i18n$translate("Documentation"),
-    tabsetPanel(
-      id = ns("documentation_tabs"),
-      vertical = TRUE,
-      tabPanel(
-        title = "Functionality",
-        tags$div(
-          includeMarkdown("app/documentation/added_functionality.md")
-        )
-      ),
-      tabPanel(
-        title = "Options Explanation",
-        tags$div(
-          includeMarkdown("app/documentation/options_explanation.md")
+    tags$div(
+      style = "height: 80vh; overflow-y: auto;",
+      tabsetPanel(
+        id = ns("documentation_tabs"),
+        vertical = TRUE,
+        type = "pills",
+        tabPanel(
+          title = "Functionality",
+          tags$div(
+            style = "padding: 20px;",
+            includeMarkdown("app/documentation/added_functionality.md")
+          )
+        ),
+        tabPanel(
+          title = "Options Explanation",
+          tags$div(
+            style = "padding: 20px;",
+            includeMarkdown("app/documentation/options_explanation.md")
+          )
         )
       )
     )
