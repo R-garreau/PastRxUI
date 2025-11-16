@@ -1,14 +1,14 @@
 box::use(
-  bs4Dash[dashboardBody, dashboardPage, bs4DashNavbar, dashboardSidebar, tabsetPanel],
+  bs4Dash[bs4DashNavbar, dashboardBody, dashboardPage,  dashboardSidebar, tabsetPanel],
   dplyr[select],
+  shiny.i18n[Translator, update_lang, usei18n],
   shiny[
     downloadButton, downloadHandler, fileInput, fluidPage, icon, moduleServer, NS,
     observeEvent, reactive, reactiveVal, req, selectInput, showNotification,
     tagList, tags, updateDateInput, updateSelectInput, updateSelectizeInput, updateTextInput
   ],
-  shiny.i18n[Translator, usei18n, update_lang],
-  shinyWidgets[dropdownButton],
-  utils[zip]
+  shinyWidgets[dropdownButton, materialSwitch],
+  utils[zip],
 )
 
 box::use(
@@ -17,19 +17,18 @@ box::use(
   app / logic / mb2_read[read_mb2],
   app / logic / mb2_json_io[get_json_filename, mb2_json_read, mb2_json_write],
   app / view / administration,
+  app / view / documentation,
   app / view / patient_information,
   app / view / tdm_data,
 )
 
 # Initialize translator
-i18n <- Translator$new(translation_json_path = "app/static/translations.json", automatic = FALSE)
+i18n <- Translator$new(translation_json_path = "app/translations/translations.json")
 i18n$set_translation_language("fr") # English as default
 
 #' @export
 ui <- function(id) {
   ns <- NS(id)
-
-  usei18n(i18n)
 
   dashboardPage(
     dark = NULL,
@@ -43,8 +42,6 @@ ui <- function(id) {
           style = "margin-right: 5px;"
         ), tags$h3("PastRx")
       ),
-      skin = "dark",
-      status = "lightblue",
       leftUi = tagList(
         tags$li(
           class = "dropdown",
@@ -72,6 +69,17 @@ ui <- function(id) {
       rightUi = tagList(
         tags$li(
           class = "dropdown",
+          style = "margin-right: 20px; margin-top: 10px;",
+          materialSwitch(
+            ns("help_toggle"),
+            label = i18n$translate("Help Mode"),
+            inline = TRUE,
+            status = "warning",
+            value = FALSE
+          )
+        ),
+        tags$li(
+          class = "dropdown",
           style = "margin-right: 20px;",
           dropdownButton(
             inputId = ns("mb2_settings"),
@@ -83,20 +91,22 @@ ui <- function(id) {
             width = "300px",
             tags$h3(i18n$translate("Settings")),
             selectInput(ns("weight_type_selection"), label = i18n$translate("Weight Type"), choices = c("Total Weight" = "TBW", "Modified weight" = "mod_weight", "Body Surface Area" = "BSA"), selected = "TBW"),
-            selectInput(ns("language"), label = i18n$translate("Language"), choices = i18n$get_languages(), selected = i18n$get_key_translation(), width = "150px")
+            selectInput(ns("language"), label = i18n$translate("Language"), choices = c("🇬🇧 en" = "en", "🇫🇷 fr" = "fr"), selected = i18n$get_key_translation(), width = "150px")
           )
         )
       )
     ),
     sidebar = dashboardSidebar(disable = TRUE),
     body = dashboardBody(
+      usei18n(i18n),
       fluidPage(
         tabsetPanel(
           id = ns("main_tabs"),
           type = "tabs",
           patient_information$ui(ns("patient_info"), i18n),
           administration$ui(ns("admin"), i18n),
-          tdm_data$ui(ns("tdm_data"), i18n)
+          tdm_data$ui(ns("tdm_data"), i18n),
+          documentation$ui(ns("documentation"), i18n)
         )
       )
     )
@@ -106,18 +116,21 @@ ui <- function(id) {
 #' @export
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
+    
+    # Handle language change
+    observeEvent(input$language, {
+      i18n$set_translation_language(input$language)
+      update_lang(input$language, session)
+    })
+
     # Reactive value to store loaded file data
     loaded_file_data <- reactiveVal(NULL)
 
     # Call module servers with loaded_data reactive
-    admin_data <- administration$server("admin", i18n, patient_data, reactive(loaded_file_data()))
-    tdm_values <- tdm_data$server("tdm_data", i18n, reactive(loaded_file_data()))
-    patient_data <- patient_information$server("patient_info", i18n, admin_data, tdm_values, reactive(input$weight_type_selection))
+    admin_data <- administration$server("admin", i18n = i18n, patient_data, reactive(loaded_file_data()), help_mode = reactive(input$help_toggle))
+    tdm_values <- tdm_data$server("tdm_data", i18n = i18n, reactive(loaded_file_data()))
+    patient_data <- patient_information$server("patient_info", i18n = i18n, admin_data, tdm_values, reactive(input$weight_type_selection), help_mode = reactive(input$help_toggle))
 
-    # Handle language change
-    observeEvent(input$language, {
-      update_lang(input$language)
-    })
 
     # Handle file download
     output$save_file <- downloadHandler(
@@ -143,7 +156,7 @@ server <- function(id) {
 
         # Validate that we have at least patient data
         if (is.null(p_data) || is.null(a_data) || is.null(tdm_data)) {
-          showNotification("Please fill in all required data before saving", type = "error")
+          showNotification(i18n$translate("Please fill in all required data before saving"), type = "error")
           return()
         }
 
@@ -160,7 +173,7 @@ server <- function(id) {
           mb2_dosing_history$Dose <- mb2_dosing_history$Dose / 10
           mb2_dosing_history$Infusion_rate <- mb2_dosing_history$Infusion_rate / 10
           correction_factor <- 10
-          showNotification("All concentration and dose will be divided by 10 in the MB2 file", type = "warning")
+          showNotification(i18n$translate("All concentration and dose will be divided by 10 in the MB2 file"), type = "warning")
         }
 
         # Update weight history to select the appropriate weight type
@@ -173,7 +186,7 @@ server <- function(id) {
         } else {
           # Both unchecked - default to TBW
           selected_weight_data <- select(weight_history_data, .data$Weight_date, .data$tbw)
-          showNotification("No weight type selected, using TBW as default", type = "message")
+          showNotification(i18n$translate("No weight type selected, using TBW as default"), type = "message")
         }
 
         # Write the MB2 file content
@@ -247,7 +260,7 @@ server <- function(id) {
         file.remove(json_file)
 
         showNotification(
-          "Files saved successfully! (MB2 + JSON in ZIP)",
+          i18n$translate("Files saved successfully! (MB2 + JSON in ZIP)"),
           type = "message",
           duration = 3
         )
@@ -285,6 +298,14 @@ server <- function(id) {
             }
 
             # Create loaded data structure from JSON
+            # Ensure dosing history has renal_formula column
+            dosing_with_formula <- app_state$dosing_history
+            if (!is.null(dosing_with_formula) && nrow(dosing_with_formula) > 0) {
+              if (!"renal_formula" %in% colnames(dosing_with_formula)) {
+                dosing_with_formula$renal_formula <- "CG"
+              }
+            }
+            
             loaded_data <- list(
               patient_first_name = app_state$patient$first_name,
               patient_last_name = app_state$patient$last_name,
@@ -294,7 +315,7 @@ server <- function(id) {
               drug_name = app_state$patient$drug,
               hospital = app_state$patient$hospital,
               weight_df = app_state$weight_history,
-              dose_df = app_state$dosing_history,
+              dose_df = dosing_with_formula,
               level_df = app_state$tdm_history,
               settings = app_state$settings
             )
@@ -303,7 +324,7 @@ server <- function(id) {
 
             showNotification(
               paste(
-                "JSON file loaded successfully!",
+                i18n$translate("File loaded successfully"),
                 "Weight:", nrow(app_state$weight_history), "entries,",
                 "Dosing:", nrow(app_state$dosing_history), "entries,",
                 "TDM:", nrow(app_state$tdm_history), "values"
@@ -314,7 +335,7 @@ server <- function(id) {
           },
           error = function(e) {
             showNotification(
-              paste("Error loading JSON file:", e$message, "- Please check the file format or load the MB2 file instead."),
+              paste(i18n$translate("Error loading file"), e$message),
               type = "error",
               duration = 10
             )
@@ -326,6 +347,21 @@ server <- function(id) {
           {
             # Read the MB2 file
             data_file <- read_mb2(input$load_file$datapath)
+
+            # Add missing columns for legacy MB2 files
+            if (!is.null(data_file$dose_df) && nrow(data_file$dose_df) > 0) {
+              data_file$dose_df$renal_formula <- "CG"
+              data_file$dose_df$creatinine <- 60
+              data_file$dose_df$creat_unit <- "µM"
+            }
+            
+            # Add missing columns to weight_df from MB2
+            if (!is.null(data_file$weight_df) && nrow(data_file$weight_df) > 0) {
+              data_file$weight_df$mod_weight_type <- "TBW"
+              data_file$weight_df$tbw <- data_file$weight_df$Weight_value
+              data_file$weight_df$bsa <- 1.8
+              data_file$weight_df$weight_unit <- "kg"
+            }
 
             # Check if corresponding JSON file exists
             json_path <- get_json_filename(input$load_file$datapath)
@@ -376,7 +412,7 @@ server <- function(id) {
                 },
                 error = function(e) {
                   showNotification(
-                    paste("JSON file corrupted or not found. Loading MB2 file only."),
+                    i18n$translate("JSON file not found or invalid. Loading MB2 file only."),
                     type = "error",
                     duration = 7
                   )
@@ -404,7 +440,7 @@ server <- function(id) {
               # Show success notifications
               showNotification(
                 paste(
-                  "MB2 file loaded successfully!",
+                  i18n$translate("File loaded successfully"),
                   "Weight:", nrow(data_file$weight_df), "entries,",
                   "Dosing:", nrow(data_file$dose_df), "entries,",
                   "TDM:", nrow(data_file$level_df), "values"
@@ -416,7 +452,7 @@ server <- function(id) {
           },
           error = function(e) {
             showNotification(
-              paste("Error loading MB2 file:", e$message),
+              paste(i18n$translate("Error loading file"), e$message),
               type = "error",
               duration = 10
             )
@@ -424,7 +460,7 @@ server <- function(id) {
         )
       } else {
         showNotification(
-          "Unsupported file format. Please upload a .mb2 or .json file.",
+          i18n$translate("Unsupported file format. Please select a .mb2 or .json file."),
           type = "error",
           duration = 5
         )
