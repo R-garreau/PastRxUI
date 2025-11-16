@@ -1,5 +1,10 @@
 # Contains Helper functions for selectInput choices
 
+box::use( 
+  stats[setNames],
+)
+
+
 
 #' Get Drug Choices for information
 #' @return A character vector of drug choices
@@ -47,4 +52,14 @@ getRenalFormulas <- function() {
     "CKD-EPI" = "ckd_epi"
   )
   return(renal_formula_choices)
+}
+
+#' Get Weight Formula Choices for selectInput
+#' @param i18n Optional translation object
+#' @return A named character vector of weight formula choices
+#' @export
+getWeightFormulas <- function(i18n = NULL) {
+  weight_choices <- c("TBW", "IBW", "LBW", "ABW")
+
+  return(weight_choices)
 }
