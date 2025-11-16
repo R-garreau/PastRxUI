@@ -90,7 +90,7 @@ ui <- function(id) {
             width = "300px",
             tags$h3(i18n$translate("Settings")),
             selectInput(ns("weight_type_selection"), label = i18n$translate("Weight Type"), choices = c("Total Weight" = "TBW", "Modified weight" = "mod_weight", "Body Surface Area" = "BSA"), selected = "TBW"),
-            selectInput(ns("language"), label = i18n$translate("Language"), choices = c("🇺🇸 en" = "en", "🇫🇷 fr" = "fr"), selected = i18n$get_key_translation(), width = "150px")
+            selectInput(ns("language"), label = i18n$translate("Language"), choices = c("🇬🇧 en" = "en", "🇫🇷 fr" = "fr"), selected = i18n$get_key_translation(), width = "150px")
           )
         )
       )
