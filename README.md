@@ -1,14 +1,20 @@
----
-title: PastRxUI
-emoji: 💊
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-app_file: app.R
-pinned: false
+# PastRxUI
+
 ---
 
-# PastRxUI
+title: PastRxUI
+
+emoji: 💊
+
+colorFrom: blue
+
+colorTo: indigo
+
+sdk: docker
+
+app_file: app.R
+
+---
 
 This application is a user interface to create mb2 files for BestDose (legacy)
 for more information on BestDose software see the user manual on the (Laboratory of Applied Pharmacokinetics and Bioinformatics)[https://www.lapk.org/bestdose.php]

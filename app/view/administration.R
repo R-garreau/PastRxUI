@@ -2,7 +2,7 @@ box::use(
   bs4Dash[actionButton, box],
   dplyr[arrange, bind_rows, case_when],
   DT[datatable, dataTableOutput, renderDataTable],
-  shiny[br, column, conditionalPanel, dateInput, div, fluidRow, icon, moduleServer, NS, numericInput, observe, observeEvent, reactive, reactiveValues, req, selectInput, tabPanel, tagList, hr, uiOutput, updateSelectInput],
+  shiny[br, column, conditionalPanel, dateInput, div, fluidRow, hr, icon, moduleServer, NS, numericInput, observe, observeEvent, reactive, reactiveValues, req, selectInput, showNotification, tabPanel, tagList, uiOutput, updateSelectInput],
   shinyTime[timeInput],
   shinyWidgets[dropdownButton, prettyCheckbox],
   stats[setNames],
@@ -399,7 +399,42 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
     observeEvent(input$dosing_history_cell_edit, {
       info <- input$dosing_history_cell_edit
       if (!is.null(info)) {
-        patient_info$dosing_history[info$row, info$col] <- info$value
+        # add + 1 to col to account for R indexing after datatable
+        col <- info$col + 1
+        # update the value in the reactive data frame (cast numeric values when appropriate)
+        # We keep the original update to preserve behavior for non-numeric columns
+        col_name <- names(patient_info$dosing_history)[col]
+
+        if (col_name %in% c("Infusion_rate", "Infusion_duration", "Dose")) {
+          # assign numeric if one of these columns
+          patient_info$dosing_history[info$row, col] <- as.numeric(info$value)
+        } else {
+          patient_info$dosing_history[info$row, col] <- info$value
+        }
+
+        # When user edits infusion rate directly -> warn them, because we cannot deduce which
+        # of dose or infusion duration they intended to change. Recommend editing Dose or
+        # Infusion Duration instead so the rate will be recalculated.
+        if (col_name == "Infusion_rate") {
+          showNotification(i18n$translate("You edited the Infusion rate manually. This may make Dose / Infusion Duration inconsistent — we recommend changing Dose or Infusion Duration instead so the application can recalculate the infusion rate."), type = "warning", duration = 10)
+        }
+
+        # When the user edits Dose or Infusion Duration, recalculate the infusion rate as Dose / Duration
+        if (col_name %in% c("Dose", "Infusion_duration")) {
+          # Read dose and duration as numeric
+          dose_val <- as.numeric(patient_info$dosing_history[info$row, "Dose"])
+          duration_val <- as.numeric(patient_info$dosing_history[info$row, "Infusion_duration"])
+
+          # Avoid division by zero or NA
+          if (!is.na(dose_val) && !is.na(duration_val) && duration_val > 0) {
+            new_rate <- round(dose_val / duration_val, digits = 8)
+          } else {
+            new_rate <- 0
+          }
+
+          patient_info$dosing_history[info$row, "Infusion_rate"] <- new_rate
+          showNotification(i18n$translate("Infusion rate has been recalculated from Dose and Infusion Duration."), type = "message", duration = 4)
+        }
         # Sort by date/time
         patient_info$dosing_history <- arrange(patient_info$dosing_history, Admin_date)
       }
@@ -444,7 +479,7 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
         datatable(
           data_with_delete,
           class = "cell-border stripe",
-          editable = list(target = "cell", disable = list(columns = c(ncol(data_with_delete) - 2, ncol(data_with_delete) - 1))),
+          editable = list(target = "cell", disable = list(columns = c(ncol(data_with_delete) - 3, ncol(data_with_delete) - 1))),
           colnames = c(
             i18n$translate("Date"),
             i18n$translate("Route"),
@@ -452,9 +487,9 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
             i18n$translate("Infusion Duration"),
             i18n$translate("Dose"),
             i18n$translate("Creatinine Clearance"),
+            i18n$translate("Renal Formula"),
             i18n$translate("Creatinine"),
             i18n$translate("Creatinine Unit"),
-            i18n$translate("Renal Formula"),
             i18n$translate("Delete")
           ),
           rownames = FALSE,
@@ -478,9 +513,9 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
             i18n$translate("Infusion Duration"),
             i18n$translate("Dose"),
             i18n$translate("Creatinine Clearance"),
+            i18n$translate("Renal Formula"),
             i18n$translate("Creatinine"),
             i18n$translate("Creatinine Unit"),
-            i18n$translate("Renal Formula"),
             i18n$translate("Delete")
           ),
           editable = TRUE,

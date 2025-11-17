@@ -176,6 +176,11 @@ server <- function(id) {
           showNotification(i18n$translate("All concentration and dose will be divided by 10 in the MB2 file"), type = "warning")
         }
 
+        # Prepare corrected data for JSON as well
+        tdm_for_json <- mb2_tdm_history
+        admin_for_json <- a_data
+        admin_for_json$dosing_history <- mb2_dosing_history
+
         # Update weight history to select the appropriate weight type
         # Priority: BSA > Mod Weight > TBW (default when both unchecked)
         weight_history_data <- a_data$weight_history
@@ -223,8 +228,8 @@ server <- function(id) {
 
         json_content <- mb2_json_write(
           patient_data = p_data,
-          admin_data = a_data,
-          tdm_data = tdm_data,
+          admin_data = admin_for_json,
+          tdm_data = tdm_for_json,
           settings = settings_list,
           correction_factor = correction_factor
         )
