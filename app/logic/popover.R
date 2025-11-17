@@ -29,18 +29,7 @@ remove_popovers <- function(type, session) {
 #' @export
 
 patient_information_popovers <- function(session) {
-  addPopover(
-    id = "first_name",
-    session = session,
-    options = list(
-      title = "First Name",
-      placement = "right",
-      html = TRUE,
-      trigger = "hover",
-      content = "Enter the patient's first name here."
-    )
-  )
-  
+
   # addPopover(
   #   session = session,
   #   id = "last_name",
