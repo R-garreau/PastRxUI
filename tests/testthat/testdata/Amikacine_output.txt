@@ -1,5 +1,5 @@
 PASTRx Version: 1.2.0.27.     2014/09/16 10:55         !version, date this file written.
-   1      2025/11/14 11:43    2014/09/16 08:00         !Format key, created on, date of next regimen
+   1      2025/11/17 11:55    2014/09/16 08:00         !Format key, created on, date of next regimen
 XXXXXXXXX           XXXXXX      FN Unknown genetic grou! Last, First, Ethnic grp., Gender(F/M), Dialysis(D/N)
 CR                         in 163.0 100 1969/06/18     !Chart,Ward,Room,cm/in,hgt(cm), muscle %,Birth(yr/mn/dy)
    2                                                   !no. of Effects
