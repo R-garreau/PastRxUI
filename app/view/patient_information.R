@@ -1,6 +1,7 @@
 box::use(
   bs4Dash[actionButton, box, removePopover],
   shiny[column, dateInput, fluidRow, icon, includeMarkdown, moduleServer, NS, observeEvent, reactive, renderText, req, selectInput, selectizeInput, tabPanel, tagList, tags, textInput, verbatimTextOutput],
+  shinyWidgets[confirmSweetAlert],
 )
 
 box::use(
@@ -37,11 +38,11 @@ ui <- function(id, i18n) {
             column(width = 6, selectInput(inputId = ns("sex"), label = i18n$translate("Sex"), choices = c("Male", "Female")))
           ),
           fluidRow(
-            column(width = 6, selectizeInput(inputId = ns("hospital"), label = i18n$translate("Hospital"), choices = c("HCL", "CHU"), options = list(create = TRUE))),
+            column(width = 6, selectizeInput(inputId = ns("hospital"), label = i18n$translate("Hospital"), choices = "", options = list(create = TRUE))),
             column(width = 6, textInput(inputId = ns("ward"), label = i18n$translate("Ward")))
           ),
           fluidRow(
-            column(width = 6, selectizeInput(inputId = ns("drug"), label = i18n$translate("Drug"), choices = getDrugs(), width = "100%"))
+            column(width = 6, selectizeInput(inputId = ns("drug"), label = i18n$translate("Drug"), choices = getDrugs(), width = "100%", options = list(create = TRUE))),
           )
         ),
         box(
@@ -83,7 +84,18 @@ server <- function(id, i18n = NULL, admin_data = NULL, tdm_data = NULL, weight_t
 
     # Reset button to clear all inputs
     observeEvent(input$reset, {
-      session$reload()
+      if (isTRUE(input$reset)) {
+        session$reload()
+      } else {
+        confirmSweetAlert(
+          session = session,
+          inputId = "reset",
+          title = i18n$translate("Confirm Reset"),
+          text = i18n$translate("Are you sure you want to reset the application? All unsaved data will be lost."),
+          type = "warning",
+          btn_labels = c(i18n$translate("Cancel"), i18n$translate("Confirm"))
+        )
+      }
     })
 
 

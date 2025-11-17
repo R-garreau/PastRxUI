@@ -51,7 +51,11 @@
     { "en": "TDM History", "fr": "Historique TDM" },
     { "en": "Weight History", "fr": "Historique du poids" },
     { "en": "Load Patient File", "fr": "Charger fichier patient" },
-    { "en": "Create New Patient", "fr": "Créer nouveau patient" },
+    { "en": "New Patient", "fr": "Nouveau Patient" },
+    { "en": "Confirm Reset", "fr": "Confirmer la réinitialisation" },
+    { "en": "Are you sure you want to reset the application? All unsaved data will be lost.", "fr": "Êtes-vous sûr de vouloir réinitialiser l'application ? Toutes les données non sauvegardées seront perdues." },
+    { "en": "Cancel", "fr": "Annuler" },
+    { "en": "Confirm", "fr": "Confirmer" },
     { "en": "Reload App", "fr": "Recharger l'application" },
     { "en": "Male", "fr": "Masculin" },
     { "en": "Female", "fr": "Féminin" },
@@ -110,8 +114,6 @@
     { "en": "Lean Weight", "fr": "Masse maigre" },
     { "en": "Adjusted Weight", "fr": "Poids ajusté" },
     { "en": "Options", "fr": "Options" },
-    { "en": "Documentation", "fr": "Documentation" },
-    { "en": "General Informations", "fr": "Informations générales" },
-    { "en": "New Patient", "fr": "Nouveau patient" }
+    { "en": "Documentation", "fr": "Documentation" }
   ]
 }
