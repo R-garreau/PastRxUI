@@ -444,7 +444,7 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
         datatable(
           data_with_delete,
           class = "cell-border stripe",
-          editable = list(target = "cell", disable = list(columns = c(ncol(data_with_delete) - 2, ncol(data_with_delete) - 1))),
+          editable = list(target = "cell", disable = list(columns = c(ncol(data_with_delete) - 3, ncol(data_with_delete) - 1))),
           colnames = c(
             i18n$translate("Date"),
             i18n$translate("Route"),
@@ -452,9 +452,9 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
             i18n$translate("Infusion Duration"),
             i18n$translate("Dose"),
             i18n$translate("Creatinine Clearance"),
+            i18n$translate("Renal Formula"),
             i18n$translate("Creatinine"),
             i18n$translate("Creatinine Unit"),
-            i18n$translate("Renal Formula"),
             i18n$translate("Delete")
           ),
           rownames = FALSE,
@@ -478,9 +478,9 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
             i18n$translate("Infusion Duration"),
             i18n$translate("Dose"),
             i18n$translate("Creatinine Clearance"),
+            i18n$translate("Renal Formula"),
             i18n$translate("Creatinine"),
             i18n$translate("Creatinine Unit"),
-            i18n$translate("Renal Formula"),
             i18n$translate("Delete")
           ),
           editable = TRUE,
