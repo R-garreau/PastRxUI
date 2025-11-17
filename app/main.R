@@ -7,6 +7,7 @@ box::use(
     observeEvent, reactive, reactiveVal, req, selectInput, showNotification,
     tagList, tags, updateDateInput, updateSelectInput, updateSelectizeInput, updateTextInput
   ],
+  shinyjs[useShinyjs, show, hide, runjs],
   shinyWidgets[dropdownButton, materialSwitch],
   utils[zip],
 )
@@ -25,6 +26,19 @@ box::use(
 # Initialize translator
 i18n <- Translator$new(translation_json_path = "app/translations/translations.json")
 i18n$set_translation_language("fr") # English as default
+
+# Set up asynchronous processing so Shiny remains responsive for other users.
+# Use multisession on Windows and multicore on POSIX systems.
+if (.Platform$OS.type == "windows") {
+  # Use an env var FUTURE_WORKERS to configure how many workers to spawn in production
+  workers <- as.integer(Sys.getenv("FUTURE_WORKERS", parallel::detectCores() - 1))
+  if (is.na(workers) || workers <= 0) workers <- 1
+  future::plan(future::multisession, workers = workers)
+} else {
+  workers <- as.integer(Sys.getenv("FUTURE_WORKERS", parallel::detectCores() - 1))
+  if (is.na(workers) || workers <= 0) workers <- 1
+  future::plan(future::multicore, workers = workers)
+}
 
 #' @export
 ui <- function(id) {
@@ -63,8 +77,12 @@ ui <- function(id) {
             ns("save_file"),
             i18n$translate("Save"),
             style = "background-color: #3d9970; color: white; margin-left: 10px;"
-          )
-        )
+          ),
+          tags$div(id = ns("progress_wrapper"), style = "display:none; margin-left: 10px; margin-top: 22px; width:220px;",
+                   tags$div(class = "progress", style = "height: 8px; width: 220px;",
+                            tags$div(id = ns("progress_bar"), class = "progress-bar bg-info progress-bar-striped progress-bar-animated", role = "progressbar", `aria-valuemin`=0, `aria-valuemax`=100, style = "width: 0%;")))
+        ),
+        
       ),
       rightUi = tagList(
         tags$li(
@@ -98,6 +116,8 @@ ui <- function(id) {
     ),
     sidebar = dashboardSidebar(disable = TRUE),
     body = dashboardBody(
+      # JavaScript helpers (show/hide/dom updates)
+      shinyjs::useShinyjs(),
       usei18n(i18n),
       fluidPage(
         tabsetPanel(
@@ -125,6 +145,7 @@ server <- function(id) {
 
     # Reactive value to store loaded file data
     loaded_file_data <- reactiveVal(NULL)
+    
 
     # Call module servers with loaded_data reactive
     admin_data <- administration$server("admin", i18n = i18n, patient_data, reactive(loaded_file_data()), help_mode = reactive(input$help_toggle))
@@ -138,6 +159,7 @@ server <- function(id) {
         req(patient_data())
         p_data <- patient_data()
         base_name <- name_file(
+          # UI-level progress bar (inline) — we use shinyjs to show/hide it.
           first_name = p_data$first_name,
           last_name = p_data$last_name,
           hospital = p_data$hospital,
@@ -148,7 +170,14 @@ server <- function(id) {
       },
       content = function(file) {
         # Require data from modules - only patient data is mandatory
+        # Show inline progress bar in header
+        shinyjs::show(session$ns("progress_wrapper"))
+        shinyjs::runjs(sprintf("document.getElementById('%s').style.width = '25%%'", session$ns("progress_bar")))
+        shinyjs::runjs(sprintf("setTimeout(function(){document.getElementById('%s').style.width='70%%'}, 600)", session$ns("progress_bar")))
+        on.exit(shinyjs::hide(session$ns("progress_wrapper")), add = TRUE)
         req(patient_data())
+
+        # No pre-generated path: generate the MB2/JSON/zip synchronously and send it
 
         p_data <- patient_data()
         a_data <- admin_data()
@@ -269,22 +298,30 @@ server <- function(id) {
           type = "message",
           duration = 3
         )
+        shinyjs::hide(session$ns("progress_wrapper"))
       }
     )
+
+    
 
     # Load file observer - handles both MB2 and JSON files
     observeEvent(input$load_file, {
       req(input$load_file)
 
-      # Determine file type
-      file_ext <- tolower(tools::file_ext(input$load_file$name))
+      # Determine file type (capture reactive inputs synchronously so futures don't read them)
+      load_info <- input$load_file
+      file_ext <- tolower(tools::file_ext(load_info$name))
+      file_path <- load_info$datapath
 
       if (file_ext == "json") {
-        # Loading JSON file directly
-        tryCatch(
-          {
-            app_state <- mb2_json_read(input$load_file$datapath)
-
+        # Loading JSON file directly (async)
+        # Show inline progress bar in header
+        shinyjs::show(session$ns("progress_wrapper"))
+        shinyjs::runjs(sprintf("document.getElementById('%s').style.width = '25%%'", session$ns("progress_bar")))
+        shinyjs::runjs(sprintf("setTimeout(function(){document.getElementById('%s').style.width='70%%'}, 600)", session$ns("progress_bar")))
+        promises::future_promise({
+          mb2_json_read(file_path)
+        }) |> promises::then(function(app_state) {
             # Update all inputs from JSON state
             updateTextInput(session, "patient_info-first_name", value = app_state$patient$first_name)
             updateTextInput(session, "patient_info-last_name", value = app_state$patient$last_name)
@@ -310,7 +347,7 @@ server <- function(id) {
                 dosing_with_formula$renal_formula <- "CG"
               }
             }
-            
+
             loaded_data <- list(
               patient_first_name = app_state$patient$first_name,
               patient_last_name = app_state$patient$last_name,
@@ -337,21 +374,25 @@ server <- function(id) {
               type = "message",
               duration = 5
             )
-          },
-          error = function(e) {
+            # Hide the header progress bar
+            shinyjs::hide(session$ns("progress_wrapper"))
+          }) |> promises::catch(function(e) {
             showNotification(
               paste(i18n$translate("Error loading file"), e$message),
               type = "error",
               duration = 10
             )
-          }
-        )
+            # Hide the progress bar
+            shinyjs::hide(session$ns("progress_wrapper"))
+          })
+        # Ensure the progress bar is hidden when the JSON promise is complete
       } else if (file_ext == "mb2") {
         # Loading MB2 file
-        tryCatch(
-          {
-            # Read the MB2 file
-            data_file <- read_mb2(input$load_file$datapath)
+        # Read the MB2 file (async)
+        # Capture path outside the future; futures cannot access reactive values
+        promises::future_promise({
+          read_mb2(file_path)
+        }) |> promises::then(function(data_file) {
 
             # Add missing columns for legacy MB2 files
             if (!is.null(data_file$dose_df) && nrow(data_file$dose_df) > 0) {
@@ -368,15 +409,12 @@ server <- function(id) {
               data_file$weight_df$weight_unit <- "kg"
             }
 
-            # Check if corresponding JSON file exists
-            json_path <- get_json_filename(input$load_file$datapath)
-            json_loaded <- FALSE
-
-            if (file.exists(json_path)) {
-              tryCatch(
-                {
-                  app_state <- mb2_json_read(json_path)
-
+              # Check if corresponding JSON file exists and load it asynchronously
+              json_path <- get_json_filename(file_path)
+              if (file.exists(json_path)) {
+                promises::future_promise({
+                  mb2_json_read(json_path)
+                }) |> promises::then(function(app_state) {
                   # Update all inputs from JSON state
                   updateTextInput(session, "patient_info-first_name", value = app_state$patient$first_name)
                   updateTextInput(session, "patient_info-last_name", value = app_state$patient$last_name)
@@ -402,7 +440,6 @@ server <- function(id) {
                   full_data$settings <- app_state$settings
 
                   loaded_file_data(full_data)
-                  json_loaded <- TRUE
 
                   showNotification(
                     paste(
@@ -414,55 +451,55 @@ server <- function(id) {
                     type = "message",
                     duration = 5
                   )
-                },
-                error = function(e) {
+                  # progress bar is hidden by nested promises or the MB2 path
+                }) |> promises::catch(function(e) {
+                  # Fall back to MB2 only if JSON fails
                   showNotification(
                     i18n$translate("JSON file not found or invalid. Loading MB2 file only."),
                     type = "error",
                     duration = 7
                   )
-                }
-              )
-            }
+                  loaded_file_data(data_file)
+                  shinyjs::hide(session$ns("progress_wrapper"))
+                })
+              } else {
+                # No JSON, load MB2 only
+                loaded_file_data(data_file)
 
-            # Fallback to MB2 only if JSON not found or failed
-            if (!json_loaded) {
-              # Update Patient Information tab inputs
-              updateTextInput(session, "patient_info-first_name", value = data_file$patient_first_name)
-              updateTextInput(session, "patient_info-last_name", value = data_file$patient_last_name)
-              updateTextInput(session, "patient_info-ward", value = data_file$ward)
-              updateDateInput(session, "patient_info-birthdate", value = as.Date(data_file$birthdate))
-              updateSelectInput(session, "patient_info-sex", selected = data_file$sex)
-              updateSelectInput(session, "patient_info-drug", selected = data_file$drug_name)
-              updateSelectizeInput(session, "patient_info-hospital",
-                selected = data_file$hospital,
-                choices = c("HCL", "CHU", data_file$hospital)
-              )
+                # Update Patient Information tab inputs from MB2 only
+                updateTextInput(session, "patient_info-first_name", value = data_file$patient_first_name)
+                updateTextInput(session, "patient_info-last_name", value = data_file$patient_last_name)
+                updateTextInput(session, "patient_info-ward", value = data_file$ward)
+                updateDateInput(session, "patient_info-birthdate", value = as.Date(data_file$birthdate))
+                updateSelectInput(session, "patient_info-sex", selected = data_file$sex)
+                updateSelectInput(session, "patient_info-drug", selected = data_file$drug_name)
+                updateSelectizeInput(session, "patient_info-hospital",
+                  selected = data_file$hospital,
+                  choices = c("HCL", "CHU", data_file$hospital)
+                )
 
-              # Trigger module data loading by setting the reactive
-              loaded_file_data(data_file)
+                # Show success notification and hide spinner
+                showNotification(
+                  paste(
+                    i18n$translate("File loaded successfully"),
+                    "Weight:", nrow(data_file$weight_df), "entries,",
+                    "Dosing:", nrow(data_file$dose_df), "entries,",
+                    "TDM:", nrow(data_file$level_df), "values"
+                  ),
+                  type = "message",
+                  duration = 5
+                )
+                  shinyjs::hide(session$ns("progress_wrapper"))
+              }
 
-              # Show success notifications
-              showNotification(
-                paste(
-                  i18n$translate("File loaded successfully"),
-                  "Weight:", nrow(data_file$weight_df), "entries,",
-                  "Dosing:", nrow(data_file$dose_df), "entries,",
-                  "TDM:", nrow(data_file$level_df), "values"
-                ),
-                type = "message",
-                duration = 5
-              )
-            }
-          },
-          error = function(e) {
-            showNotification(
-              paste(i18n$translate("Error loading file"), e$message),
-              type = "error",
-              duration = 10
-            )
-          }
-        )
+            
+              }) |> promises::catch(function(e) {
+                showNotification(
+                  paste(i18n$translate("Error loading file"), e$message),
+                  type = "error",
+                  duration = 10
+                )
+              })
       } else {
         showNotification(
           i18n$translate("Unsupported file format. Please select a .mb2 or .json file."),
