@@ -1,6 +1,4 @@
-## General Information
-
-This application is a replacement for the PastRx software. <br>
+This application is a replacement for the PastRx(R) software. <br>
 It provides an interactive web-based interface that offers additional functionalities.
 
 
@@ -12,6 +10,7 @@ While the `.mb2` file remains like the original PastRx file, the `.json` file co
 
 Further information are available in the documentation section of the application.
 
+> **Note:** The application don't record data. The file and any information provided is stored locally on your computer only when you save the patient data. 
 
 
 

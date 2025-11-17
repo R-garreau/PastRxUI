@@ -100,6 +100,8 @@
     { "en": "Some concentrations have identical sampling time. This may cause a crash when using BestDose. Please fix it", "fr": "Certaines concentrations ont des heures de prélèvement identiques. Cela peut causer un plantage avec BestDose. Veuillez corriger"},
     { "en": "Route", "fr": "Voie" },
     { "en": "Infusion Rate", "fr": "Vitesse de perfusion" },
+    { "en": "You edited the Infusion rate manually. This may make Dose / Infusion Duration inconsistent — we recommend changing Dose or Infusion Duration instead so the application can recalculate the infusion rate.", "fr": "Vous avez modifié manuellement la vitesse de perfusion. Cela peut rendre la dose ou la durée de perfusion incohérentes — nous vous recommandons de modifier la Dose ou la Durée afin que l'application puisse recalculer la vitesse." },
+    { "en": "Infusion rate has been recalculated from Dose and Infusion Duration.", "fr": "La vitesse de perfusion a été recalculée à partir de la Dose et de la Durée de perfusion." },
     { "en": "Infusion Duration", "fr": "Durée de perfusion" },
     { "en": "Creatinine Clearance", "fr": "Clairance de la créatinine" },
     { "en": "Creatinine Unit", "fr": "Unité de créatinine" },
@@ -114,6 +116,7 @@
     { "en": "Lean Weight", "fr": "Masse maigre" },
     { "en": "Adjusted Weight", "fr": "Poids ajusté" },
     { "en": "Options", "fr": "Options" },
-    { "en": "Documentation", "fr": "Documentation" }
+    { "en": "Documentation", "fr": "Documentation" },
+    { "en": "General Informations", "fr": "Informations générales" }
   ]
 }
