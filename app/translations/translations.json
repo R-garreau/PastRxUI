@@ -110,6 +110,8 @@
     { "en": "Lean Weight", "fr": "Masse maigre" },
     { "en": "Adjusted Weight", "fr": "Poids ajusté" },
     { "en": "Options", "fr": "Options" },
-    { "en": "Documentation", "fr": "Documentation" }
+    { "en": "Documentation", "fr": "Documentation" },
+    { "en": "General Informations", "fr": "Informations générales" },
+    { "en": "New Patient", "fr": "Nouveau patient" }
   ]
 }
