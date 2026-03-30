@@ -2,7 +2,7 @@ box::use(
   bs4Dash[actionButton, box],
   dplyr[arrange, bind_rows, case_when],
   DT[datatable, dataTableOutput, renderDataTable],
-  shiny[br, column, conditionalPanel, dateInput, div, fluidRow, hr, icon, moduleServer, NS, numericInput, observe, observeEvent, reactive, reactiveValues, req, selectInput, showNotification, tabPanel, tagList, uiOutput, updateSelectInput],
+  shiny[br, column, conditionalPanel, dateInput, div, fluidRow, hr, icon, moduleServer, NS, numericInput, observe, observeEvent, reactive, reactiveValues, renderText, req, selectInput, showNotification, tabPanel, tagList, tags, textOutput, uiOutput, updateSelectInput],
   shinyTime[timeInput],
   shinyWidgets[dropdownButton, prettyCheckbox],
   stats[setNames],
@@ -63,11 +63,37 @@ ui <- function(id, i18n) {
                 ))
               ),
               conditionalPanel(
-                condition = "input.eGFR == 'UVP' ",
+                condition = sprintf("input['%s'] == 'UVP'", ns("eGFR")),
                 fluidRow(
                   column(width = 6, numericInput(ns("urine_creatinine"), i18n$translate("Urinary Creatinine"), value = 0)),
                   column(width = 6, numericInput(ns("urine_output"), i18n$translate("Urinary Output"), value = 0))
                 )
+              )
+            ),
+            column(
+              width = 4,
+              # options
+              tags$div(
+                style = "margin-top: 10px; text-align: center;",
+                dropdownButton(
+                  label = i18n$translate("Options"),
+                  status = "info",
+                  size = "sm",
+                  circle = FALSE,
+                  icon = icon("gear"),
+                  width = "300px",
+                  column(
+                    width = 12,
+                    prettyCheckbox(inputId = ns("african"), label = "Africain", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
+                    prettyCheckbox(inputId = ns("mg_dl_unit"), label = "creat (mg/dL)", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
+                    prettyCheckbox(inputId = ns("weight_lbs_unit"), label = "Poids (lbs)", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
+                    prettyCheckbox(inputId = ns("denorm_ccr"), label = "CRCL denorm", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly")
+                  )
+                ) 
+              ),
+              tags$div(
+                style = "margin-top: 10px; text-align: center;",
+                textOutput(ns("estimated_renal_function"))
               )
             )
           )
@@ -141,47 +167,7 @@ ui <- function(id, i18n) {
           solidHeader = TRUE,
           fluidRow(
             column(width = 4, dateInput(ns("date"), label = i18n$translate("Next Dose Date"), format = "yyyy-mm-dd", value = Sys.Date(), language = i18n$get_key_translation())),
-            column(width = 4, timeInput(ns("time"), label = i18n$translate("Next Dose Time"), seconds = FALSE, value = Sys.time())),
-            column(
-              width = 3,
-              offset = 1,
-              dropdownButton(
-                label = i18n$translate("Renal Calculator"),
-                status = "info",
-                size = "sm",
-                circle = FALSE,
-                icon = icon("calculator"),
-                width = "300px",
-                fluidRow(
-                  column(
-                    width = 8,
-                    numericInput(ns("weight_calculator"), i18n$translate("Weight for Renal Calc."), value = 70),
-                    numericInput(ns("creatinine_calculator"), i18n$translate("Creatinine for Renal Calc."), value = 60)
-                  ),
-                  column(
-                    width = 4,
-                    uiOutput(ns("renal_calc_output"))
-                  )
-                )
-              ),
-
-              # options
-              dropdownButton(
-                label = i18n$translate("Options"),
-                status = "info",
-                size = "sm",
-                circle = FALSE,
-                icon = icon("gear"),
-                width = "300px",
-                column(
-                  width = 12,
-                  prettyCheckbox(inputId = ns("african"), label = "Africain", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
-                  prettyCheckbox(inputId = ns("mg_dl_unit"), label = "creat (mg/dL)", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
-                  prettyCheckbox(inputId = ns("weight_lbs_unit"), label = "Poids (lbs)", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly"),
-                  prettyCheckbox(inputId = ns("denorm_ccr"), label = "CRCL denorm", value = FALSE, status = "success", fill = FALSE, outline = TRUE, shape = "curve", animation = "jelly")
-                )
-              )
-            )
+            column(width = 4, timeInput(ns("time"), label = i18n$translate("Next Dose Time"), seconds = FALSE, value = Sys.time()))
           )
         )
       ),
@@ -221,8 +207,10 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
       }
     }, ignoreNULL = FALSE)
 
+    # ===========================================____
+    # Reactive values to store patient information __
+    # ===========================================____
 
-    # Reactive values to store patient information _________________________________________
     patient_info <- reactiveValues(
       dosing_history = data.frame(
         Admin_date = character(),
@@ -245,7 +233,9 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
       )
     )
 
+    # ===========================================____
     # Load data when loaded_data changes
+    # ===========================================____
     observeEvent(loaded_data(), {
       req(loaded_data())
       data <- loaded_data()
@@ -259,8 +249,10 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
       }
     })
 
+    # ===========================================____
+    # Weight history when click on "Add Weight" _____
+    # ===========================================____
 
-    # Weight history when click on "Add Weight" _______________________________________________
     observeEvent(input$add_weight, {
       req(patient_data)
       p_data <- patient_data()
@@ -291,8 +283,10 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
       validate_unique_times(patient_info$weight_history$Weight_date, "weight")
     })
 
+    # ===========================================____
+    ## Dosing history when click on "Add Dosing" ____
+    # ===========================================____
 
-    ## Dosing history when click on "Add Dosing" _______________________________________________
     observeEvent(input$make_dosing_history, {
       req(patient_data)
       p_data <- patient_data()
@@ -321,6 +315,10 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
         urine_creat = input$urine_creatinine,
         urine_output = input$urine_output
       )
+      
+      # denormalize CCR if option selected for display and dosing calculations
+      renal_clearance <- ifelse(input$denorm_ccr, renal_clearance * weight_metric$bsa/1.73, renal_clearance)
+      renal_clearance <- round(renal_clearance, 1)
 
       # Step 3 : Caclulation infusion parameters if CI
 
@@ -393,8 +391,10 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
       patient_info$dosing_history <- arrange(patient_info$dosing_history, Admin_date)
     })
 
+    # ===========================================================____
+    # Automatic update of dosing_history and weight_history tables __
+    # ===========================================================____
 
-    # Automatic update of dosing_history and weight_history tables _________________________________
     # Observer to sync manual edits from dosing_history table
     observeEvent(input$dosing_history_cell_edit, {
       info <- input$dosing_history_cell_edit
@@ -440,7 +440,9 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
       }
     })
 
+    # ===========================================____
     # Observer to delete dosing_history rows
+    # ===========================================____
     observeEvent(input$delete_dosing_row, {
       row_to_delete <- input$delete_dosing_row
       if (!is.null(row_to_delete) && row_to_delete > 0 && row_to_delete <= nrow(patient_info$dosing_history)) {
@@ -448,7 +450,10 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
       }
     })
 
-    # Observer to sync manual edits from weight_history table
+    # ===========================================____
+    # Observer to sync manual edits from weight_history table ====
+    # ===========================================____
+
     observeEvent(input$weight_history_cell_edit, {
       info <- input$weight_history_cell_edit
       if (!is.null(info)) {
@@ -467,7 +472,10 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
       }
     })
 
-    # Observer to delete weight_history rows
+    # ===========================================____
+    # Observer to delete weight_history rows ====
+    # ===========================================____
+
     observeEvent(input$delete_weight_row, {
       row_to_delete <- input$delete_weight_row
       if (!is.null(row_to_delete) && row_to_delete > 0 && row_to_delete <= nrow(patient_info$weight_history)) {
@@ -475,8 +483,9 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
       }
     })
 
-
-    # Render updated dosing history table ___________________________________________________
+    # ===========================================____
+    # Render updated dosing history table ====
+    # ===========================================____
     output$dosing_history <- renderDataTable({
       if (nrow(patient_info$dosing_history) > 0) {
         data_with_delete <- patient_info$dosing_history
@@ -581,7 +590,52 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
       }
     })
 
-    # Return reactive containing all administration data needed by main module ________________________
+    # ===========================================____
+    # automatic display of renal function estimation ====
+    # ===========================================____
+
+    output$estimated_renal_function <- renderText({
+      req(patient_data)
+      p_data <- patient_data()
+
+      weight_metric <- weight_formula(
+        input$weight,
+        input$height,
+        p_data$sex,
+        weight_unit = ifelse(input$weight_lbs_unit, "lbs", "kg"),
+        weight_formula = input$weight_formula_selection,
+        bsa_formula = "dubois",
+        capped = FALSE
+      )
+
+      renal_clearance <- renal_function(
+        sex = p_data$sex,
+        age = calc_age(p_data$birthdate),
+        weight = weight_metric$weight,
+        height = input$height,
+        creat = input$creatinine,
+        ethnicity = ifelse(input$african, "African", "Other"),
+        formula = input$eGFR,
+        creat_unit = ifelse(input$mg_dl_unit, "mg/dL", "uM/L"),
+        urine_creat = input$urine_creatinine,
+        urine_output = input$urine_output
+      )
+      
+      # update for denormalized CCR display if option selected
+      denormalized_ccr <- ifelse(input$denorm_ccr, renal_clearance * weight_metric$bsa/1.73, renal_clearance)
+
+      if (input$eGFR != "none") {
+        denorm_text <- ifelse(input$denorm_ccr, "mL/min", "mL/min/1.73m²")
+        paste0(i18n$translate("Estimated Renal Function: "), round(denormalized_ccr, 2), " ", ifelse(input$eGFR == "CG" || input$eGFR == "UVP", "mL/min", denorm_text))
+      } else {
+        i18n$translate("Estimated Renal Function: N/A")
+      }
+    })
+
+
+    # =========================================================================___
+    # Return reactive containing all administration data needed by main module ___
+    # ========================================================================____
     return(reactive({
       list(
         dosing_history = patient_info$dosing_history,
