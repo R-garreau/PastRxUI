@@ -452,7 +452,16 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
     observeEvent(input$weight_history_cell_edit, {
       info <- input$weight_history_cell_edit
       if (!is.null(info)) {
-        patient_info$weight_history[info$row, info$col] <- info$value
+        # JS/DT uses 0-based column indexing while R is 1-based -> adjust
+        col <- info$col + 1
+        col_name <- names(patient_info$weight_history)[col]
+        # Cast numeric columns when appropriate
+        if (col_name %in% c("Weight_value", "tbw", "bsa")) {
+          patient_info$weight_history[info$row, col] <- as.numeric(info$value)
+        } else {
+          patient_info$weight_history[info$row, col] <- info$value
+        }
+
         # Sort by date/time
         patient_info$weight_history <- arrange(patient_info$weight_history, Weight_date)
       }
