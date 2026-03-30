@@ -117,6 +117,7 @@
     { "en": "Adjusted Weight", "fr": "Poids ajusté" },
     { "en": "Options", "fr": "Options" },
     { "en": "Documentation", "fr": "Documentation" },
-    { "en": "General Informations", "fr": "Informations générales" }
+    { "en": "General Informations", "fr": "Informations générales" },
+    { "en": "Estimated Renal Function: ", "fr": "Fonction rénale estimée: " }
   ]
 }

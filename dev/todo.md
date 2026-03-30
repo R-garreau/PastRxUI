@@ -5,9 +5,10 @@
 - [x] Remove Phone Number in patient information
 
 ## renal function
-- [w] renal calculator shoulb be an option in the lab values
+- [x] renal calculator shoulb be an option in the lab values
 - [x] renal function is not calculated when adding a new row
 - [x] improve the ergonomics of adding dosing or weight
+- [ ] renal calculator not fully functionnal yet (need to check the logic)
 
 ## administration tab
 - [x] mutliple dose is not working properly
@@ -72,3 +73,6 @@
   - [x] change Add logo in header. Change color to match bestDose theme
   - [x] invert loading/saving file position with settings in the header
   - [x] Add a reset button to reset all inputs to default values (new patient + warning if unsaved data)
+
+## asynchronous programming for the huggingface deployment
+- [ ] make the app fully asynchronous by using future/promises to avoid blocking the UI when performing long computations (writing/reading file, updating tables etc.)
