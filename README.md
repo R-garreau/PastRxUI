@@ -1,5 +1,6 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/r-garreau/pastrxui/badge)](https://www.codefactor.io/repository/github/r-garreau/pastrxui)
-# PastRxUI
+
+# PastRxUI (v1.0.0)
 
 This application is a user interface to create mb2 files for BestDose (legacy)  
 for more information on BestDose software see the user manual on the [Laboratory of Applied Pharmacokinetics and Bioinformatics](https://www.lapk.org/bestdose.php)  
