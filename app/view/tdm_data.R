@@ -70,8 +70,15 @@ server <- function(id, i18n = NULL, loaded_data = NULL) {
     observeEvent(input$tdm_history_cell_edit, {
       info <- input$tdm_history_cell_edit
       if (!is.null(info)) {
+        # JS/DT uses 0-based column indexing while R is 1-based -> adjust
         current_data <- tdm_reactive()
-        current_data[info$row, info$col] <- info$value
+        col <- info$col + 1
+        col_name <- names(current_data)[col]
+        if (col_name == "concentration") {
+          current_data[info$row, col] <- as.numeric(info$value)
+        } else {
+          current_data[info$row, col] <- info$value
+        }
         tdm_reactive(current_data)
       }
     })
