@@ -487,9 +487,9 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
             i18n$translate("Infusion Duration"),
             i18n$translate("Dose"),
             i18n$translate("Creatinine Clearance"),
-            i18n$translate("Renal Formula"),
             i18n$translate("Creatinine"),
             i18n$translate("Creatinine Unit"),
+            i18n$translate("Renal Formula"),
             i18n$translate("Delete")
           ),
           rownames = FALSE,
@@ -513,9 +513,9 @@ server <- function(id, i18n = NULL, patient_data = NULL, loaded_data = NULL, hel
             i18n$translate("Infusion Duration"),
             i18n$translate("Dose"),
             i18n$translate("Creatinine Clearance"),
-            i18n$translate("Renal Formula"),
             i18n$translate("Creatinine"),
             i18n$translate("Creatinine Unit"),
+            i18n$translate("Renal Formula"),
             i18n$translate("Delete")
           ),
           editable = TRUE,
